@@ -1,0 +1,138 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = []
+}
+
+datasource db {
+  provider  = "mysql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
+}
+
+model User {
+  id              Int              @id @default(autoincrement())
+  name            String
+  email           String           @unique
+  password        String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  resumes         Resume[]
+  jobApplications JobApplication[]
+
+  @@map("users")
+}
+
+model Resume {
+  id              Int              @id @default(autoincrement())
+  userId          Int
+  title           String
+  fileUrl         String?
+  fileType        String
+  rawText         String           @db.LongText
+  extractedSkills String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions        ResumeVersion[]
+  analyses        AiAnalysis[]
+  jobApplications JobApplication[]
+
+  @@map("resumes")
+}
+
+model ResumeVersion {
+  id         Int      @id @default(autoincrement())
+  resumeId   Int
+  versionTag String
+  rawText    String   @db.LongText
+  fileUrl    String?
+  scoreTotal Int?
+  createdAt  DateTime @default(now())
+  resume     Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@map("resume_versions")
+}
+
+model JobListing {
+  id              Int              @id @default(autoincrement())
+  externalId      String?          @unique
+  title           String
+  company         String
+  location        String?
+  salary          String?
+  description     String           @db.LongText
+  skills          String?          @db.Text
+  jobUrl          String
+  source          String
+  postedAt        DateTime?
+  createdAt       DateTime         @default(now())
+  jobApplications JobApplication[]
+
+  @@map("job_listings")
+}
+
+model JobApplication {
+  id           Int               @id @default(autoincrement())
+  userId       Int
+  resumeId     Int
+  jobListingId Int?
+  companyName  String
+  jobTitle     String
+  jobUrl       String?
+  status       ApplicationStatus @default(APPLIED)
+  matchScore   Int?
+  notes        String?           @db.Text
+  appliedAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume       Resume            @relation(fields: [resumeId], references: [id])
+  jobListing   JobListing?       @relation(fields: [jobListingId], references: [id])
+
+  @@map("job_applications")
+}
+
+enum ApplicationStatus {
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+  SAVED
+}
+
+model AiAnalysis {
+  id                 Int          @id @default(autoincrement())
+  resumeId           Int
+  type               AnalysisType
+  scoreClarity       Int?
+  scoreImpact        Int?
+  scoreAts           Int?
+  scoreKeywords      Int?
+  scoreFormatting    Int?
+  scoreReadability   Int?
+  scoreTotal         Int?
+  keywordsFound      String?      @db.Text
+  keywordsMissing    String?      @db.Text
+  originalBullets    String?      @db.LongText
+  rewrittenBullets   String?      @db.LongText
+  coverLetter        String?      @db.LongText
+  jobMatchScore      Int?
+  jobMatchSummary    String?      @db.Text
+  missingSkills      String?      @db.Text
+  interviewQuestions String?      @db.LongText
+  rawResponse        String?      @db.LongText
+  aiModel            String?
+  createdAt          DateTime     @default(now())
+  resume             Resume       @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@map("ai_analyses")
+}
+
+enum AnalysisType {
+  SCORE
+  KEYWORD_GAP
+  BULLET_REWRITE
+  COVER_LETTER
+  JOB_MATCH
+  SKILL_GAP
+  INTERVIEW_QUESTIONS
+}
