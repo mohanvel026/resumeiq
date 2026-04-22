@@ -5,12 +5,24 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import UploadResume from './pages/UploadResume'
+import MyResumes from './pages/MyResumes'
+import ResumeDetail from './pages/ResumeDetail'
+import JobListings from './pages/JobListings'
+import Tracker from './pages/Tracker'
+import InterviewPrep from './pages/InterviewPrep'
+import MockInterview from './pages/MockInterview'
+import SkillGap from './pages/SkillGap'
+import LinkedInAnalyzer from './pages/LinkedInAnalyzer'
+import Analytics from './pages/Analytics'
+import Leaderboard from './pages/Leaderboard'
+import Profile from './pages/Profile'
+import Settings from './pages/Settings'
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth()
   if (loading) return (
     <div className="loading-screen">
-      <div className="spinner"></div>
+      <div className="spinner" />
       <p className="text-muted">Loading ResumeIQ...</p>
     </div>
   )
@@ -23,6 +35,8 @@ const PublicRoute = ({ children }) => {
   return user ? <Navigate to="/dashboard" replace /> : children
 }
 
+const P = (C) => <PrivateRoute><C /></PrivateRoute>
+
 export default function App() {
   return (
     <Routes>
@@ -31,6 +45,18 @@ export default function App() {
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/upload" element={<PrivateRoute><UploadResume /></PrivateRoute>} />
+      <Route path="/resumes" element={<PrivateRoute><MyResumes /></PrivateRoute>} />
+      <Route path="/resume/:id" element={<PrivateRoute><ResumeDetail /></PrivateRoute>} />
+      <Route path="/jobs" element={<PrivateRoute><JobListings /></PrivateRoute>} />
+      <Route path="/tracker" element={<PrivateRoute><Tracker /></PrivateRoute>} />
+      <Route path="/interview" element={<PrivateRoute><InterviewPrep /></PrivateRoute>} />
+      <Route path="/mock-interview" element={<PrivateRoute><MockInterview /></PrivateRoute>} />
+      <Route path="/skills" element={<PrivateRoute><SkillGap /></PrivateRoute>} />
+      <Route path="/linkedin" element={<PrivateRoute><LinkedInAnalyzer /></PrivateRoute>} />
+      <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+      <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
+      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
