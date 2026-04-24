@@ -1,26 +1,16 @@
 const prisma = require('../utils/prisma')
-const { GoogleGenerativeAI } = require('@google/generative-ai')
+const Groq = require('groq-sdk')
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
-const askGemini = async (prompt, retries = 3) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-      const result = await model.generateContent(prompt)
-      return result.response.text()
-    } catch (err) {
-      if (err.message?.includes('quota') || err.message?.includes('429') || err.status === 429) {
-        console.log(`Rate limited, waiting 20s... attempt ${i + 1}/${retries}`)
-        await sleep(20000)
-      } else {
-        throw err
-      }
-    }
-  }
-  throw new Error('Gemini quota exceeded. Please wait 1 minute and try again.')
+const askAI = async (prompt) => {
+  const completion = await client.chat.completions.create({
+    messages: [{ role: 'user', content: prompt }],
+    model: 'llama-3.3-70b-versatile',
+    temperature: 0.7,
+    max_tokens: 1024,
+  })
+  return completion.choices[0].message.content
 }
 
 const scoreResume = async (req, res) => {
@@ -36,19 +26,14 @@ const scoreResume = async (req, res) => {
 Resume:
 ${resume.rawText.slice(0, 3000)}
 
-Return ONLY this JSON, no explanation, no markdown:
-{
-  "scoreClarity": 75,
-  "scoreImpact": 68,
-  "scoreAts": 72,
-  "scoreKeywords": 65,
-  "scoreFormatting": 80,
-  "scoreReadability": 78
-}`
+Return ONLY this exact JSON, no explanation, no markdown backticks:
+{"scoreClarity": 75, "scoreImpact": 68, "scoreAts": 72, "scoreKeywords": 65, "scoreFormatting": 80, "scoreReadability": 78}`
 
-    const raw = await askGemini(prompt)
+    const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const scores = JSON.parse(clean)
+    const jsonMatch = clean.match(/\{[\s\S]*\}/)
+    const scores = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
+
     const scoreTotal = Math.round(
       (scores.scoreClarity + scores.scoreImpact + scores.scoreAts +
        scores.scoreKeywords + scores.scoreFormatting + scores.scoreReadability) / 6
@@ -65,7 +50,7 @@ Return ONLY this JSON, no explanation, no markdown:
         scoreFormatting: scores.scoreFormatting,
         scoreReadability: scores.scoreReadability,
         scoreTotal,
-        aiModel: 'gemini-1.5-flash',
+        aiModel: 'llama3-8b-8192',
         rawResponse: raw,
       }
     })
@@ -93,15 +78,13 @@ ${resume.rawText.slice(0, 2000)}
 Job Description:
 ${jobDescription.slice(0, 1500)}
 
-Return ONLY this JSON, no markdown:
-{
-  "keywordsFound": ["React", "Node.js", "JavaScript"],
-  "keywordsMissing": ["TypeScript", "Docker", "AWS"]
-}`
+Return ONLY this exact JSON, no explanation, no markdown:
+{"keywordsFound": ["React", "Node.js", "JavaScript"], "keywordsMissing": ["TypeScript", "Docker", "AWS"]}`
 
-    const raw = await askGemini(prompt)
+    const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const result = JSON.parse(clean)
+    const jsonMatch = clean.match(/\{[\s\S]*\}/)
+    const result = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
@@ -109,7 +92,7 @@ Return ONLY this JSON, no markdown:
         type: 'KEYWORD_GAP',
         keywordsFound: JSON.stringify(result.keywordsFound),
         keywordsMissing: JSON.stringify(result.keywordsMissing),
-        aiModel: 'gemini-1.5-flash',
+        aiModel: 'llama3-8b-8192',
       }
     })
 
@@ -133,16 +116,14 @@ const rewriteBullets = async (req, res) => {
 Resume:
 ${resume.rawText.slice(0, 2000)}
 
-Return ONLY this JSON, no markdown:
-{
-  "originalBullets": ["worked on web apps", "helped with database"],
-  "rewrittenBullets": ["Developed 5 full-stack web apps using React and Node.js, improving load time by 30%", "Optimized MySQL queries reducing response time by 40%"]
-}
+Return ONLY this exact JSON, no explanation, no markdown:
+{"originalBullets": ["worked on web apps", "helped with database"], "rewrittenBullets": ["Developed 5 full-stack web applications using React and Node.js, improving load time by 30%", "Optimized MySQL database queries reducing response time by 40%"]}
 Maximum 6 bullets.`
 
-    const raw = await askGemini(prompt)
+    const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const result = JSON.parse(clean)
+    const jsonMatch = clean.match(/\{[\s\S]*\}/)
+    const result = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
@@ -150,7 +131,7 @@ Maximum 6 bullets.`
         type: 'BULLET_REWRITE',
         originalBullets: JSON.stringify(result.originalBullets),
         rewrittenBullets: JSON.stringify(result.rewrittenBullets),
-        aiModel: 'gemini-1.5-flash',
+        aiModel: 'llama3-8b-8192',
       }
     })
 
@@ -177,16 +158,16 @@ ${resume.rawText.slice(0, 2000)}
 Job Description:
 ${jobDescription.slice(0, 1000)}
 
-Start with "Dear Hiring Manager," — no preamble, no markdown, just the letter.`
+Start directly with "Dear Hiring Manager," - no preamble, no markdown, just the letter text.`
 
-    const coverLetter = await askGemini(prompt)
+    const coverLetter = await askAI(prompt)
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
         resumeId,
         type: 'COVER_LETTER',
         coverLetter,
-        aiModel: 'gemini-1.5-flash',
+        aiModel: 'llama3-8b-8192',
       }
     })
 
@@ -214,15 +195,13 @@ ${resume.rawText.slice(0, 2000)}
 Job Description:
 ${jobDescription.slice(0, 1000)}
 
-Return ONLY this JSON, no markdown:
-{
-  "jobMatchScore": 75,
-  "jobMatchSummary": "Your resume matches well for React and Node.js but lacks TypeScript and AWS experience."
-}`
+Return ONLY this exact JSON, no explanation, no markdown:
+{"jobMatchScore": 75, "jobMatchSummary": "Your resume matches well for React and Node.js but lacks TypeScript and AWS experience."}`
 
-    const raw = await askGemini(prompt)
+    const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const result = JSON.parse(clean)
+    const jsonMatch = clean.match(/\{[\s\S]*\}/)
+    const result = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
 
     res.json(result)
   } catch (error) {
@@ -248,26 +227,21 @@ ${resume.rawText.slice(0, 2000)}
 Job Description:
 ${jobDescription.slice(0, 1000)}
 
-Return ONLY a JSON array, no markdown:
-[
-  {
-    "skill": "TypeScript",
-    "description": "Required for type-safe development in this role",
-    "resource": "https://www.typescriptlang.org/docs/"
-  }
-]
+Return ONLY a JSON array, no explanation, no markdown:
+[{"skill": "TypeScript", "description": "Required for type-safe development", "resource": "https://www.typescriptlang.org/docs/"}]
 Maximum 6 items.`
 
-    const raw = await askGemini(prompt)
+    const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const skills = JSON.parse(clean)
+    const jsonMatch = clean.match(/\[[\s\S]*\]/)
+    const skills = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
         resumeId: resume.id,
         type: 'SKILL_GAP',
         missingSkills: JSON.stringify(skills),
-        aiModel: 'gemini-1.5-flash',
+        aiModel: 'llama3-8b-8192',
       }
     })
 
@@ -293,17 +267,13 @@ const generateInterviewQuestions = async (req, res) => {
 Resume:
 ${resumeText}
 
-Return ONLY a JSON array, no markdown:
-[
-  {
-    "question": "Tell me about your experience with React?",
-    "hint": "Describe a specific project using STAR format: Situation, Task, Action, Result"
-  }
-]`
+Return ONLY a JSON array, no explanation, no markdown:
+[{"question": "Tell me about your experience with React?", "hint": "Describe a specific project using STAR format: Situation, Task, Action, Result"}]`
 
-    const raw = await askGemini(prompt)
+    const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const questions = JSON.parse(clean)
+    const jsonMatch = clean.match(/\[[\s\S]*\]/)
+    const questions = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
 
     if (resume) {
       await prisma.aiAnalysis.create({
@@ -311,7 +281,7 @@ Return ONLY a JSON array, no markdown:
           resumeId: resume.id,
           type: 'INTERVIEW_QUESTIONS',
           interviewQuestions: JSON.stringify(questions),
-          aiModel: 'gemini-1.5-flash',
+          aiModel: 'llama3-8b-8192',
         }
       })
     }
@@ -331,9 +301,9 @@ const evaluateAnswer = async (req, res) => {
 Question: "${question}"
 Candidate answer: "${answer}"
 
-Give 2-3 sentences of constructive feedback. Be encouraging but honest. No markdown.`
+Give 2-3 sentences of constructive feedback. Be encouraging but honest. No markdown, plain text only.`
 
-    const feedback = await askGemini(prompt)
+    const feedback = await askAI(prompt)
     res.json({ feedback })
   } catch (error) {
     console.error('Evaluate error:', error.message)
@@ -351,21 +321,18 @@ const analyzeLinkedIn = async (req, res) => {
 
     const prompt = `A candidate's LinkedIn is: ${linkedinUrl}
 
-Based on this resume, suggest what inconsistencies might exist between LinkedIn and resume, and give improvement tips.
+Based on this resume, suggest what inconsistencies might exist and give improvement tips.
 
 Resume:
 ${resume.rawText.slice(0, 2000)}
 
-Return ONLY this JSON, no markdown:
-{
-  "consistent": ["Education background matches", "Work experience timeline aligns"],
-  "inconsistencies": ["Skills section may differ from resume", "Recent project may be missing on LinkedIn"],
-  "suggestions": "Update your LinkedIn headline to match your resume title. Add your latest projects to the Featured section."
-}`
+Return ONLY this exact JSON, no explanation, no markdown:
+{"consistent": ["Education background matches", "Work experience timeline aligns"], "inconsistencies": ["Skills section may differ", "Recent project missing on LinkedIn"], "suggestions": "Update your LinkedIn headline to match your resume title and add your latest projects to the Featured section."}`
 
-    const raw = await askGemini(prompt)
+    const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const result = JSON.parse(clean)
+    const jsonMatch = clean.match(/\{[\s\S]*\}/)
+    const result = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
 
     res.json(result)
   } catch (error) {

@@ -1,6 +1,6 @@
 const prisma = require('../utils/prisma')
-const parseFile = require('../utils/parseFile')
 const fs = require('fs')
+const path = require('path')
 
 const uploadResume = async (req, res) => {
   try {
@@ -13,12 +13,16 @@ const uploadResume = async (req, res) => {
     const originalName = req.file.originalname
     const fileType = originalName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'docx'
 
-    let rawText = 'Resume uploaded successfully'
+    console.log('Uploading file:', originalName, 'Type:', fileType, 'Path:', filePath)
+
+    let rawText = 'Resume uploaded'
     try {
+      const parseFile = require('../utils/parseFile')
       rawText = await parseFile(filePath, fileType)
+      console.log('Parsed text length:', rawText.length)
     } catch (parseErr) {
-      console.log('Parse warning (non-fatal):', parseErr.message)
-      rawText = 'Resume text extraction pending'
+      console.error('Parse error:', parseErr.message)
+      rawText = 'Resume uploaded - text will be extracted later'
     }
 
     const resume = await prisma.resume.create({
@@ -31,13 +35,18 @@ const uploadResume = async (req, res) => {
       },
     })
 
+    console.log('Resume saved to DB with id:', resume.id)
+
     res.status(201).json({
       message: 'Resume uploaded successfully',
       resume,
     })
   } catch (error) {
     console.error('Upload error:', error)
-    res.status(500).json({ message: 'Upload failed', error: error.message })
+    res.status(500).json({
+      message: 'Upload failed',
+      error: error.message
+    })
   }
 }
 
@@ -56,6 +65,7 @@ const getAllResumes = async (req, res) => {
     })
     res.json(resumes)
   } catch (error) {
+    console.error('Get resumes error:', error)
     res.status(500).json({ message: 'Failed to fetch resumes' })
   }
 }
@@ -68,9 +78,12 @@ const getResumeById = async (req, res) => {
         userId: req.user.id,
       },
     })
-    if (!resume) return res.status(404).json({ message: 'Resume not found' })
+    if (!resume) {
+      return res.status(404).json({ message: 'Resume not found' })
+    }
     res.json(resume)
   } catch (error) {
+    console.error('Get resume error:', error)
     res.status(500).json({ message: 'Failed to fetch resume' })
   }
 }
@@ -78,19 +91,28 @@ const getResumeById = async (req, res) => {
 const deleteResume = async (req, res) => {
   try {
     const resume = await prisma.resume.findFirst({
-      where: { id: parseInt(req.params.id), userId: req.user.id },
+      where: {
+        id: parseInt(req.params.id),
+        userId: req.user.id,
+      },
     })
-    if (!resume) return res.status(404).json({ message: 'Resume not found' })
-
+    if (!resume) {
+      return res.status(404).json({ message: 'Resume not found' })
+    }
     if (resume.fileUrl && fs.existsSync(resume.fileUrl)) {
       fs.unlinkSync(resume.fileUrl)
     }
-
     await prisma.resume.delete({ where: { id: resume.id } })
     res.json({ message: 'Resume deleted successfully' })
   } catch (error) {
+    console.error('Delete error:', error)
     res.status(500).json({ message: 'Failed to delete resume' })
   }
 }
 
-module.exports = { uploadResume, getAllResumes, getResumeById, deleteResume }
+module.exports = {
+  uploadResume,
+  getAllResumes,
+  getResumeById,
+  deleteResume
+}
