@@ -520,3 +520,33 @@ tbody tr:last-child td { border-bottom: none; }
   table { font-size: 0.8125rem; }
   thead th, tbody td { padding: 10px 12px; }
 }
+/* ── Extra Mobile Fixes ── */
+@media (max-width: 768px) {
+  .navbar-brand { font-size: 1.1rem; }
+  .page-title { font-size: 1.25rem; }
+  .page-subtitle { font-size: 0.875rem; }
+  .card { padding: 1rem; }
+  .btn { padding: 8px 14px; font-size: 0.875rem; }
+  .metric-card .metric-value { font-size: 1.5rem; }
+  .form-input, .form-textarea, .form-select { font-size: 16px; }
+  .kanban-board { grid-template-columns: 1fr; }
+  .auth-page { grid-template-columns: 1fr; min-height: 100vh; }
+  .auth-left { display: none; }
+  .auth-right { padding: 1.5rem 1rem; }
+  .features-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-title { font-size: 1.75rem; }
+  .hero-subtitle { font-size: 0.9375rem; }
+  table { font-size: 0.8125rem; }
+  thead th, tbody td { padding: 8px 10px; }
+}
+
+@media (max-width: 480px) {
+  .metric-grid { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .navbar { padding: 0 1rem; }
+  .main-content { padding: 0.75rem; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+}
