@@ -4,23 +4,23 @@ const path = require('path')
 const fs = require('fs')
 const authMiddleware = require('../middleware/authMiddleware')
 const {
-  uploadResume,
-  getAllResumes,
-  getResumeById,
-  deleteResume,
+  uploadResume, getAllResumes, getResumeById, deleteResume,
 } = require('../controllers/resumeController')
 
 const router = express.Router()
 
-// Make sure uploads folder exists
+// Always create uploads directory
 const uploadsDir = path.join(process.cwd(), 'uploads')
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true })
-  console.log('Created uploads directory')
+  console.log('Created uploads directory:', uploadsDir)
 }
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true })
+    }
     cb(null, uploadsDir)
   },
   filename: (req, file, cb) => {
@@ -30,30 +30,26 @@ const storage = multer.diskStorage({
 })
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
   const allowedExt = ['.pdf', '.docx']
   const ext = path.extname(file.originalname).toLowerCase()
-
-  if (allowedExt.includes(ext) || allowedTypes.includes(file.mimetype)) {
+  if (allowedExt.includes(ext)) {
     cb(null, true)
   } else {
-    cb(new Error('Only PDF and DOCX files are allowed'), false)
+    cb(new Error('Only PDF and DOCX files allowed'), false)
   }
 }
 
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+  limits: { fileSize: 10 * 1024 * 1024 }
 })
 
 router.post('/upload', authMiddleware, (req, res, next) => {
   upload.single('resume')(req, res, (err) => {
     if (err instanceof multer.MulterError) {
-      console.error('Multer error:', err)
       return res.status(400).json({ message: 'File upload error: ' + err.message })
     } else if (err) {
-      console.error('Upload middleware error:', err)
       return res.status(400).json({ message: err.message })
     }
     next()
