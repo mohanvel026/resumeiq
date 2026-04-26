@@ -31,6 +31,7 @@ const storage = multer.diskStorage({
     cb(null, uniqueName)
   },
 })
+
 const fileFilter = (req, file, cb) => {
   const allowedExt = ['.pdf', '.docx']
   const allowedMime = [
