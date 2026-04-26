@@ -65,9 +65,16 @@ export default function Leaderboard() {
         <h4 style={{ color: 'var(--gold-500)', marginBottom: '0.5rem' }}>Your Current Rank: #9</h4>
         <p style={{ color: 'var(--gray-400)', margin: '0 0 1rem', fontSize: '0.875rem' }}>Score 85+ to enter the top 5! Upload and analyze your resume to improve.</p>
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="/upload" className="btn btn-primary btn-sm">Improve My Score</a>
-          <button className="btn btn-ghost btn-sm" style={{ color: 'var(--gray-300)', borderColor: 'var(--navy-600)' }}>Opt Out</button>
-        </div>
+  <Link to="/upload" className="btn btn-primary btn-sm">
+    Improve My Score
+  </Link>
+  <button
+    className="btn btn-ghost btn-sm"
+    style={{ color: 'var(--gray-300)', borderColor: 'var(--navy-600)' }}
+  >
+    Opt Out
+  </button>
+</div>
       </div>
     </Layout>
   )

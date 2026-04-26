@@ -63,9 +63,26 @@ export default function JobListings() {
     finally { setMatchLoading(null) }
   }
 
-  const toggleSave = (id) => setSaved(prev =>
-    prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-  )
+  // Load saved jobs from localStorage
+const [savedJobs, setSavedJobs] = useState(() => {
+  try {
+    return JSON.parse(localStorage.getItem('savedJobs') || '[]')
+  } catch { return [] }
+})
+const [showSaved, setShowSaved] = useState(false)
+
+const toggleSave = (job) => {
+  setSavedJobs(prev => {
+    const exists = prev.find(j => j.id === job.id)
+    const updated = exists
+      ? prev.filter(j => j.id !== job.id)
+      : [...prev, job]
+    localStorage.setItem('savedJobs', JSON.stringify(updated))
+    return updated
+  })
+}
+
+const isSaved = (id) => savedJobs.some(j => j.id === id)
 
   return (
     <Layout>
@@ -191,6 +208,36 @@ export default function JobListings() {
           ))}
         </div>
       </div>
+      {/* Saved Jobs Toggle */}
+{savedJobs.length > 0 && (
+  <div style={{ marginBottom: '1rem' }}>
+    <button
+      className={`btn btn-sm ${showSaved ? 'btn-secondary' : 'btn-ghost'}`}
+      onClick={() => setShowSaved(!showSaved)}
+    >
+      ★ Saved Jobs ({savedJobs.length})
+    </button>
+  </div>
+)}
+
+{/* Saved Jobs Panel */}
+{showSaved && (
+  <div className="card" style={{ marginBottom: '1.5rem', borderTop: '3px solid var(--gold-500)' }}>
+    <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>★ Saved Jobs</h4>
+    {savedJobs.map(job => (
+      <div key={job.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--gray-100)' }}>
+        <div>
+          <div style={{ fontWeight: '600', color: 'var(--navy-800)', fontSize: '0.9rem' }}>{job.title}</div>
+          <div style={{ color: 'var(--gray-500)', fontSize: '0.8125rem' }}>{job.company} · {job.location}</div>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <a href={job.jobUrl} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">Apply →</a>
+          <button className="btn btn-ghost btn-sm" onClick={() => toggleSave(job)}>Remove</button>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
 
       {/* Empty state */}
       {!searched && (
@@ -283,11 +330,11 @@ export default function JobListings() {
                       {matchLoading === job.id ? '...' : '% Match'}
                     </button>
                     <button
-                      className={`btn btn-sm ${saved.includes(job.id) ? 'btn-secondary' : 'btn-ghost'}`}
-                      onClick={() => toggleSave(job.id)}
-                    >
-                      {saved.includes(job.id) ? '★ Saved' : '☆ Save'}
-                    </button>
+  className={`btn btn-sm ${isSaved(job.id) ? 'btn-secondary' : 'btn-ghost'}`}
+  onClick={() => toggleSave(job)}
+>
+  {isSaved(job.id) ? '★ Saved' : '☆ Save'}
+</button>
                   </div>
                 </div>
               </div>

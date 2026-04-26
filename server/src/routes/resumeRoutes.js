@@ -18,21 +18,29 @@ if (!fs.existsSync(uploadsDir)) {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    const uploadsDir = path.join(process.cwd(), 'uploads')
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true })
     }
     cb(null, uploadsDir)
   },
   filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`
+    // Remove special characters from filename
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '-')
+    const uniqueName = `${Date.now()}-${safeName}`
     cb(null, uniqueName)
   },
 })
-
 const fileFilter = (req, file, cb) => {
   const allowedExt = ['.pdf', '.docx']
+  const allowedMime = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/msword',
+  ]
   const ext = path.extname(file.originalname).toLowerCase()
-  if (allowedExt.includes(ext)) {
+
+  if (allowedExt.includes(ext) || allowedMime.includes(file.mimetype)) {
     cb(null, true)
   } else {
     cb(new Error('Only PDF and DOCX files allowed'), false)

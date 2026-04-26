@@ -8,6 +8,7 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -24,7 +25,6 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      {/* Left Panel */}
       <div className="auth-left">
         <div className="auth-left-content">
           <div className="auth-left-logo">Resume<span>IQ</span></div>
@@ -40,7 +40,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Panel */}
       <div className="auth-right">
         <div className="auth-form-box">
           <h2 className="auth-form-title">Sign in</h2>
@@ -51,13 +50,51 @@ export default function Login() {
           <form onSubmit={submit}>
             <div className="form-group">
               <label className="form-label">Email address</label>
-              <input name="email" type="email" className="form-input" placeholder="you@example.com" value={form.email} onChange={handle} required />
+              <input
+                name="email"
+                type="email"
+                className="form-input"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={handle}
+                required
+              />
             </div>
+
             <div className="form-group">
               <label className="form-label">Password</label>
-              <input name="password" type="password" className="form-input" placeholder="Your password" value={form.password} onChange={handle} required />
+              <div style={{ position: 'relative' }}>
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-input"
+                  placeholder="Your password"
+                  value={form.password}
+                  onChange={handle}
+                  required
+                  style={{ paddingRight: '44px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute', right: '12px', top: '50%',
+                    transform: 'translateY(-50%)', background: 'none',
+                    border: 'none', cursor: 'pointer', color: 'var(--gray-500)',
+                    fontSize: '1.1rem', padding: '4px'
+                  }}
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
             </div>
-            <button type="submit" className="btn btn-primary btn-full" style={{ marginTop: '0.5rem' }} disabled={loading}>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-full"
+              style={{ marginTop: '0.5rem' }}
+              disabled={loading}
+            >
               {loading ? 'Signing in...' : 'Sign In →'}
             </button>
           </form>
