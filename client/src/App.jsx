@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
@@ -20,29 +20,47 @@ import Settings from './pages/Settings'
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth()
+  const location = useLocation()
+
   if (loading) return (
     <div className="loading-screen">
       <div className="spinner" />
       <p className="text-muted">Loading ResumeIQ...</p>
     </div>
   )
-  return user ? children : <Navigate to="/login" replace />
+
+  if (!user) {
+    // Save the page they were trying to visit
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  return children
 }
 
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth()
-  if (loading) return null
-  return user ? <Navigate to="/dashboard" replace /> : children
-}
+  const location = useLocation()
 
-const P = (C) => <PrivateRoute><C /></PrivateRoute>
+  if (loading) return null
+
+  if (user) {
+    // Redirect to where they came from or dashboard
+    const from = location.state?.from?.pathname || '/dashboard'
+    return <Navigate to={from} replace />
+  }
+
+  return children
+}
 
 export default function App() {
   return (
     <Routes>
+      {/* Public routes */}
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+
+      {/* Protected routes */}
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/upload" element={<PrivateRoute><UploadResume /></PrivateRoute>} />
       <Route path="/resumes" element={<PrivateRoute><MyResumes /></PrivateRoute>} />
@@ -57,6 +75,8 @@ export default function App() {
       <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
       <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+
+      {/* Catch all - redirect to landing */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
