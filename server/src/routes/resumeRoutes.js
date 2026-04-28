@@ -1,17 +1,15 @@
 const express = require('express')
 const multer = require('multer')
 const path = require('path')
+const fs = require('fs')
 const authMiddleware = require('../middleware/authMiddleware')
 const {
-  uploadResume,
-  getAllResumes,
-  getResumeById,
-  deleteResume,
+  uploadResume, getAllResumes, getResumeById, deleteResume,
 } = require('../controllers/resumeController')
 
 const router = express.Router()
 
-// Store file in MEMORY instead of disk (works on Render/production)
+// Use memory storage instead of disk - works on all platforms
 const storage = multer.memoryStorage()
 
 const fileFilter = (req, file, cb) => {
@@ -22,27 +20,24 @@ const fileFilter = (req, file, cb) => {
     'application/msword',
   ]
   const ext = path.extname(file.originalname).toLowerCase()
-
   if (allowedExt.includes(ext) || allowedMime.includes(file.mimetype)) {
     cb(null, true)
   } else {
-    cb(new Error('Only PDF and DOCX files are allowed'), false)
+    cb(new Error('Only PDF and DOCX files allowed'), false)
   }
 }
 
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+  limits: { fileSize: 10 * 1024 * 1024 }
 })
 
 router.post('/upload', authMiddleware, (req, res, next) => {
   upload.single('resume')(req, res, (err) => {
     if (err instanceof multer.MulterError) {
-      console.error('Multer error:', err)
       return res.status(400).json({ message: 'File upload error: ' + err.message })
     } else if (err) {
-      console.error('Upload middleware error:', err)
       return res.status(400).json({ message: err.message })
     }
     next()

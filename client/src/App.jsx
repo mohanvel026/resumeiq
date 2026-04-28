@@ -25,13 +25,12 @@ const PrivateRoute = ({ children }) => {
   if (loading) return (
     <div className="loading-screen">
       <div className="spinner" />
-      <p className="text-muted">Loading ResumeIQ...</p>
+      <p className="text-muted">Loading...</p>
     </div>
   )
 
   if (!user) {
-    // Save the page they were trying to visit
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />
   }
 
   return children
@@ -39,16 +38,9 @@ const PrivateRoute = ({ children }) => {
 
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth()
-  const location = useLocation()
 
   if (loading) return null
-
-  if (user) {
-    // Redirect to where they came from or dashboard
-    const from = location.state?.from?.pathname || '/dashboard'
-    return <Navigate to={from} replace />
-  }
-
+  if (user) return <Navigate to="/dashboard" replace />
   return children
 }
 

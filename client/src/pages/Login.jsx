@@ -9,19 +9,20 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-
+  const location = useLocation()
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const submit = async (e) => {
-    e.preventDefault()
-    setLoading(true); setError('')
-    try {
-      await login(form.email, form.password)
-      navigate('/dashboard')
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Check your credentials.')
-    } finally { setLoading(false) }
-  }
+  e.preventDefault()
+  setLoading(true); setError('')
+  try {
+    await login(form.email, form.password)
+    const from = location.state?.from || '/dashboard'
+    navigate(from, { replace: true })
+  } catch (err) {
+    setError(err.response?.data?.message || 'Login failed.')
+  } finally { setLoading(false) }
+}
 
   return (
     <div className="auth-page">
