@@ -1,6 +1,5 @@
 const prisma = require('../utils/prisma')
-const fs = require('fs')
-const path = require('path')
+const parseFile = require('../utils/parseFile')
 
 const uploadResume = async (req, res) => {
   try {
@@ -9,16 +8,15 @@ const uploadResume = async (req, res) => {
     }
 
     const { title } = req.body
-    const filePath = req.file.path
     const originalName = req.file.originalname
     const fileType = originalName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'docx'
+    const buffer = req.file.buffer
 
-    console.log('Uploading:', originalName, 'Type:', fileType)
+    console.log('Uploading:', originalName, 'Type:', fileType, 'Size:', buffer.length)
 
     let rawText = 'Resume uploaded'
     try {
-      const parseFile = require('../utils/parseFile')
-      rawText = await parseFile(filePath, fileType)
+      rawText = await parseFile(buffer, fileType)
       console.log('Parsed text length:', rawText.length)
     } catch (parseErr) {
       console.error('Parse error:', parseErr.message)
@@ -29,17 +27,23 @@ const uploadResume = async (req, res) => {
       data: {
         userId: req.user.id,
         title: title || originalName.replace(/\.[^/.]+$/, ''),
-        fileUrl: filePath,
+        fileUrl: `memory://${originalName}`,
         fileType,
         rawText,
       },
     })
 
     console.log('Resume saved with id:', resume.id)
-    res.status(201).json({ message: 'Resume uploaded successfully', resume })
+    res.status(201).json({
+      message: 'Resume uploaded successfully',
+      resume,
+    })
   } catch (error) {
     console.error('Upload error:', error)
-    res.status(500).json({ message: 'Upload failed', error: error.message })
+    res.status(500).json({
+      message: 'Upload failed',
+      error: error.message
+    })
   }
 }
 
@@ -54,7 +58,6 @@ const getAllResumes = async (req, res) => {
         fileType: true,
         createdAt: true,
         updatedAt: true,
-        rawText: true,
       },
     })
     res.json(resumes)
@@ -72,9 +75,12 @@ const getResumeById = async (req, res) => {
         userId: req.user.id,
       },
     })
-    if (!resume) return res.status(404).json({ message: 'Resume not found' })
+    if (!resume) {
+      return res.status(404).json({ message: 'Resume not found' })
+    }
     res.json(resume)
   } catch (error) {
+    console.error('Get resume error:', error)
     res.status(500).json({ message: 'Failed to fetch resume' })
   }
 }
@@ -82,19 +88,26 @@ const getResumeById = async (req, res) => {
 const deleteResume = async (req, res) => {
   try {
     const resume = await prisma.resume.findFirst({
-      where: { id: parseInt(req.params.id), userId: req.user.id },
+      where: {
+        id: parseInt(req.params.id),
+        userId: req.user.id,
+      },
     })
-    if (!resume) return res.status(404).json({ message: 'Resume not found' })
-
-    if (resume.fileUrl && fs.existsSync(resume.fileUrl)) {
-      fs.unlinkSync(resume.fileUrl)
+    if (!resume) {
+      return res.status(404).json({ message: 'Resume not found' })
     }
 
     await prisma.resume.delete({ where: { id: resume.id } })
     res.json({ message: 'Resume deleted successfully' })
   } catch (error) {
+    console.error('Delete error:', error)
     res.status(500).json({ message: 'Failed to delete resume' })
   }
 }
 
-module.exports = { uploadResume, getAllResumes, getResumeById, deleteResume }
+module.exports = {
+  uploadResume,
+  getAllResumes,
+  getResumeById,
+  deleteResume
+}
