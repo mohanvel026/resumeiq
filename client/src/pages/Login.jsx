@@ -1,28 +1,32 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const location = useLocation()
+
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const submit = async (e) => {
-  e.preventDefault()
-  setLoading(true); setError('')
-  try {
-    await login(form.email, form.password)
-    const from = location.state?.from || '/dashboard'
-    navigate(from, { replace: true })
-  } catch (err) {
-    setError(err.response?.data?.message || 'Login failed.')
-  } finally { setLoading(false) }
-}
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      await login(form.email, form.password)
+      const from = location.state?.from || '/dashboard'
+      navigate(from, { replace: true })
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed. Check your credentials.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="auth-page">
@@ -59,6 +63,7 @@ export default function Login() {
                 value={form.email}
                 onChange={handle}
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -73,6 +78,7 @@ export default function Login() {
                   value={form.password}
                   onChange={handle}
                   required
+                  autoComplete="current-password"
                   style={{ paddingRight: '44px' }}
                 />
                 <button
@@ -82,7 +88,7 @@ export default function Login() {
                     position: 'absolute', right: '12px', top: '50%',
                     transform: 'translateY(-50%)', background: 'none',
                     border: 'none', cursor: 'pointer', color: 'var(--gray-500)',
-                    fontSize: '1.1rem', padding: '4px'
+                    fontSize: '1.1rem', padding: '4px', lineHeight: 1
                   }}
                 >
                   {showPassword ? '🙈' : '👁️'}

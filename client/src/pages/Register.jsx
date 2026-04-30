@@ -17,13 +17,16 @@ export default function Register() {
     e.preventDefault()
     if (form.password !== form.confirm) return setError('Passwords do not match')
     if (form.password.length < 6) return setError('Password must be at least 6 characters')
-    setLoading(true); setError('')
+    setLoading(true)
+    setError('')
     try {
       await register(form.name, form.email, form.password)
-      navigate('/dashboard')
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Try again.')
-    } finally { setLoading(false) }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -34,7 +37,7 @@ export default function Register() {
           <h2 className="auth-left-title">Start your journey to getting hired faster</h2>
           <p className="auth-left-sub">Join professionals who transformed their careers with ResumeIQ.</p>
           <div className="auth-feature-list">
-            {['Free AI Resume Analysis', 'Real Job Listings Match', 'Cover Letter Generator', 'Interview Question Predictor', 'Application Kanban Tracker'].map(f => (
+            {['Free AI Resume Analysis', 'Real Job Listings', 'Cover Letter Generator', 'Interview Prep', 'Application Tracker'].map(f => (
               <div key={f} className="auth-feature-item">
                 <span className="auth-feature-check">✓</span> {f}
               </div>
@@ -61,6 +64,7 @@ export default function Register() {
                 value={form.name}
                 onChange={handle}
                 required
+                autoComplete="name"
               />
             </div>
 
@@ -74,6 +78,7 @@ export default function Register() {
                 value={form.email}
                 onChange={handle}
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -88,10 +93,11 @@ export default function Register() {
                   value={form.password}
                   onChange={handle}
                   required
+                  autoComplete="new-password"
                   style={{ paddingRight: '44px' }}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-500)', fontSize: '1.1rem', padding: '4px' }}>
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-500)', fontSize: '1.1rem', padding: '4px', lineHeight: 1 }}>
                   {showPassword ? '🙈' : '👁️'}
                 </button>
               </div>
@@ -108,10 +114,11 @@ export default function Register() {
                   value={form.confirm}
                   onChange={handle}
                   required
+                  autoComplete="new-password"
                   style={{ paddingRight: '44px' }}
                 />
                 <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-500)', fontSize: '1.1rem', padding: '4px' }}>
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-500)', fontSize: '1.1rem', padding: '4px', lineHeight: 1 }}>
                   {showConfirm ? '🙈' : '👁️'}
                 </button>
               </div>
