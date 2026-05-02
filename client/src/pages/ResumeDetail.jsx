@@ -60,33 +60,59 @@ export default function ResumeDetail() {
       {msg && <div className="alert alert-danger">{msg}</div>}
 
       {/* Score Tab */}
-      {tab === 'score' && (
-        <div>
-          <button className="btn btn-primary" onClick={() => analyze('score')} disabled={loading} style={{ marginBottom: '1.5rem' }}>
-            {loading ? 'Analyzing...' : '⚡ Analyze Resume'}
-          </button>
-          {analysis && analysis.improvements && (
-  <div className="card" style={{ marginTop: '1.5rem', borderLeft: '3px solid var(--gold-500)' }}>
-    <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>
-      💡 AI Improvement Suggestions
-    </h4>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      {analysis.improvements.map((tip, i) => (
-        <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-          <span style={{
-            background: 'var(--navy-900)', color: 'var(--gold-500)',
-            width: '24px', height: '24px', borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '0.75rem', fontWeight: '700', flexShrink: 0
-          }}>{i + 1}</span>
-          <p style={{ color: 'var(--gray-700)', margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>{tip}</p>
+{tab === 'score' && (
+  <div>
+    <button className="btn btn-primary" onClick={() => analyze('score')} disabled={loading} style={{ marginBottom: '1.5rem' }}>
+      {loading ? 'Analyzing...' : '⚡ Analyze Resume'}
+    </button>
+
+    {analysis && (
+      <>
+        {/* Metric Cards Grid */}
+        <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+          {DIMS.map(dim => (
+            <div key={dim} className="card" style={{ textAlign: 'center', borderTop: `4px solid ${analysis[dim] > 70 ? 'var(--success)' : 'var(--gold-500)'}` }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--gray-500)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                {DIM_LABELS[dim]}
+              </p>
+              <h2 style={{ fontSize: '2.5rem', margin: '0.5rem 0', color: 'var(--navy-900)' }}>
+                {analysis[dim] || 0}<span style={{ fontSize: '1rem' }}>%</span>
+              </h2>
+              <div style={{ width: '100%', height: '8px', background: 'var(--gray-200)', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ 
+                  width: `${analysis[dim]}%`, 
+                  height: '100%', 
+                  background: analysis[dim] > 70 ? 'var(--success)' : analysis[dim] > 40 ? 'var(--gold-500)' : 'var(--danger)',
+                  transition: 'width 1s ease-out'
+                }} />
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+
+        {/* Improvements Section */}
+        {analysis.improvements && (
+          <div className="card" style={{ borderLeft: '4px solid var(--gold-500)' }}>
+            <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>💡 AI Improvement Suggestions</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {analysis.improvements.map((tip, i) => (
+                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                  <span style={{
+                    background: 'var(--navy-900)', color: 'var(--gold-500)',
+                    width: '24px', height: '24px', borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.8rem', fontWeight: 'bold', flexShrink: 0
+                  }}>{i + 1}</span>
+                  <p style={{ color: 'var(--gray-700)', margin: 0, fontSize: '0.95rem' }}>{tip}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </>
+    )}
   </div>
 )}
-        </div>
-      )}
 
       {/* Keywords Tab */}
       {tab === 'keywords' && (
