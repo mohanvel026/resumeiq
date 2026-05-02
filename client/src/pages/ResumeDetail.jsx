@@ -60,39 +60,26 @@ export default function ResumeDetail() {
       {msg && <div className="alert alert-danger">{msg}</div>}
 
       {/* Score Tab */}
-      {tab === 'score' && (
-        <div>
-          <button className="btn btn-primary" onClick={() => analyze('score')} disabled={loading} style={{ marginBottom: '1.5rem' }}>
-            {loading ? 'Analyzing...' : '⚡ Analyze Resume'}
-          </button>
-          {analysis && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', background: 'var(--navy-900)', padding: '1.5rem', borderRadius: 'var(--border-radius-lg)' }}>
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', border: '4px solid var(--gold-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--gold-500)' }}>{analysis.scoreTotal}</span>
-                </div>
-                <div>
-                  <div style={{ color: 'var(--white)', fontWeight: '600', fontSize: '1.1rem' }}>Overall Score</div>
-                  <div style={{ color: 'var(--gray-400)', fontSize: '0.875rem' }}>
-                    {analysis.scoreTotal >= 80 ? 'Excellent — Ready to apply!' : analysis.scoreTotal >= 60 ? 'Good — Small improvements needed' : 'Needs Work — Follow the suggestions below'}
-                  </div>
-                </div>
-              </div>
-              <div className="grid-3">
-                {DIMS.map(dim => (
-                  <div key={dim} className="metric-card gold-accent">
-                    <div className="metric-label">{DIM_LABELS[dim]}</div>
-                    <div className="metric-value" style={{ color: analysis[dim] >= 80 ? 'var(--success)' : analysis[dim] >= 60 ? 'var(--gold-500)' : 'var(--danger)' }}>{analysis[dim]}</div>
-                    <div className="progress-bar-wrapper">
-                      <div className="progress-bar" style={{ width: `${analysis[dim]}%`, background: analysis[dim] >= 80 ? 'var(--success)' : analysis[dim] >= 60 ? 'var(--gold-500)' : 'var(--danger)' }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+      {analysis && analysis.improvements && (
+  <div className="card" style={{ marginTop: '1.5rem', borderLeft: '3px solid var(--gold-500)' }}>
+    <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>
+      💡 AI Improvement Suggestions
+    </h4>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {analysis.improvements.map((tip, i) => (
+        <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+          <span style={{
+            background: 'var(--navy-900)', color: 'var(--gold-500)',
+            width: '24px', height: '24px', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '0.75rem', fontWeight: '700', flexShrink: 0
+          }}>{i + 1}</span>
+          <p style={{ color: 'var(--gray-700)', margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>{tip}</p>
         </div>
-      )}
+      ))}
+    </div>
+  </div>
+)}
 
       {/* Keywords Tab */}
       {tab === 'keywords' && (

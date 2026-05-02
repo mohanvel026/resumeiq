@@ -285,10 +285,43 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
                       <h4 style={{ color: 'var(--navy-800)', margin: 0 }}>{job.title}</h4>
                       {job.remote && <span className="badge badge-success">🌐 Remote</span>}
                       {matches[job.id] && (
-                        <span className={`badge ${matches[job.id].jobMatchScore >= 70 ? 'badge-success' : matches[job.id].jobMatchScore >= 50 ? 'badge-warning' : 'badge-danger'}`}>
-                          {matches[job.id].jobMatchScore}% Match
-                        </span>
-                      )}
+  <div style={{ marginTop: '10px' }}>
+    <div style={{
+      background: 'var(--gray-50)', border: '1px solid var(--gray-200)',
+      borderRadius: 'var(--border-radius)', padding: '10px 14px'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+        <span style={{ fontWeight: '600', color: 'var(--navy-800)', fontSize: '0.875rem' }}>
+          Match Analysis — {matches[job.id].resumeTitle}
+        </span>
+        <span className={`badge ${matches[job.id].jobMatchScore >= 70 ? 'badge-success' : matches[job.id].jobMatchScore >= 50 ? 'badge-warning' : 'badge-danger'}`}>
+          {matches[job.id].jobMatchScore}% Match
+        </span>
+      </div>
+      <p style={{ color: 'var(--gray-600)', fontSize: '0.8125rem', margin: '0 0 8px', lineHeight: '1.6' }}>
+        {matches[job.id].jobMatchSummary}
+      </p>
+      {matches[job.id].matchedSkills?.length > 0 && (
+        <div style={{ marginBottom: '6px' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--success)' }}>✓ You have: </span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--gray-600)' }}>{matches[job.id].matchedSkills?.slice(0, 5).join(', ')}</span>
+        </div>
+      )}
+      {matches[job.id].missingSkills?.length > 0 && (
+        <div style={{ marginBottom: '6px' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--danger)' }}>✗ Missing: </span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--gray-600)' }}>{matches[job.id].missingSkills?.slice(0, 5).join(', ')}</span>
+        </div>
+      )}
+      {matches[job.id].recommendation && (
+        <div style={{ background: 'rgba(201,168,76,0.08)', borderRadius: '6px', padding: '8px 10px', marginTop: '8px' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--gold-500)' }}>💡 </span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--gray-700)' }}>{matches[job.id].recommendation}</span>
+        </div>
+      )}
+    </div>
+  </div>
+)}
                     </div>
 
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '8px' }}>

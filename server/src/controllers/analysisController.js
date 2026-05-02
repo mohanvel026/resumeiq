@@ -21,13 +21,67 @@ const scoreResume = async (req, res) => {
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
-    const prompt = `You are a professional resume coach. Analyze this resume and score it on 6 dimensions from 0-100.
+    if (!resume.rawText || resume.rawText.length < 50) {
+      return res.status(400).json({ message: 'Resume text is too short. Please upload a proper resume PDF.' })
+    }
 
-Resume:
-${resume.rawText.slice(0, 3000)}
+    const prompt = `You are a strict professional ATS (Applicant Tracking System) scanner used by Fortune 500 companies. Analyze this resume CRITICALLY and give REALISTIC scores. Most resumes score between 40-75. Only exceptional resumes score above 85.
 
-Return ONLY this exact JSON, no explanation, no markdown backticks:
-{"scoreClarity": 75, "scoreImpact": 68, "scoreAts": 72, "scoreKeywords": 65, "scoreFormatting": 80, "scoreReadability": 78}`
+Resume text to analyze:
+"""
+${resume.rawText.slice(0, 4000)}
+"""
+
+Score each dimension from 0-100 based on these STRICT criteria:
+
+1. scoreClarity (0-100): How clear and readable is the content? Deduct points for:
+   - Typos, grammar errors (-10 each)
+   - Vague statements without specifics (-5 each)
+   - Missing contact info (-15)
+   - Poor section organization (-10)
+
+2. scoreImpact (0-100): How impactful are the achievements? Deduct points for:
+   - No quantified achievements (numbers, percentages) (-20)
+   - Weak action verbs like "helped", "worked on" (-5 each)
+   - No measurable results (-15)
+   - Generic descriptions (-10)
+
+3. scoreAts (0-100): ATS compatibility score. Deduct points for:
+   - Missing standard sections (Education, Experience, Skills) (-15 each)
+   - No keywords from common job postings (-20)
+   - Special characters or tables that ATS can't read (-10)
+   - Missing job titles (-10)
+
+4. scoreKeywords (0-100): Industry keyword density. Deduct points for:
+   - Missing technical skills relevant to their field (-5 each)
+   - No certifications mentioned (-10)
+   - Missing soft skills (-5)
+   - No industry-specific terminology (-15)
+
+5. scoreFormatting (0-100): Professional formatting. Deduct points for:
+   - Inconsistent formatting (-10)
+   - Too long (more than 2 pages) (-10)
+   - Missing dates on experience (-10)
+   - No bullet points (-10)
+
+6. scoreReadability (0-100): How easy to read in 6 seconds (recruiter scan time). Deduct points for:
+   - Dense paragraphs instead of bullets (-15)
+   - No summary/objective section (-10)
+   - Buried important information (-10)
+   - Font/spacing issues (-5)
+
+Be STRICT and REALISTIC. The average resume scores 55/100 overall.
+
+Return ONLY valid JSON, absolutely no markdown or explanation:
+{
+  "scoreClarity": <number 0-100>,
+  "scoreImpact": <number 0-100>,
+  "scoreAts": <number 0-100>,
+  "scoreKeywords": <number 0-100>,
+  "scoreFormatting": <number 0-100>,
+  "scoreReadability": <number 0-100>,
+  "improvements": ["specific improvement 1", "specific improvement 2", "specific improvement 3"]
+}`
 
     const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
@@ -50,18 +104,17 @@ Return ONLY this exact JSON, no explanation, no markdown backticks:
         scoreFormatting: scores.scoreFormatting,
         scoreReadability: scores.scoreReadability,
         scoreTotal,
-        aiModel: 'llama3-8b-8192',
+        aiModel: 'llama-3.3-70b-versatile',
         rawResponse: raw,
       }
     })
 
-    res.json({ ...analysis })
+    res.json({ ...analysis, improvements: scores.improvements })
   } catch (error) {
     console.error('Score error:', error.message)
     res.status(500).json({ message: error.message || 'Scoring failed' })
   }
 }
-
 const findKeywordGaps = async (req, res) => {
   try {
     const { resumeId, jobDescription } = req.body
@@ -180,23 +233,64 @@ Start directly with "Dear Hiring Manager," - no preamble, no markdown, just the 
 
 const scoreJobMatch = async (req, res) => {
   try {
-    const { jobDescription } = req.body
-    const resume = await prisma.resume.findFirst({
-      where: { userId: req.user.id },
-      orderBy: { createdAt: 'desc' },
-    })
+    const { jobDescription, resumeId } = req.body
+
+    let resume
+    if (resumeId) {
+      resume = await prisma.resume.findFirst({
+        where: { id: resumeId, userId: req.user.id }
+      })
+    }
+
+    if (!resume) {
+      resume = await prisma.resume.findFirst({
+        where: { userId: req.user.id },
+        orderBy: { createdAt: 'desc' },
+      })
+    }
+
     if (!resume) return res.status(404).json({ message: 'No resume found. Upload one first.' })
 
-    const prompt = `Rate how well this resume matches the job description from 0-100.
+    if (!resume.rawText || resume.rawText.length < 50) {
+      return res.status(400).json({ message: 'Resume text too short for analysis.' })
+    }
 
-Resume:
-${resume.rawText.slice(0, 2000)}
+    const prompt = `You are a strict ATS job matching system used by real recruiters. Analyze how well this resume matches the job description. Be REALISTIC - average match is 40-60%.
 
-Job Description:
-${jobDescription.slice(0, 1000)}
+RESUME:
+"""
+${resume.rawText.slice(0, 3000)}
+"""
 
-Return ONLY this exact JSON, no explanation, no markdown:
-{"jobMatchScore": 75, "jobMatchSummary": "Your resume matches well for React and Node.js but lacks TypeScript and AWS experience."}`
+JOB DESCRIPTION:
+"""
+${jobDescription.slice(0, 2000)}
+"""
+
+Analyze these specific areas:
+
+1. REQUIRED SKILLS MATCH: List every required skill from the JD. Check if resume has each one.
+2. EXPERIENCE LEVEL: Does the resume meet the years of experience required?
+3. EDUCATION: Does education match requirements?
+4. KEYWORDS: What percentage of important JD keywords appear in the resume?
+5. JOB TITLE RELEVANCE: How relevant is their experience to this specific role?
+
+Scoring rules:
+- 90-100: Perfect match, almost all requirements met
+- 75-89: Strong match, most requirements met  
+- 60-74: Good match, many requirements met but some gaps
+- 45-59: Partial match, several important gaps
+- 30-44: Weak match, many missing requirements
+- Below 30: Poor match, major skills/experience gaps
+
+Return ONLY valid JSON:
+{
+  "jobMatchScore": <realistic number 0-100>,
+  "jobMatchSummary": "<2-3 sentences explaining the match score with specific details about what matches and what's missing>",
+  "matchedSkills": ["skill1", "skill2"],
+  "missingSkills": ["skill3", "skill4"],
+  "recommendation": "<specific actionable advice to improve match>"
+}`
 
     const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
