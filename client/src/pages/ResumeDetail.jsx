@@ -60,7 +60,12 @@ export default function ResumeDetail() {
       {msg && <div className="alert alert-danger">{msg}</div>}
 
       {/* Score Tab */}
-      {analysis && analysis.improvements && (
+      {tab === 'score' && (
+        <div>
+          <button className="btn btn-primary" onClick={() => analyze('score')} disabled={loading} style={{ marginBottom: '1.5rem' }}>
+            {loading ? 'Analyzing...' : '⚡ Analyze Resume'}
+          </button>
+          {analysis && analysis.improvements && (
   <div className="card" style={{ marginTop: '1.5rem', borderLeft: '3px solid var(--gold-500)' }}>
     <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>
       💡 AI Improvement Suggestions
@@ -80,6 +85,8 @@ export default function ResumeDetail() {
     </div>
   </div>
 )}
+        </div>
+      )}
 
       {/* Keywords Tab */}
       {tab === 'keywords' && (
