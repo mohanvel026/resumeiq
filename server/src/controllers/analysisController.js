@@ -15,84 +15,65 @@ const askAI = async (prompt) => {
 
 const scoreResume = async (req, res) => {
   try {
-    const { resumeId } = req.body
+    const { resumeId } = req.body;
     const resume = await prisma.resume.findFirst({
       where: { id: resumeId, userId: req.user.id }
-    })
-    if (!resume) return res.status(404).json({ message: 'Resume not found' })
+    });
+
+    if (!resume) return res.status(404).json({ message: 'Resume not found' });
 
     if (!resume.rawText || resume.rawText.length < 50) {
-      return res.status(400).json({ message: 'Resume text is too short. Please upload a proper resume PDF.' })
+      return res.status(400).json({ message: 'Resume text is too short. Please upload a proper resume PDF.' });
     }
 
-    const prompt = `You are a strict professional ATS (Applicant Tracking System) scanner used by Fortune 500 companies. Analyze this resume CRITICALLY and give REALISTIC scores. Most resumes score between 40-75. Only exceptional resumes score above 85.
+    // UPDATED PROMPT: Added strict point deduction logic and forced variability
+    const prompt = `You are a Tier-1 Executive Recruiter and a strict ATS Algorithm. 
+Analyze this resume with BRUTAL HONESTY. Do not give generic high scores. 
 
-Resume text to analyze:
+SCORING BASELINE: 
+- 40-55: Average/Poor. Missing metrics and keywords.
+- 60-75: Good. Has keywords but lacks impact.
+- 80+: Exceptional. Hard to achieve.
+
+Resume text:
 """
 ${resume.rawText.slice(0, 4000)}
 """
 
-Score each dimension from 0-100 based on these STRICT criteria:
+DEDUCT POINTS AGGRESSIVELY FOR:
+1. scoreImpact: -20 points if NO percentages (%) or dollar signs ($) are found. -10 for weak verbs like "helped".
+2. scoreAts: -15 if "Skills" or "Education" headers are missing.
+3. scoreReadability: -15 if sentences are longer than 25 words.
+4. scoreKeywords: -5 for every missing core industry skill (e.g., if it's a dev resume and missing 'Git' or 'Agile').
 
-1. scoreClarity (0-100): How clear and readable is the content? Deduct points for:
-   - Typos, grammar errors (-10 each)
-   - Vague statements without specifics (-5 each)
-   - Missing contact info (-15)
-   - Poor section organization (-10)
-
-2. scoreImpact (0-100): How impactful are the achievements? Deduct points for:
-   - No quantified achievements (numbers, percentages) (-20)
-   - Weak action verbs like "helped", "worked on" (-5 each)
-   - No measurable results (-15)
-   - Generic descriptions (-10)
-
-3. scoreAts (0-100): ATS compatibility score. Deduct points for:
-   - Missing standard sections (Education, Experience, Skills) (-15 each)
-   - No keywords from common job postings (-20)
-   - Special characters or tables that ATS can't read (-10)
-   - Missing job titles (-10)
-
-4. scoreKeywords (0-100): Industry keyword density. Deduct points for:
-   - Missing technical skills relevant to their field (-5 each)
-   - No certifications mentioned (-10)
-   - Missing soft skills (-5)
-   - No industry-specific terminology (-15)
-
-5. scoreFormatting (0-100): Professional formatting. Deduct points for:
-   - Inconsistent formatting (-10)
-   - Too long (more than 2 pages) (-10)
-   - Missing dates on experience (-10)
-   - No bullet points (-10)
-
-6. scoreReadability (0-100): How easy to read in 6 seconds (recruiter scan time). Deduct points for:
-   - Dense paragraphs instead of bullets (-15)
-   - No summary/objective section (-10)
-   - Buried important information (-10)
-   - Font/spacing issues (-5)
-
-Be STRICT and REALISTIC. The average resume scores 55/100 overall.
-
-Return ONLY valid JSON, absolutely no markdown or explanation:
+Return ONLY a JSON object with these keys:
 {
-  "scoreClarity": <number 0-100>,
-  "scoreImpact": <number 0-100>,
-  "scoreAts": <number 0-100>,
-  "scoreKeywords": <number 0-100>,
-  "scoreFormatting": <number 0-100>,
-  "scoreReadability": <number 0-100>,
-  "improvements": ["specific improvement 1", "specific improvement 2", "specific improvement 3"]
-}`
+  "scoreClarity": <0-100>,
+  "scoreImpact": <0-100>,
+  "scoreAts": <0-100>,
+  "scoreKeywords": <0-100>,
+  "scoreFormatting": <0-100>,
+  "scoreReadability": <0-100>,
+  "improvements": ["Specific, non-generic advice 1", "Advice 2", "Advice 3"]
+}`;
 
-    const raw = await askAI(prompt)
-    const clean = raw.replace(/```json|```/g, '').trim()
-    const jsonMatch = clean.match(/\{[\s\S]*\}/)
-    const scores = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
+    const raw = await askAI(prompt);
+    
+    // Improved JSON parsing to handle AI "chatter"
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("AI failed to return valid JSON scoring data.");
+    
+    const scores = JSON.parse(jsonMatch[0]);
 
+    // Calculate a weighted total (Impact and ATS carry more weight)
     const scoreTotal = Math.round(
-      (scores.scoreClarity + scores.scoreImpact + scores.scoreAts +
-       scores.scoreKeywords + scores.scoreFormatting + scores.scoreReadability) / 6
-    )
+      (scores.scoreImpact * 0.3) + 
+      (scores.scoreAts * 0.3) + 
+      (scores.scoreKeywords * 0.2) + 
+      (scores.scoreClarity * 0.2)
+    );
 
+    // Save to Database
     const analysis = await prisma.aiAnalysis.create({
       data: {
         resumeId,
@@ -103,18 +84,20 @@ Return ONLY valid JSON, absolutely no markdown or explanation:
         scoreKeywords: scores.scoreKeywords,
         scoreFormatting: scores.scoreFormatting,
         scoreReadability: scores.scoreReadability,
-        scoreTotal,
+        scoreTotal: scoreTotal, // This is the final realistic score
         aiModel: 'llama-3.3-70b-versatile',
         rawResponse: raw,
       }
-    })
+    });
 
-    res.json({ ...analysis, improvements: scores.improvements })
+    // Return response including the improvements array for the frontend
+    res.json({ ...analysis, improvements: scores.improvements });
+    
   } catch (error) {
-    console.error('Score error:', error.message)
-    res.status(500).json({ message: error.message || 'Scoring failed' })
+    console.error('Score error:', error.message);
+    res.status(500).json({ message: 'Analysis failed: ' + error.message });
   }
-}
+};
 const findKeywordGaps = async (req, res) => {
   try {
     const { resumeId, jobDescription } = req.body
@@ -436,7 +419,7 @@ Return ONLY this exact JSON, no explanation, no markdown:
 }
 const getLeaderboard = async (req, res) => {
   try {
-    // Get all users with their best resume score
+    // 1. Fetch ALL scores, but order them by the NEWEST date first
     const analyses = await prisma.aiAnalysis.findMany({
       where: {
         type: 'SCORE',
@@ -446,39 +429,34 @@ const getLeaderboard = async (req, res) => {
         resume: {
           include: {
             user: {
-              select: {
-                id: true,
-                name: true,
-              }
+              select: { id: true, name: true }
             }
           }
         }
       },
       orderBy: {
-        scoreTotal: 'desc'
+        createdAt: 'desc' // This ensures we see the most recent analysis first
       }
     })
 
-    // Get best score per user
-    const userBestScores = {}
+    // 2. Filter to keep only the LATEST score for each unique user
+    const userLatestScores = {}
     analyses.forEach(analysis => {
       const userId = analysis.resume?.user?.id
-      const userName = analysis.resume?.user?.name
-      if (!userId || !userName) return
+      // If we already added this user, skip (because the first one found is the newest)
+      if (!userId || userLatestScores[userId]) return 
 
-      if (!userBestScores[userId] || analysis.scoreTotal > userBestScores[userId].score) {
-        userBestScores[userId] = {
-          userId,
-          name: userName,
-          score: analysis.scoreTotal,
-          resumeTitle: analysis.resume?.title || 'Resume',
-        }
+      userLatestScores[userId] = {
+        userId,
+        name: analysis.resume.user.name,
+        score: analysis.scoreTotal,
+        resumeTitle: analysis.resume.title || 'Resume',
       }
     })
 
-    // Convert to sorted array
-    const leaderboard = Object.values(userBestScores)
-      .sort((a, b) => b.score - a.score)
+    // 3. Sort the final unique list by the score value for the ranking
+    const leaderboard = Object.values(userLatestScores)
+      .sort((a, b) => b.score - a.score) // High scores still go to the top
       .slice(0, 20)
       .map((entry, index) => ({
         rank: index + 1,
