@@ -340,7 +340,67 @@ Return ONLY this exact JSON, no explanation, no markdown:
     res.status(500).json({ message: error.message || 'LinkedIn analysis failed' })
   }
 }
+const getLeaderboard = async (req, res) => {
+  try {
+    // Get all users with their best resume score
+    const analyses = await prisma.aiAnalysis.findMany({
+      where: {
+        type: 'SCORE',
+        scoreTotal: { not: null }
+      },
+      include: {
+        resume: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        scoreTotal: 'desc'
+      }
+    })
 
+    // Get best score per user
+    const userBestScores = {}
+    analyses.forEach(analysis => {
+      const userId = analysis.resume?.user?.id
+      const userName = analysis.resume?.user?.name
+      if (!userId || !userName) return
+
+      if (!userBestScores[userId] || analysis.scoreTotal > userBestScores[userId].score) {
+        userBestScores[userId] = {
+          userId,
+          name: userName,
+          score: analysis.scoreTotal,
+          resumeTitle: analysis.resume?.title || 'Resume',
+        }
+      }
+    })
+
+    // Convert to sorted array
+    const leaderboard = Object.values(userBestScores)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 20)
+      .map((entry, index) => ({
+        rank: index + 1,
+        name: entry.name,
+        score: entry.score,
+        resumeTitle: entry.resumeTitle,
+        isCurrentUser: entry.userId === req.user.id,
+        badge: index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '',
+      }))
+
+    res.json(leaderboard)
+  } catch (error) {
+    console.error('Leaderboard error:', error)
+    res.status(500).json({ message: 'Failed to fetch leaderboard' })
+  }
+}
 module.exports = {
   scoreResume,
   findKeywordGaps,
@@ -351,4 +411,5 @@ module.exports = {
   generateInterviewQuestions,
   evaluateAnswer,
   analyzeLinkedIn,
+  getLeaderboard,
 }

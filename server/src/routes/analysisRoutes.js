@@ -17,5 +17,6 @@ router.post('/skill-gap', auth, analyzeSkillGap)
 router.post('/interview-questions', auth, generateInterviewQuestions)
 router.post('/evaluate-answer', auth, evaluateAnswer)
 router.post('/linkedin', auth, analyzeLinkedIn)
-
+const { getLeaderboard } = require('../controllers/analysisController')
+router.get('/leaderboard', auth, getLeaderboard)
 module.exports = router
