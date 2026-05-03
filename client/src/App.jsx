@@ -17,6 +17,13 @@ import Analytics from './pages/Analytics'
 import Leaderboard from './pages/Leaderboard'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
+import ResumeExport from './pages/ResumeExport'
+import SalaryInsights from './pages/SalaryInsights'
+import JobHuntPlan from './pages/JobHuntPlan'
+import Achievements from './pages/Achievements'
+import CoverLetterTemplates from './pages/CoverLetterTemplates'
+import Referral from './pages/Referral'
+
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -53,6 +60,12 @@ export default function App() {
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
       {/* Protected routes */}
+      <Route path="/export" element={<PrivateRoute><ResumeExport /></PrivateRoute>} />
+<Route path="/salary" element={<PrivateRoute><SalaryInsights /></PrivateRoute>} />
+<Route path="/job-plan" element={<PrivateRoute><JobHuntPlan /></PrivateRoute>} />
+<Route path="/achievements" element={<PrivateRoute><Achievements /></PrivateRoute>} />
+<Route path="/cover-templates" element={<PrivateRoute><CoverLetterTemplates /></PrivateRoute>} />
+<Route path="/referral" element={<PrivateRoute><Referral /></PrivateRoute>} />
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       <Route path="/upload" element={<PrivateRoute><UploadResume /></PrivateRoute>} />
       <Route path="/resumes" element={<PrivateRoute><MyResumes /></PrivateRoute>} />

@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import NotificationBell from './NotificationBell'
+import DarkModeToggle from './DarkModeToggle'
 
 export default function Navbar({ onMenuClick }) {
   const { user, logout } = useAuth()
@@ -14,10 +16,11 @@ export default function Navbar({ onMenuClick }) {
         </button>
         <Link to="/dashboard" className="navbar-brand">Resume<span>IQ</span></Link>
       </div>
-      <div className="navbar-actions">
+      <div className="navbar-actions" style={{ gap: '8px' }}>
+        <DarkModeToggle />
+        <NotificationBell />
         <div className="navbar-user">
-          <span style={{ color: 'var(--gray-300)', fontSize: '0.875rem' }}
-            className="hide-mobile">{user?.name}</span>
+          <span style={{ color: 'var(--gray-300)', fontSize: '0.875rem' }}>{user?.name}</span>
           <div className="navbar-avatar">{initials}</div>
         </div>
         <button

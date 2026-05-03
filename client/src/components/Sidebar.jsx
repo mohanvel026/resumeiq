@@ -5,6 +5,7 @@ const NAV = [
     { label: 'Dashboard', icon: '⊞', path: '/dashboard' },
     { label: 'Upload Resume', icon: '↑', path: '/upload' },
     { label: 'My Resumes', icon: '📄', path: '/resumes' },
+    { label: 'Export PDF', icon: '📥', path: '/export' },
     { label: 'Job Listings', icon: '💼', path: '/jobs' },
   ]},
   { section: 'AI Tools', items: [
@@ -13,6 +14,13 @@ const NAV = [
     { label: 'Mock Interview', icon: '🤖', path: '/mock-interview' },
     { label: 'Skill Gap', icon: '📈', path: '/skills' },
     { label: 'LinkedIn Check', icon: '🔗', path: '/linkedin' },
+    { label: 'Cover Letters', icon: '📧', path: '/cover-templates' },
+  ]},
+  { section: 'Career Tools', items: [
+    { label: 'Salary Insights', icon: '💰', path: '/salary' },
+    { label: '30-Day Plan', icon: '📅', path: '/job-plan' },
+    { label: 'Achievements', icon: '🏅', path: '/achievements' },
+    { label: 'Refer a Friend', icon: '🎁', path: '/referral' },
   ]},
   { section: 'Insights', items: [
     { label: 'Analytics', icon: '📊', path: '/analytics' },
