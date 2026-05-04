@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 import jsPDF from 'jspdf'
+import { trackActivity } from '../utils/activity'
 
 export default function ResumeExport() {
   const [resumes, setResumes] = useState([])
@@ -127,6 +128,7 @@ export default function ResumeExport() {
       }
 
       doc.save(`${resume.title || 'resume'}-${template}.pdf`)
+      trackActivity('exports')
     } catch (e) {
       alert('PDF generation failed: ' + e.message)
     } finally {

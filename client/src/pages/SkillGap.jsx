@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Layout from '../components/Layout'
 import api from '../utils/api'
+import { trackActivity } from '../utils/activity'
 
 export default function SkillGap() {
   const [jd, setJd] = useState('')
@@ -13,6 +14,7 @@ export default function SkillGap() {
     try {
       const r = await api.post('/api/analysis/skill-gap', { jobDescription: jd })
       setResult(JSON.parse(r.data.missingSkills || '[]'))
+      trackActivity('skillGaps')
     } catch { setResult([]) }
     finally { setLoading(false) }
   }

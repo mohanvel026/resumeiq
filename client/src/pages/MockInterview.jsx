@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Layout from '../components/Layout'
 import api from '../utils/api'
+import { trackActivity } from '../utils/activity'
 
 export default function MockInterview() {
   const [role, setRole] = useState('')
@@ -25,7 +26,7 @@ export default function MockInterview() {
       const qs = JSON.parse(r.data.interviewQuestions || '[]')
       setQuestions(qs)
       setStarted(true)
-
+      trackActivity('mockInterviews')
       const resumes = await api.get('/api/resume/all')
       const resumeName = resumes.data[0]?.title || 'your resume'
       setResumeInfo(resumeName)

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Layout from '../components/Layout'
 import api from '../utils/api'
-
+import { trackActivity } from '../utils/activity'
 export default function JobHuntPlan() {
   const [role, setRole] = useState('')
   const [plan, setPlan] = useState(null)
@@ -46,6 +46,7 @@ export default function JobHuntPlan() {
       })
 
       setPlan(defaultPlan)
+      trackActivity('plans')
     } catch {
       alert('Failed to generate plan. Try again.')
     } finally {

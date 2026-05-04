@@ -1,89 +1,179 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import api from '../utils/api'
-import { useAuth } from '../context/AuthContext'
 
 const BADGES = [
-  { id: 'first_upload', icon: '📄', name: 'First Resume', desc: 'Uploaded your first resume', check: (stats) => stats.resumes >= 1 },
-  { id: 'analyzer', icon: '⚡', name: 'AI Analyzer', desc: 'Analyzed your resume with AI', check: (stats) => stats.analyses >= 1 },
-  { id: 'score_70', icon: '🎯', name: 'Score 70+', desc: 'Achieved a resume score of 70 or above', check: (stats) => stats.bestScore >= 70 },
-  { id: 'score_80', icon: '🏅', name: 'Score 80+', desc: 'Achieved a resume score of 80 or above', check: (stats) => stats.bestScore >= 80 },
-  { id: 'score_90', icon: '🏆', name: 'Score 90+', desc: 'Achieved an exceptional resume score of 90+', check: (stats) => stats.bestScore >= 90 },
-  { id: 'job_hunter', icon: '💼', name: 'Job Hunter', desc: 'Applied to your first job', check: (stats) => stats.applications >= 1 },
-  { id: 'networker', icon: '🤝', name: 'Networker', desc: 'Applied to 5 or more jobs', check: (stats) => stats.applications >= 5 },
-  { id: 'interviewer', icon: '🎤', name: 'Interview Ready', desc: 'Generated interview questions', check: (stats) => stats.interviews >= 1 },
-  { id: 'multi_resume', icon: '📚', name: 'Multi-Version', desc: 'Uploaded 3 or more resume versions', check: (stats) => stats.resumes >= 3 },
-  { id: 'cover_letter', icon: '📧', name: 'Cover Letter Pro', desc: 'Generated a cover letter', check: (stats) => stats.coverLetters >= 1 },
-  { id: 'mock_star', icon: '🌟', name: 'Mock Star', desc: 'Completed a mock interview', check: (stats) => stats.mockInterviews >= 1 },
-  { id: 'skill_gap', icon: '📈', name: 'Self Aware', desc: 'Analyzed your skill gaps', check: (stats) => stats.skillGaps >= 1 },
+  { id: 'first_upload', icon: '📄', name: 'First Resume', desc: 'Upload your first resume', check: s => s.resumes >= 1, hint: 'Upload a resume to earn this' },
+  { id: 'analyzer', icon: '⚡', name: 'AI Analyzer', desc: 'Analyze your resume with AI', check: s => s.analyses >= 1, hint: 'Go to any resume and click Analyze' },
+  { id: 'multi_resume', icon: '📚', name: 'Multi-Version', desc: 'Upload 3 or more resumes', check: s => s.resumes >= 3, hint: 'Upload 2 more resumes' },
+  { id: 'score_60', icon: '🎯', name: 'Score 60+', desc: 'Achieve a resume score of 60+', check: s => s.bestScore >= 60, hint: 'Improve your resume to score 60+' },
+  { id: 'score_75', icon: '🏅', name: 'Score 75+', desc: 'Achieve a resume score of 75+', check: s => s.bestScore >= 75, hint: 'Keep improving your resume' },
+  { id: 'score_90', icon: '🏆', name: 'Top Scorer', desc: 'Achieve a resume score of 90+', check: s => s.bestScore >= 90, hint: 'Near perfect resume needed' },
+  { id: 'cover_letter', icon: '📧', name: 'Cover Letter Pro', desc: 'Generate an AI cover letter', check: s => s.coverLetters >= 1, hint: 'Use the Cover Letter tab in resume analysis' },
+  { id: 'keyword_hunter', icon: '🔍', name: 'Keyword Hunter', desc: 'Run keyword gap analysis', check: s => s.keywords >= 1, hint: 'Use Keywords tab in resume analysis' },
+  { id: 'rewriter', icon: '✍️', name: 'Bullet Rewriter', desc: 'Use AI bullet rewriter', check: s => s.rewrites >= 1, hint: 'Use Rewriter tab in resume analysis' },
+  { id: 'job_hunter', icon: '💼', name: 'Job Hunter', desc: 'Search for jobs', check: s => s.jobSearches >= 1, hint: 'Go to Job Listings and search' },
+  { id: 'interviewer', icon: '🎤', name: 'Interview Ready', desc: 'Generate interview questions', check: s => s.interviews >= 1, hint: 'Go to Interview Prep' },
+  { id: 'mock_star', icon: '🌟', name: 'Mock Star', desc: 'Complete a mock interview', check: s => s.mockInterviews >= 1, hint: 'Complete a mock interview session' },
+  { id: 'skill_gap', icon: '📈', name: 'Self Aware', desc: 'Analyze your skill gaps', check: s => s.skillGaps >= 1, hint: 'Use the Skill Gap page' },
+  { id: 'planner', icon: '📅', name: 'Planner', desc: 'Generate a 30-day job plan', check: s => s.plans >= 1, hint: 'Go to 30-Day Plan page' },
+  { id: 'exporter', icon: '📥', name: 'PDF Exporter', desc: 'Export resume as PDF', check: s => s.exports >= 1, hint: 'Go to Export PDF page' },
 ]
 
+const DEFAULT_STATS = {
+  resumes: 0, analyses: 0, bestScore: 0,
+  coverLetters: 0, keywords: 0, rewrites: 0,
+  jobSearches: 0, interviews: 0, mockInterviews: 0,
+  skillGaps: 0, plans: 0, exports: 0,
+}
+
 export default function Achievements() {
-  const { user } = useAuth()
-  const [stats, setStats] = useState({ resumes: 0, analyses: 0, bestScore: 0, applications: 0, interviews: 0, coverLetters: 0, mockInterviews: 0, skillGaps: 0 })
+  const [stats, setStats] = useState(DEFAULT_STATS)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([
-      api.get('/api/resume/all').catch(() => ({ data: [] })),
-    ]).then(([resumesRes]) => {
-      setStats(prev => ({ ...prev, resumes: resumesRes.data.length }))
-    }).finally(() => setLoading(false))
+    loadStats()
   }, [])
+
+  const loadStats = async () => {
+    try {
+      // Get resumes count
+      const resumesRes = await api.get('/api/resume/all')
+      const resumes = resumesRes.data || []
+
+      // Get analyses from all resumes
+      let bestScore = 0
+      let analyses = 0
+      let coverLetters = 0
+      let keywords = 0
+      let rewrites = 0
+
+      for (const resume of resumes.slice(0, 5)) {
+        try {
+          const r = await api.get(`/api/resume/${resume.id}`)
+          if (r.data?.aiAnalyses) {
+            r.data.aiAnalyses.forEach(a => {
+              analyses++
+              if (a.type === 'SCORE' && a.scoreTotal > bestScore) bestScore = a.scoreTotal
+              if (a.type === 'COVER_LETTER') coverLetters++
+              if (a.type === 'KEYWORD_GAP') keywords++
+              if (a.type === 'BULLET_REWRITE') rewrites++
+            })
+          }
+        } catch {}
+      }
+
+      // Get saved activity from localStorage
+      const activity = JSON.parse(localStorage.getItem('resumeiq_activity') || '{}')
+
+      setStats({
+        resumes: resumes.length,
+        analyses: analyses + (activity.analyses || 0),
+        bestScore: Math.max(bestScore, activity.bestScore || 0),
+        coverLetters: coverLetters + (activity.coverLetters || 0),
+        keywords: keywords + (activity.keywords || 0),
+        rewrites: rewrites + (activity.rewrites || 0),
+        jobSearches: activity.jobSearches || 0,
+        interviews: activity.interviews || 0,
+        mockInterviews: activity.mockInterviews || 0,
+        skillGaps: activity.skillGaps || 0,
+        plans: activity.plans || 0,
+        exports: activity.exports || 0,
+      })
+    } catch (err) {
+      console.error('Failed to load stats:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const earned = BADGES.filter(b => b.check(stats))
   const locked = BADGES.filter(b => !b.check(stats))
+  const pct = Math.round((earned.length / BADGES.length) * 100)
 
   return (
     <Layout>
       <div className="page-header">
         <h2 className="page-title">Achievements</h2>
-        <p className="page-subtitle">Earn badges as you progress in your career journey</p>
+        <p className="page-subtitle">Earn badges by using ResumeIQ features</p>
       </div>
 
-      <div className="metric-grid" style={{ marginBottom: '2rem' }}>
-        {[
-          { label: 'Badges Earned', value: earned.length },
-          { label: 'Total Badges', value: BADGES.length },
-          { label: 'Completion', value: `${Math.round((earned.length / BADGES.length) * 100)}%` },
-          { label: 'Resumes Uploaded', value: stats.resumes },
-        ].map(m => (
-          <div key={m.label} className="metric-card gold-accent">
-            <div className="metric-label">{m.label}</div>
-            <div className="metric-value">{m.value}</div>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '3rem' }}>
+          <div className="spinner" style={{ margin: '0 auto' }} />
+        </div>
+      ) : (
+        <>
+          {/* Stats bar */}
+          <div className="card" style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+              <span style={{ fontWeight: '600', color: 'var(--navy-800)' }}>{earned.length}/{BADGES.length} Badges Earned</span>
+              <span style={{ color: 'var(--gold-500)', fontWeight: '600' }}>{pct}% Complete</span>
+            </div>
+            <div style={{ background: 'var(--gray-200)', borderRadius: '20px', height: '10px', overflow: 'hidden' }}>
+              <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(to right, var(--navy-600), var(--gold-500))', borderRadius: '20px', transition: 'width 0.5s' }} />
+            </div>
           </div>
-        ))}
-      </div>
 
-      {earned.length > 0 && (
-        <div style={{ marginBottom: '2rem' }}>
-          <h3 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>🏆 Earned Badges ({earned.length})</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
-            {earned.map(b => (
-              <div key={b.id} className="card" style={{ textAlign: 'center', border: '2px solid var(--gold-500)', background: 'rgba(201,168,76,0.04)' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{b.icon}</div>
-                <div style={{ fontWeight: '700', color: 'var(--navy-800)', marginBottom: '4px' }}>{b.name}</div>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>{b.desc}</div>
-                <div style={{ marginTop: '8px' }}><span className="badge badge-gold">Earned ✓</span></div>
+          {/* Stats grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '10px', marginBottom: '2rem' }}>
+            {[
+              { label: 'Resumes', value: stats.resumes, icon: '📄' },
+              { label: 'Analyses', value: stats.analyses, icon: '⚡' },
+              { label: 'Best Score', value: stats.bestScore || '-', icon: '🏆' },
+              { label: 'Cover Letters', value: stats.coverLetters, icon: '📧' },
+              { label: 'Interviews', value: stats.interviews, icon: '🎤' },
+              { label: 'Job Searches', value: stats.jobSearches, icon: '💼' },
+            ].map(s => (
+              <div key={s.label} className="card" style={{ textAlign: 'center', padding: '12px' }}>
+                <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>{s.icon}</div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--navy-800)' }}>{s.value}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>{s.label}</div>
               </div>
             ))}
           </div>
-        </div>
-      )}
 
-      <div>
-        <h3 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>🔒 Locked Badges ({locked.length})</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
-          {locked.map(b => (
-            <div key={b.id} className="card" style={{ textAlign: 'center', opacity: 0.5, filter: 'grayscale(1)' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{b.icon}</div>
-              <div style={{ fontWeight: '700', color: 'var(--navy-800)', marginBottom: '4px' }}>{b.name}</div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>{b.desc}</div>
-              <div style={{ marginTop: '8px' }}><span className="badge badge-navy">Locked 🔒</span></div>
+          {/* Earned badges */}
+          {earned.length > 0 && (
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>🏆 Earned ({earned.length})</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+                {earned.map(b => (
+                  <div key={b.id} className="card" style={{ textAlign: 'center', border: '2px solid var(--gold-500)', background: 'rgba(201,168,76,0.04)' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{b.icon}</div>
+                    <div style={{ fontWeight: '700', color: 'var(--navy-800)', marginBottom: '4px', fontSize: '0.9rem' }}>{b.name}</div>
+                    <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)', marginBottom: '8px' }}>{b.desc}</div>
+                    <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '600', background: 'rgba(40,167,69,0.15)', color: '#1a7a32' }}>✓ Earned</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+          )}
+
+          {/* Locked badges */}
+          <div>
+            <h3 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>🔒 Locked ({locked.length})</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+              {locked.map(b => (
+                <div key={b.id} className="card" style={{ textAlign: 'center', opacity: 0.6 }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '8px', filter: 'grayscale(1)' }}>{b.icon}</div>
+                  <div style={{ fontWeight: '700', color: 'var(--navy-800)', marginBottom: '4px', fontSize: '0.9rem' }}>{b.name}</div>
+                  <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)', marginBottom: '8px' }}>{b.desc}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--gold-500)', fontStyle: 'italic' }}>{b.hint}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {earned.length === 0 && (
+            <div className="card" style={{ textAlign: 'center', padding: '2rem', marginTop: '1rem', background: 'var(--navy-900)' }}>
+              <p style={{ color: 'var(--gray-400)', marginBottom: '1rem' }}>Start using ResumeIQ to earn your first badge!</p>
+              <Link to="/upload" className="btn btn-primary btn-sm">Upload Resume →</Link>
+            </div>
+          )}
+        </>
+      )}
     </Layout>
   )
 }

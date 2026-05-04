@@ -1,134 +1,67 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
+import api from '../utils/api'
+import { trackActivity } from '../utils/activity'
 
-const TEMPLATES = [
-  {
-    id: 'formal',
-    name: 'Formal Professional',
-    desc: 'Traditional format for corporate roles',
-    icon: '👔',
-    content: (name, role, company) => `Dear Hiring Manager,
-
-I am writing to express my strong interest in the ${role} position at ${company}. With my background in software development and passion for building scalable solutions, I believe I would be a valuable addition to your team.
-
-Throughout my career, I have consistently delivered high-quality results while collaborating effectively with cross-functional teams. My technical expertise, combined with my ability to communicate complex concepts clearly, makes me well-suited for this role.
-
-I am particularly drawn to ${company} because of its reputation for innovation and excellence. I am confident that my skills and experience align well with your requirements, and I look forward to the opportunity to contribute to your team's success.
-
-Thank you for considering my application. I welcome the opportunity to discuss how my background and skills would benefit ${company}.
-
-Sincerely,
-${name}`
-  },
-  {
-    id: 'creative',
-    name: 'Creative Modern',
-    desc: 'Bold and engaging for startups',
-    icon: '🎨',
-    content: (name, role, company) => `Hi there!
-
-I'm ${name}, and I'm excited about the ${role} opportunity at ${company}. When I came across this role, I knew immediately it was a perfect fit.
-
-Here's what I bring to the table:
-- A track record of building products users actually love
-- The ability to move fast without breaking things
-- A collaborative spirit and genuine passion for solving problems
-
-I've been following ${company}'s journey and I'm genuinely impressed by your approach to building products that matter. I'd love nothing more than to bring my skills to your team and help push the mission forward.
-
-Let's chat! I'm ready to hit the ground running.
-
-Best,
-${name}`
-  },
-  {
-    id: 'technical',
-    name: 'Technical Expert',
-    desc: 'Skills-focused for engineering roles',
-    icon: '⚡',
-    content: (name, role, company) => `Dear ${company} Engineering Team,
-
-I am applying for the ${role} position with 3+ years of hands-on experience in full-stack development, system design, and cloud infrastructure.
-
-Technical Highlights:
-- Proficient in React, Node.js, Python, and MySQL/PostgreSQL
-- Experience with AWS/GCP, Docker, and CI/CD pipelines  
-- Strong background in RESTful API design and microservices
-- Proven track record of optimizing performance and scalability
-
-My most relevant projects include building high-traffic web applications, implementing real-time features using WebSockets, and leading technical migrations that improved system reliability.
-
-I am particularly interested in ${company}'s technical challenges and would welcome the opportunity to discuss how my expertise can contribute to your engineering goals.
-
-Best regards,
-${name}`
-  },
-  {
-    id: 'entry',
-    name: 'Entry Level',
-    desc: 'Perfect for fresh graduates',
-    icon: '🎓',
-    content: (name, role, company) => `Dear Hiring Manager,
-
-I am a recent graduate eager to begin my career as a ${role} at ${company}. While I may be early in my professional journey, I bring strong foundational skills, a passion for learning, and a drive to make meaningful contributions.
-
-During my studies and personal projects, I have:
-- Built multiple full-stack web applications using modern technologies
-- Contributed to open-source projects and collaborated with development teams
-- Consistently taught myself new skills and technologies independently
-
-I am particularly excited about ${company} because it represents the kind of forward-thinking environment where I can grow rapidly while contributing real value from day one.
-
-I would be grateful for the opportunity to prove myself. Thank you for considering my application.
-
-Sincerely,
-${name}`
-  },
-  {
-    id: 'career_change',
-    name: 'Career Changer',
-    desc: 'Transitioning from another field',
-    icon: '🔄',
-    content: (name, role, company) => `Dear Hiring Manager,
-
-I am writing to apply for the ${role} role at ${company}. After years in a different field, I have made a deliberate and passionate transition into software development, and I am excited to bring a unique perspective to your team.
-
-What makes my background valuable:
-- Transferable skills in problem-solving, project management, and communication
-- Self-taught programming with real projects deployed in production
-- Ability to bridge technical and non-technical stakeholders
-- Fresh perspective unconstrained by "that's how we've always done it"
-
-I chose to pivot because I discovered a genuine passion for building technology that solves real problems. I have invested significant time in developing my technical skills, and I am confident in my ability to contribute effectively as a ${role}.
-
-I would love to discuss how my unique background could be an asset to ${company}.
-
-Sincerely,
-${name}`
-  },
+const STYLES = [
+  { id: 'formal', name: '👔 Formal', desc: 'Corporate & professional' },
+  { id: 'creative', name: '🎨 Creative', desc: 'Startups & modern companies' },
+  { id: 'technical', name: '⚡ Technical', desc: 'Engineering & developer roles' },
+  { id: 'entry', name: '🎓 Entry Level', desc: 'Fresh graduates' },
+  { id: 'career_change', name: '🔄 Career Change', desc: 'Switching industries' },
 ]
 
 export default function CoverLetterTemplates() {
-  const [name, setName] = useState('')
-  const [role, setRole] = useState('')
+  const [resumes, setResumes] = useState([])
+  const [selectedResume, setSelectedResume] = useState('')
+  const [style, setStyle] = useState('formal')
+  const [jobTitle, setJobTitle] = useState('')
   const [company, setCompany] = useState('')
-  const [selected, setSelected] = useState(null)
+  const [jobDesc, setJobDesc] = useState('')
+  const [letter, setLetter] = useState('')
+  const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [tab, setTab] = useState('generate')
 
-  const generated = selected ? selected.content(name || 'Your Name', role || 'Software Developer', company || 'Your Company') : ''
+  useEffect(() => {
+    api.get('/api/resume/all')
+      .then(r => {
+        setResumes(r.data)
+        if (r.data[0]) setSelectedResume(r.data[0].id)
+      })
+      .catch(() => {})
+  }, [])
+
+  const generate = async () => {
+    if (!jobTitle || !company) return alert('Please fill in Job Title and Company name')
+    setLoading(true)
+    try {
+      const r = await api.post('/api/analysis/cover-letter', {
+        resumeId: parseInt(selectedResume),
+        jobDescription: `Job Title: ${jobTitle}\nCompany: ${company}\nStyle: ${style}\nJob Description: ${jobDesc || `${jobTitle} position at ${company}`}\n\nWrite a ${style} cover letter tailored specifically for this role and company. Reference specific details from the resume.`,
+      })
+      setLetter(r.data.coverLetter)
+      setTab('result')
+      trackActivity('coverLetters')
+    } catch (err) {
+      alert('Failed to generate. Make sure you have uploaded and analyzed a resume first.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const copy = () => {
-    navigator.clipboard.writeText(generated)
+    navigator.clipboard.writeText(letter)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   const download = () => {
-    const blob = new Blob([generated], { type: 'text/plain' })
+    const blob = new Blob([letter], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `cover-letter-${selected?.id}.txt`
+    a.download = `cover-letter-${company}-${jobTitle}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -136,67 +69,111 @@ export default function CoverLetterTemplates() {
   return (
     <Layout>
       <div className="page-header">
-        <h2 className="page-title">Cover Letter Templates</h2>
-        <p className="page-subtitle">5 professional templates — customize and download instantly</p>
+        <h2 className="page-title">AI Cover Letter Generator</h2>
+        <p className="page-subtitle">Generate personalized cover letters using your actual resume content</p>
       </div>
 
-      <div className="grid-2" style={{ alignItems: 'start' }}>
-        <div>
-          <div className="card" style={{ marginBottom: '1rem' }}>
-            <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Your Details</h4>
-            <div className="form-group">
-              <label className="form-label">Your Name</label>
-              <input className="form-input" placeholder="e.g. Mohan Vel" value={name} onChange={e => setName(e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Target Role</label>
-              <input className="form-input" placeholder="e.g. Full Stack Developer" value={role} onChange={e => setRole(e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Company Name</label>
-              <input className="form-input" placeholder="e.g. Google" value={company} onChange={e => setCompany(e.target.value)} />
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem' }}>
+        {['generate', 'result'].map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`btn btn-sm ${tab === t ? 'btn-primary' : 'btn-ghost'}`}>
+            {t === 'generate' ? '⚙️ Generate' : '📄 Result'}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'generate' ? (
+        <div className="grid-2" style={{ alignItems: 'start' }}>
+          <div>
+            <div className="card" style={{ marginBottom: '1rem' }}>
+              <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Job Details</h4>
+
+              <div className="form-group">
+                <label className="form-label">Select Your Resume</label>
+                <select className="form-select" value={selectedResume} onChange={e => setSelectedResume(e.target.value)}>
+                  {resumes.map(r => <option key={r.id} value={r.id}>{r.title}</option>)}
+                  {resumes.length === 0 && <option disabled>No resumes — upload one first</option>}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Job Title *</label>
+                <input className="form-input" placeholder="e.g. Full Stack Developer" value={jobTitle} onChange={e => setJobTitle(e.target.value)} />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Company Name *</label>
+                <input className="form-input" placeholder="e.g. Google" value={company} onChange={e => setCompany(e.target.value)} />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Job Description (optional but recommended)</label>
+                <textarea className="form-textarea" rows={4} placeholder="Paste the job description here for a more tailored cover letter..." value={jobDesc} onChange={e => setJobDesc(e.target.value)} />
+              </div>
             </div>
           </div>
 
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Choose Template</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {TEMPLATES.map(t => (
-              <div key={t.id}
-                onClick={() => setSelected(t)}
-                style={{ padding: '12px', border: `2px solid ${selected?.id === t.id ? 'var(--gold-500)' : 'var(--gray-200)'}`, borderRadius: 'var(--border-radius)', cursor: 'pointer', background: selected?.id === t.id ? 'rgba(201,168,76,0.05)' : 'white', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <span style={{ fontSize: '1.5rem' }}>{t.icon}</span>
-                <div>
-                  <div style={{ fontWeight: '600', color: 'var(--navy-800)', fontSize: '0.9rem' }}>{t.name}</div>
-                  <div style={{ color: 'var(--gray-500)', fontSize: '0.8125rem' }}>{t.desc}</div>
-                </div>
+          <div>
+            <div className="card" style={{ marginBottom: '1rem' }}>
+              <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Cover Letter Style</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {STYLES.map(s => (
+                  <div key={s.id} onClick={() => setStyle(s.id)}
+                    style={{ padding: '12px', border: `2px solid ${style === s.id ? 'var(--gold-500)' : 'var(--gray-200)'}`, borderRadius: 'var(--border-radius)', cursor: 'pointer', background: style === s.id ? 'rgba(201,168,76,0.05)' : 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: '600', color: 'var(--navy-800)', fontSize: '0.9rem' }}>{s.name}</div>
+                      <div style={{ color: 'var(--gray-500)', fontSize: '0.8125rem' }}>{s.desc}</div>
+                    </div>
+                    {style === s.id && <span style={{ color: 'var(--gold-500)', fontSize: '1.2rem' }}>✓</span>}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            <button className="btn btn-primary btn-full" onClick={generate} disabled={loading || resumes.length === 0}>
+              {loading ? '🤖 AI is writing your cover letter...' : '✨ Generate AI Cover Letter'}
+            </button>
+
+            {resumes.length === 0 && (
+              <p style={{ color: 'var(--danger)', fontSize: '0.8125rem', marginTop: '8px', textAlign: 'center' }}>
+                Upload a resume first to generate a personalized cover letter
+              </p>
+            )}
           </div>
         </div>
-
+      ) : (
         <div>
-          {selected ? (
+          {letter ? (
             <div className="card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '8px' }}>
-                <h4 style={{ color: 'var(--navy-800)', margin: 0 }}>{selected.icon} {selected.name}</h4>
+                <div>
+                  <h4 style={{ color: 'var(--navy-800)', margin: '0 0 4px' }}>
+                    Cover Letter — {jobTitle} at {company}
+                  </h4>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>
+                    Style: {STYLES.find(s => s.id === style)?.name} • Generated by Groq AI
+                  </span>
+                </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button className="btn btn-ghost btn-sm" onClick={copy}>{copied ? '✓ Copied!' : 'Copy'}</button>
-                  <button className="btn btn-primary btn-sm" onClick={download}>Download</button>
+                  <button className="btn btn-ghost btn-sm" onClick={copy}>{copied ? '✓ Copied!' : '📋 Copy'}</button>
+                  <button className="btn btn-primary btn-sm" onClick={download}>⬇️ Download</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setTab('generate')}>✏️ Edit</button>
                 </div>
               </div>
-              <div style={{ whiteSpace: 'pre-wrap', color: 'var(--gray-700)', lineHeight: '1.8', fontSize: '0.9rem', background: 'var(--gray-50)', padding: '1.5rem', borderRadius: 'var(--border-radius)', border: '1px solid var(--gray-200)', minHeight: '400px' }}>
-                {generated}
+              <div style={{ whiteSpace: 'pre-wrap', color: 'var(--gray-700)', lineHeight: '1.9', fontSize: '0.9375rem', background: 'var(--gray-50)', padding: '2rem', borderRadius: 'var(--border-radius)', border: '1px solid var(--gray-200)', minHeight: '400px' }}>
+                {letter}
               </div>
             </div>
           ) : (
-            <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+            <div className="card" style={{ textAlign: 'center', padding: '4rem' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📧</div>
-              <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>Select a Template</h3>
-              <p style={{ color: 'var(--gray-500)' }}>Choose a template from the left to preview and customize it</p>
+              <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>No cover letter yet</h3>
+              <p style={{ color: 'var(--gray-500)', marginBottom: '1.5rem' }}>Go to the Generate tab and fill in the details</p>
+              <button className="btn btn-primary" onClick={() => setTab('generate')}>Generate Cover Letter</button>
             </div>
           )}
         </div>
-      </div>
+      )}
     </Layout>
   )
 }

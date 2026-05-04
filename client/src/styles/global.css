@@ -550,3 +550,79 @@ tbody tr:last-child td { border-bottom: none; }
   .main-content { padding: 0.75rem; }
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
 }
+/* ── Dark Mode ── */
+[data-theme="dark"] {
+  --white: #1E293B;
+  --gray-50: #0F172A;
+  --gray-100: #1E293B;
+  --gray-200: #334155;
+  --gray-300: #475569;
+  --gray-400: #64748B;
+  --gray-500: #94A3B8;
+  --gray-600: #CBD5E1;
+  --gray-700: #E2E8F0;
+  --gray-800: #F1F5F9;
+  --gray-900: #F8FAFC;
+  --navy-900: #0F172A;
+  --navy-800: #1E293B;
+  --navy-700: #334155;
+  --navy-600: #475569;
+}
+
+[data-theme="dark"] .card {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .sidebar {
+  background: #0F172A;
+  border-color: #1E293B;
+}
+
+[data-theme="dark"] .main-content {
+  background: #0F172A;
+}
+
+[data-theme="dark"] .navbar {
+  background: #0F172A;
+  border-color: #1E293B;
+}
+
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .form-textarea {
+  background: #1E293B;
+  border-color: #334155;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] table thead {
+  background: #0F172A !important;
+}
+
+[data-theme="dark"] table tbody tr {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] table tbody td {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] .page-title {
+  color: #F1F5F9;
+}
+
+[data-theme="dark"] .page-subtitle {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] h2, 
+[data-theme="dark"] h3, 
+[data-theme="dark"] h4 {
+  color: #F1F5F9;
+}
+
+[data-theme="dark"] p {
+  color: #CBD5E1;
+}

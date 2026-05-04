@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import api from '../utils/api'
+import { trackActivity } from '../utils/activity'
 
 export default function JobListings() {
   const [jobs, setJobs] = useState([])
@@ -31,6 +32,7 @@ export default function JobListings() {
     try {
       const r = await api.get(`/api/jobs/search?skills=${encodeURIComponent(searchQuery)}`)
       setJobs(r.data)
+      trackActivity('jobSearches')
     } catch {
       setJobs([])
     } finally {

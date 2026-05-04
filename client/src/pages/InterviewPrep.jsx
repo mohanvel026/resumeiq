@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Layout from '../components/Layout'
 import api from '../utils/api'
+import { trackActivity } from '../utils/activity'
 
 export default function InterviewPrep() {
   const [role, setRole] = useState('')
@@ -14,6 +15,7 @@ export default function InterviewPrep() {
     try {
       const r = await api.post('/api/analysis/interview-questions', { targetRole: role })
       setQuestions(JSON.parse(r.data.interviewQuestions || '[]'))
+      trackActivity('interviews')
     } catch { setQuestions([]) }
     finally { setLoading(false) }
   }
