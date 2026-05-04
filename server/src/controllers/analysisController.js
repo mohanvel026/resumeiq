@@ -417,6 +417,45 @@ Return ONLY this exact JSON, no explanation, no markdown:
     res.status(500).json({ message: error.message || 'LinkedIn analysis failed' })
   }
 }
+const getUserStats = async (req, res) => {
+  try {
+    const resumes = await prisma.resume.findMany({
+      where: { userId: req.user.id },
+      include: { aiAnalyses: true }
+    })
+
+    let bestScore = 0
+    let analyses = 0
+    let coverLetters = 0
+    let keywords = 0
+    let rewrites = 0
+    let interviews = 0
+
+    resumes.forEach(resume => {
+      resume.aiAnalyses?.forEach(a => {
+        analyses++
+        if (a.type === 'SCORE' && a.scoreTotal > bestScore) bestScore = a.scoreTotal
+        if (a.type === 'COVER_LETTER') coverLetters++
+        if (a.type === 'KEYWORD_GAP') keywords++
+        if (a.type === 'BULLET_REWRITE') rewrites++
+        if (a.type === 'INTERVIEW_QUESTIONS') interviews++
+      })
+    })
+
+    res.json({
+      resumes: resumes.length,
+      analyses,
+      bestScore,
+      coverLetters,
+      keywords,
+      rewrites,
+      interviews,
+    })
+  } catch (error) {
+    console.error('Stats error:', error)
+    res.status(500).json({ message: 'Failed to get stats' })
+  }
+}
 const getLeaderboard = async (req, res) => {
   try {
     // 1. Fetch ALL scores, but order them by the NEWEST date first
@@ -484,4 +523,5 @@ module.exports = {
   evaluateAnswer,
   analyzeLinkedIn,
   getLeaderboard,
+  getUserStats,
 }

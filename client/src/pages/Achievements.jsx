@@ -5,12 +5,12 @@ import api from '../utils/api'
 
 const BADGES = [
   { id: 'first_upload', icon: '📄', name: 'First Resume', desc: 'Upload your first resume', check: s => s.resumes >= 1, hint: 'Upload a resume to earn this' },
-  { id: 'analyzer', icon: '⚡', name: 'AI Analyzer', desc: 'Analyze your resume with AI', check: s => s.analyses >= 1, hint: 'Go to any resume and click Analyze' },
+  { id: 'analyzer', icon: '⚡', name: 'AI Analyzer', desc: 'Analyze your resume with AI', check: s => s.analyses >= 1, hint: 'Go to any resume → click Analyze Resume' },
   { id: 'multi_resume', icon: '📚', name: 'Multi-Version', desc: 'Upload 3 or more resumes', check: s => s.resumes >= 3, hint: 'Upload 2 more resumes' },
-  { id: 'score_60', icon: '🎯', name: 'Score 60+', desc: 'Achieve a resume score of 60+', check: s => s.bestScore >= 60, hint: 'Improve your resume to score 60+' },
+  { id: 'score_60', icon: '🎯', name: 'Score 60+', desc: 'Achieve a resume score of 60+', check: s => s.bestScore >= 60, hint: 'Analyze your resume to get scored' },
   { id: 'score_75', icon: '🏅', name: 'Score 75+', desc: 'Achieve a resume score of 75+', check: s => s.bestScore >= 75, hint: 'Keep improving your resume' },
   { id: 'score_90', icon: '🏆', name: 'Top Scorer', desc: 'Achieve a resume score of 90+', check: s => s.bestScore >= 90, hint: 'Near perfect resume needed' },
-  { id: 'cover_letter', icon: '📧', name: 'Cover Letter Pro', desc: 'Generate an AI cover letter', check: s => s.coverLetters >= 1, hint: 'Use the Cover Letter tab in resume analysis' },
+  { id: 'cover_letter', icon: '📧', name: 'Cover Letter Pro', desc: 'Generate an AI cover letter', check: s => s.coverLetters >= 1, hint: 'Use Cover Letters page' },
   { id: 'keyword_hunter', icon: '🔍', name: 'Keyword Hunter', desc: 'Run keyword gap analysis', check: s => s.keywords >= 1, hint: 'Use Keywords tab in resume analysis' },
   { id: 'rewriter', icon: '✍️', name: 'Bullet Rewriter', desc: 'Use AI bullet rewriter', check: s => s.rewrites >= 1, hint: 'Use Rewriter tab in resume analysis' },
   { id: 'job_hunter', icon: '💼', name: 'Job Hunter', desc: 'Search for jobs', check: s => s.jobSearches >= 1, hint: 'Go to Job Listings and search' },
@@ -20,7 +20,6 @@ const BADGES = [
   { id: 'planner', icon: '📅', name: 'Planner', desc: 'Generate a 30-day job plan', check: s => s.plans >= 1, hint: 'Go to 30-Day Plan page' },
   { id: 'exporter', icon: '📥', name: 'PDF Exporter', desc: 'Export resume as PDF', check: s => s.exports >= 1, hint: 'Go to Export PDF page' },
 ]
-
 const DEFAULT_STATS = {
   resumes: 0, analyses: 0, bestScore: 0,
   coverLetters: 0, keywords: 0, rewrites: 0,
@@ -37,56 +36,34 @@ export default function Achievements() {
   }, [])
 
   const loadStats = async () => {
-    try {
-      // Get resumes count
-      const resumesRes = await api.get('/api/resume/all')
-      const resumes = resumesRes.data || []
+  try {
+    // Get real stats from backend
+    const statsRes = await api.get('/api/analysis/user-stats')
+    const serverStats = statsRes.data
 
-      // Get analyses from all resumes
-      let bestScore = 0
-      let analyses = 0
-      let coverLetters = 0
-      let keywords = 0
-      let rewrites = 0
+    // Get activity from localStorage
+    const activity = JSON.parse(localStorage.getItem('resumeiq_activity') || '{}')
 
-      for (const resume of resumes.slice(0, 5)) {
-        try {
-          const r = await api.get(`/api/resume/${resume.id}`)
-          if (r.data?.aiAnalyses) {
-            r.data.aiAnalyses.forEach(a => {
-              analyses++
-              if (a.type === 'SCORE' && a.scoreTotal > bestScore) bestScore = a.scoreTotal
-              if (a.type === 'COVER_LETTER') coverLetters++
-              if (a.type === 'KEYWORD_GAP') keywords++
-              if (a.type === 'BULLET_REWRITE') rewrites++
-            })
-          }
-        } catch {}
-      }
-
-      // Get saved activity from localStorage
-      const activity = JSON.parse(localStorage.getItem('resumeiq_activity') || '{}')
-
-      setStats({
-        resumes: resumes.length,
-        analyses: analyses + (activity.analyses || 0),
-        bestScore: Math.max(bestScore, activity.bestScore || 0),
-        coverLetters: coverLetters + (activity.coverLetters || 0),
-        keywords: keywords + (activity.keywords || 0),
-        rewrites: rewrites + (activity.rewrites || 0),
-        jobSearches: activity.jobSearches || 0,
-        interviews: activity.interviews || 0,
-        mockInterviews: activity.mockInterviews || 0,
-        skillGaps: activity.skillGaps || 0,
-        plans: activity.plans || 0,
-        exports: activity.exports || 0,
-      })
-    } catch (err) {
-      console.error('Failed to load stats:', err)
-    } finally {
-      setLoading(false)
-    }
+    setStats({
+      resumes: serverStats.resumes || 0,
+      analyses: serverStats.analyses || 0,
+      bestScore: serverStats.bestScore || 0,
+      coverLetters: serverStats.coverLetters || 0,
+      keywords: serverStats.keywords || 0,
+      rewrites: serverStats.rewrites || 0,
+      interviews: serverStats.interviews || 0,
+      jobSearches: activity.jobSearches || 0,
+      mockInterviews: activity.mockInterviews || 0,
+      skillGaps: activity.skillGaps || 0,
+      plans: activity.plans || 0,
+      exports: activity.exports || 0,
+    })
+  } catch (err) {
+    console.error('Failed to load stats:', err)
+  } finally {
+    setLoading(false)
   }
+}
 
   const earned = BADGES.filter(b => b.check(stats))
   const locked = BADGES.filter(b => !b.check(stats))

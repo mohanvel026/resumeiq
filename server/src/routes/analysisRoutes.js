@@ -1,12 +1,20 @@
 const express = require('express')
-const auth = require('../middleware/authMiddleware')
-const {
-  scoreResume, findKeywordGaps, rewriteBullets,
-  generateCoverLetter, scoreJobMatch, analyzeSkillGap,
-  generateInterviewQuestions, evaluateAnswer, analyzeLinkedIn,
-} = require('../controllers/analysisController')
-
 const router = express.Router()
+const auth = require('../middleware/authMiddleware')
+
+const {
+  scoreResume,
+  findKeywordGaps,
+  rewriteBullets,
+  generateCoverLetter,
+  scoreJobMatch,
+  analyzeSkillGap,
+  generateInterviewQuestions,
+  evaluateAnswer,
+  analyzeLinkedIn,
+  getLeaderboard,
+  getUserStats,
+} = require('../controllers/analysisController')
 
 router.post('/score', auth, scoreResume)
 router.post('/keywords', auth, findKeywordGaps)
@@ -17,6 +25,7 @@ router.post('/skill-gap', auth, analyzeSkillGap)
 router.post('/interview-questions', auth, generateInterviewQuestions)
 router.post('/evaluate-answer', auth, evaluateAnswer)
 router.post('/linkedin', auth, analyzeLinkedIn)
-const { getLeaderboard } = require('../controllers/analysisController')
 router.get('/leaderboard', auth, getLeaderboard)
+router.get('/user-stats', auth, getUserStats)
+
 module.exports = router

@@ -626,3 +626,158 @@ tbody tr:last-child td { border-bottom: none; }
 [data-theme="dark"] p {
   color: #CBD5E1;
 }
+/* ── DARK MODE COMPLETE FIX ── */
+[data-theme="dark"] {
+  --white: #1E293B;
+  --gray-50: #0F172A;
+  --gray-100: #1E293B;
+  --gray-200: #334155;
+  --gray-300: #475569;
+  --gray-400: #64748B;
+  --gray-500: #94A3B8;
+  --gray-600: #CBD5E1;
+  --gray-700: #E2E8F0;
+  --gray-800: #F1F5F9;
+  --gray-900: #F8FAFC;
+}
+
+[data-theme="dark"] body,
+[data-theme="dark"] .app-wrapper,
+[data-theme="dark"] .main-wrapper {
+  background: #0F172A !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .main-content {
+  background: #0F172A !important;
+}
+
+[data-theme="dark"] .navbar {
+  background: #020817 !important;
+  border-color: #1E293B !important;
+}
+
+[data-theme="dark"] .sidebar {
+  background: #020817 !important;
+  border-color: #1E293B !important;
+}
+
+[data-theme="dark"] .sidebar-link {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .sidebar-link:hover,
+[data-theme="dark"] .sidebar-link.active {
+  background: #1E293B !important;
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] .sidebar-section-title {
+  color: #475569 !important;
+}
+
+[data-theme="dark"] .card {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .card h2,
+[data-theme="dark"] .card h3,
+[data-theme="dark"] .card h4,
+[data-theme="dark"] .card p,
+[data-theme="dark"] .card span,
+[data-theme="dark"] .card label,
+[data-theme="dark"] .card div {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .page-title {
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] .page-subtitle {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5 {
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] label,
+[data-theme="dark"] div {
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .form-textarea {
+  background: #0F172A !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .form-label {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] table {
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] thead tr {
+  background: #020817 !important;
+}
+
+[data-theme="dark"] tbody tr {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] tbody td,
+[data-theme="dark"] tbody th {
+  color: #CBD5E1 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .metric-card {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .metric-label {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .metric-value {
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] .btn-ghost {
+  color: #CBD5E1 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .btn-ghost:hover {
+  background: #334155 !important;
+}
+
+[data-theme="dark"] .alert {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .navbar-brand {
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] .navbar-user span {
+  color: #CBD5E1 !important;
+}
