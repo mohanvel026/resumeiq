@@ -27,7 +27,7 @@ export default function Landing() {
         <div style={{ position: 'fixed', top: 'var(--navbar-height)', left: 0, right: 0, background: 'var(--navy-900)', zIndex: 99, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px solid var(--navy-700)' }}>
           <a href="#features" className="landing-nav-link" onClick={() => setMenuOpen(false)}>Features</a>
           <a href="#stats" className="landing-nav-link" onClick={() => setMenuOpen(false)}>Results</a>
-          <Link to="/login" className="btn btn-ghost btn-sm" onClick={() => setMenuOpen(false)} style={{ color: 'white' }}>Login</Link>
+          <Link to="/login" className="btn btn-ghost btn-sm" onClick={() => setMenuOpen(false)} style={{ color: 'var(--white)' }}>Login</Link>
           <Link to="/register" className="btn btn-primary btn-sm" onClick={() => setMenuOpen(false)}>Get Started Free</Link>
         </div>
       )}

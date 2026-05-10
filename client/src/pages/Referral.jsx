@@ -46,13 +46,13 @@ export default function Referral() {
             </button>
           </div>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => share('whatsapp')} style={{ padding: '8px 16px', borderRadius: '8px', background: '#25D366', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '0.875rem' }}>
+            <button onClick={() => share('whatsapp')} style={{ padding: '8px 16px', borderRadius: '8px', background: '#25D366', color: 'var(--white)', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '0.875rem' }}>
               📱 WhatsApp
             </button>
-            <button onClick={() => share('linkedin')} style={{ padding: '8px 16px', borderRadius: '8px', background: '#0077B5', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '0.875rem' }}>
+            <button onClick={() => share('linkedin')} style={{ padding: '8px 16px', borderRadius: '8px', background: '#0077B5', color: 'var(--white)', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '0.875rem' }}>
               💼 LinkedIn
             </button>
-            <button onClick={() => share('twitter')} style={{ padding: '8px 16px', borderRadius: '8px', background: '#1DA1F2', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '0.875rem' }}>
+            <button onClick={() => share('twitter')} style={{ padding: '8px 16px', borderRadius: '8px', background: '#1DA1F2', color: 'var(--white)', border: 'none', cursor: 'pointer', fontWeight: '500', fontSize: '0.875rem' }}>
               🐦 Twitter
             </button>
           </div>

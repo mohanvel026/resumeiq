@@ -22,7 +22,7 @@ export default function NotificationBell() {
       >
         🔔
         {unread > 0 && (
-          <span style={{ position: 'absolute', top: '-2px', right: '-2px', background: 'var(--danger)', color: 'white', borderRadius: '50%', width: '16px', height: '16px', fontSize: '0.625rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>
+          <span style={{ position: 'absolute', top: '-2px', right: '-2px', background: 'var(--danger)', color: 'var(--white)', borderRadius: '50%', width: '16px', height: '16px', fontSize: '0.625rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>
             {unread}
           </span>
         )}
@@ -31,7 +31,7 @@ export default function NotificationBell() {
       {open && (
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 98 }} onClick={() => setOpen(false)} />
-          <div style={{ position: 'absolute', right: 0, top: '40px', width: '320px', background: 'white', borderRadius: '12px', border: '1px solid var(--gray-200)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 99, overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', right: 0, top: '40px', width: '320px', background: 'var(--white)', borderRadius: '12px', border: '1px solid var(--gray-200)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 99, overflow: 'hidden' }}>
             <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--gray-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontWeight: '600', color: 'var(--navy-800)', fontSize: '0.9rem' }}>Notifications</span>
               {unread > 0 && (

@@ -286,7 +286,7 @@ export default function ResumeDetail() {
           {analysis && (
             <>
               {/* Overall Score Hero Card */}
-              <div className="card" style={{ textAlign: 'center', marginBottom: '2rem', background: 'var(--navy-900)', color: 'white' }}>
+              <div className="card" style={{ textAlign: 'center', marginBottom: '2rem', background: 'var(--navy-900)', color: 'var(--white)' }}>
                 <h3 style={{ fontSize: '1rem', textTransform: 'uppercase', opacity: 0.8 }}>Overall ATS Compatibility</h3>
                 <h1 style={{ fontSize: '4rem', color: getScoreColor(analysis.scoreTotal), margin: '10px 0' }}>
                   {analysis.scoreTotal}%

@@ -49,7 +49,7 @@ export default function UploadResume() {
       <nav className="navbar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Link to="/dashboard" style={{ color: 'var(--gold-500)', fontSize: '1.25rem', fontWeight: '700', textDecoration: 'none' }}>
-            ← <span style={{ color: 'white' }}>Resume</span>IQ
+            ← <span style={{ color: 'var(--white)' }}>Resume</span>IQ
           </Link>
         </div>
         <div className="navbar-actions">

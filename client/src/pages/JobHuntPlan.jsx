@@ -120,7 +120,7 @@ export default function JobHuntPlan() {
                     <h4 style={{ color: completedDays[d.day] ? 'var(--gray-400)' : 'var(--navy-800)', margin: '2px 0 0', fontSize: '0.9rem', textDecoration: completedDays[d.day] ? 'line-through' : 'none' }}>{d.title}</h4>
                   </div>
                   <div style={{ width: '24px', height: '24px', borderRadius: '50%', border: `2px solid ${completedDays[d.day] ? 'var(--success)' : 'var(--gray-300)'}`, background: completedDays[d.day] ? 'var(--success)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {completedDays[d.day] && <span style={{ color: 'white', fontSize: '12px' }}>✓</span>}
+                    {completedDays[d.day] && <span style={{ color: 'var(--white)', fontSize: '12px' }}>✓</span>}
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>

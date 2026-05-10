@@ -48,8 +48,8 @@
 //   return (
 //     <Layout>
 //       <div style={{ marginBottom: '2rem' }}>
-//         <h2 style={{ color: '#0A1628', margin: '0 0 4px' }}>Global Leaderboard</h2>
-//         <p style={{ color: '#6C757D', margin: 0 }}>
+//         <h2 style={{ color: 'var(--navy-900)', margin: '0 0 4px' }}>Global Leaderboard</h2>
+//         <p style={{ color: 'var(--gray-600)', margin: 0 }}>
 //           Rankings based on real AI resume scores — updated live
 //         </p>
 //       </div>
@@ -103,9 +103,9 @@
 
 //           {/* Full Table */}
 //           <div style={{
-//             background: 'white',
+//             background: 'var(--white)',
 //             borderRadius: '12px',
-//             border: '1px solid #E9ECEF',
+//             border: '1px solid var(--gray-200)',
 //             overflow: 'hidden',
 //             marginBottom: '1.5rem'
 //           }}>
@@ -127,13 +127,13 @@
 //                     <td style={{ padding: '12px 16px', fontWeight: '700', color: p.rank <= 3 ? '#C9A84C' : '#6C757D', fontSize: '0.875rem' }}>
 //                       {p.badge || `#${p.rank}`}
 //                     </td>
-//                     <td style={{ padding: '12px 16px', fontWeight: '600', color: '#0D1F3C', fontSize: '0.875rem' }}>
+//                     <td style={{ padding: '12px 16px', fontWeight: '600', color: 'var(--navy-800)', fontSize: '0.875rem' }}>
 //                       {p.name}
 //                       {p.isCurrentUser && (
 //                         <span style={{ color: '#C9A84C', fontSize: '0.75rem', marginLeft: '6px', fontWeight: '400' }}>← You</span>
 //                       )}
 //                     </td>
-//                     <td style={{ padding: '12px 16px', color: '#6C757D', fontSize: '0.8125rem' }}>
+//                     <td style={{ padding: '12px 16px', color: 'var(--gray-600)', fontSize: '0.8125rem' }}>
 //                       {p.resumeTitle}
 //                     </td>
 //                     <td style={{ padding: '12px 16px' }}>
@@ -157,7 +157,7 @@
 //                 <h4 style={{ color: '#C9A84C', marginBottom: '0.5rem' }}>
 //                   Your Current Rank: #{currentUserRank}
 //                 </h4>
-//                 <p style={{ color: '#ADB5BD', margin: '0 0 1rem', fontSize: '0.875rem' }}>
+//                 <p style={{ color: 'var(--gray-500)', margin: '0 0 1rem', fontSize: '0.875rem' }}>
 //                   {currentUserRank === 1
 //                     ? '🎉 You are #1! Keep improving!'
 //                     : `Score higher to reach #${currentUserRank - 1}!`}
@@ -168,7 +168,7 @@
 //                 <h4 style={{ color: '#C9A84C', marginBottom: '0.5rem' }}>
 //                   You are not on the leaderboard yet!
 //                 </h4>
-//                 <p style={{ color: '#ADB5BD', margin: '0 0 1rem', fontSize: '0.875rem' }}>
+//                 <p style={{ color: 'var(--gray-500)', margin: '0 0 1rem', fontSize: '0.875rem' }}>
 //                   Analyze your resume to get an AI score and join the ranking!
 //                 </p>
 //               </>
@@ -178,7 +178,7 @@
 //                 display: 'inline-block',
 //                 padding: '8px 20px',
 //                 background: '#C9A84C',
-//                 color: '#0A1628',
+//                 color: 'var(--navy-900)',
 //                 borderRadius: '8px',
 //                 fontWeight: '600',
 //                 fontSize: '0.875rem',
@@ -190,7 +190,7 @@
 //                 display: 'inline-block',
 //                 padding: '8px 20px',
 //                 background: 'transparent',
-//                 color: '#ADB5BD',
+//                 color: 'var(--gray-500)',
 //                 borderRadius: '8px',
 //                 fontWeight: '500',
 //                 fontSize: '0.875rem',
@@ -254,8 +254,8 @@ export default function Leaderboard() {
   return (
     <Layout>
       <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ color: '#0A1628', margin: '0 0 4px' }}>Global Leaderboard</h2>
-        <p style={{ color: '#6C757D', margin: 0 }}>
+        <h2 style={{ color: 'var(--navy-900)', margin: '0 0 4px' }}>Global Leaderboard</h2>
+        <p style={{ color: 'var(--gray-600)', margin: 0 }}>
           Rankings based on weighted AI analysis — real-time verification
         </p>
       </div>
@@ -336,7 +336,7 @@ export default function Leaderboard() {
           </div>
 
           {/* Dynamic Progress Footer */}
-          <div style={{ background: 'var(--navy-900)', borderRadius: '12px', padding: '1.5rem', color: 'white', textAlign: 'center' }}>
+          <div style={{ background: 'var(--navy-900)', borderRadius: '12px', padding: '1.5rem', color: 'var(--white)', textAlign: 'center' }}>
             {currentUserRank ? (
               <>
                 <p style={{ margin: 0, fontSize: '0.9rem' }}>

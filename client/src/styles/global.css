@@ -1141,3 +1141,19 @@ tbody tr:last-child td { border-bottom: none; }
 [data-theme="dark"] [style*="border: 2px solid var(--gray-200)"] {
   border-color: #334155 !important;
 }
+/* ══ DARK MODE FORCE OVERRIDE - fixes inline styles ══ */
+[data-theme="dark"] .card > div,
+[data-theme="dark"] .card > p,
+[data-theme="dark"] .card > span,
+[data-theme="dark"] .card > h2,
+[data-theme="dark"] .card > h3,
+[data-theme="dark"] .card > h4,
+[data-theme="dark"] .card section,
+[data-theme="dark"] .card article {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] .page-header h2,
+[data-theme="dark"] .page-header p {
+  color: #F1F5F9 !important;
+}

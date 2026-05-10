@@ -34,7 +34,7 @@ export default function Settings() {
                 <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>{desc}</div>
               </div>
               <div onClick={() => toggle(key)} style={{ width: '44px', height: '24px', borderRadius: '12px', background: notifications[key] ? 'var(--gold-500)' : 'var(--gray-300)', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-                <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'white', position: 'absolute', top: '3px', left: notifications[key] ? '23px' : '3px', transition: 'left 0.2s' }} />
+                <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'var(--white)', position: 'absolute', top: '3px', left: notifications[key] ? '23px' : '3px', transition: 'left 0.2s' }} />
               </div>
             </div>
           ))}
