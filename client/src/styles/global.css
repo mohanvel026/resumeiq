@@ -781,3 +781,143 @@ tbody tr:last-child td { border-bottom: none; }
 [data-theme="dark"] .navbar-user span {
   color: #CBD5E1 !important;
 }
+/* ══ DARK MODE COMPLETE OVERRIDE ══ */
+[data-theme="dark"] * {
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"],
+[data-theme="dark"] body {
+  background: #0F172A !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .app-wrapper,
+[data-theme="dark"] .main-wrapper,
+[data-theme="dark"] .main-content,
+[data-theme="dark"] .page-content,
+[data-theme="dark"] .content-area {
+  background: #0F172A !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .navbar {
+  background: #020817 !important;
+}
+
+[data-theme="dark"] .sidebar {
+  background: #020817 !important;
+}
+
+[data-theme="dark"] .sidebar-link {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .sidebar-link.active,
+[data-theme="dark"] .sidebar-link:hover {
+  background: #1E293B !important;
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] .sidebar-section-title {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .card {
+  background: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] span:not(.badge):not(.btn),
+[data-theme="dark"] label,
+[data-theme="dark"] li {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] .page-title {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .page-subtitle {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .form-textarea {
+  background: #0F172A !important;
+  color: #E2E8F0 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .form-label {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] .metric-card {
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] .metric-value {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .metric-label {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] table {
+  background: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] thead tr {
+  background: #020817 !important;
+}
+
+[data-theme="dark"] tbody tr {
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] td,
+[data-theme="dark"] th {
+  color: #CBD5E1 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .btn-ghost {
+  color: #CBD5E1 !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .btn-ghost:hover {
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] .alert {
+  background: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .navbar-brand {
+  color: white !important;
+}
+
+[data-theme="dark"] .navbar-brand span {
+  color: #C9A84C !important;
+}

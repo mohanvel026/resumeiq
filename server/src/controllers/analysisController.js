@@ -3,77 +3,57 @@ const Groq = require('groq-sdk')
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
-const askAI = async (prompt) => {
+const askAI = async (prompt, maxTokens = 2048) => {
   const completion = await client.chat.completions.create({
     messages: [{ role: 'user', content: prompt }],
     model: 'llama-3.3-70b-versatile',
-    temperature: 0.7,
-    max_tokens: 1024,
+    temperature: 0.3,
+    max_tokens: maxTokens,
   })
   return completion.choices[0].message.content
 }
 
+// ══ SCORE RESUME ══
 const scoreResume = async (req, res) => {
   try {
-    const { resumeId } = req.body;
+    const { resumeId } = req.body
     const resume = await prisma.resume.findFirst({
       where: { id: resumeId, userId: req.user.id }
-    });
-
-    if (!resume) return res.status(404).json({ message: 'Resume not found' });
-
+    })
+    if (!resume) return res.status(404).json({ message: 'Resume not found' })
     if (!resume.rawText || resume.rawText.length < 50) {
-      return res.status(400).json({ message: 'Resume text is too short. Please upload a proper resume PDF.' });
+      return res.status(400).json({ message: 'Resume text too short. Re-upload your PDF.' })
     }
 
-    // UPDATED PROMPT: Added strict point deduction logic and forced variability
-    const prompt = `You are a Tier-1 Executive Recruiter and a strict ATS Algorithm. 
-Analyze this resume with BRUTAL HONESTY. Do not give generic high scores. 
+    const prompt = `You are a strict ATS resume scanner. Analyze this resume and give REALISTIC scores (most resumes score 45-72 overall).
 
-SCORING BASELINE: 
-- 40-55: Average/Poor. Missing metrics and keywords.
-- 60-75: Good. Has keywords but lacks impact.
-- 80+: Exceptional. Hard to achieve.
-
-Resume text:
+Resume:
 """
 ${resume.rawText.slice(0, 4000)}
 """
 
-DEDUCT POINTS AGGRESSIVELY FOR:
-1. scoreImpact: -20 points if NO percentages (%) or dollar signs ($) are found. -10 for weak verbs like "helped".
-2. scoreAts: -15 if "Skills" or "Education" headers are missing.
-3. scoreReadability: -15 if sentences are longer than 25 words.
-4. scoreKeywords: -5 for every missing core industry skill (e.g., if it's a dev resume and missing 'Git' or 'Agile').
+Score each 0-100. Be strict and realistic:
+- scoreClarity: Clear writing, no typos, good organization
+- scoreImpact: Quantified achievements, strong action verbs
+- scoreAts: ATS compatibility, standard sections, keywords
+- scoreKeywords: Industry keywords, technical skills density
+- scoreFormatting: Professional formatting, consistent style
+- scoreReadability: Easy to scan in 6 seconds, good structure
 
-Return ONLY a JSON object with these keys:
-{
-  "scoreClarity": <0-100>,
-  "scoreImpact": <0-100>,
-  "scoreAts": <0-100>,
-  "scoreKeywords": <0-100>,
-  "scoreFormatting": <0-100>,
-  "scoreReadability": <0-100>,
-  "improvements": ["Specific, non-generic advice 1", "Advice 2", "Advice 3"]
-}`;
+Return ONLY this JSON, no markdown:
+{"scoreClarity":72,"scoreImpact":65,"scoreAts":70,"scoreKeywords":68,"scoreFormatting":75,"scoreReadability":71,"improvements":["Add quantified achievements like increased X by Y%","Include more industry keywords from job descriptions","Add a professional summary section"]}`
 
-    const raw = await askAI(prompt);
-    
-    // Improved JSON parsing to handle AI "chatter"
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("AI failed to return valid JSON scoring data.");
-    
-    const scores = JSON.parse(jsonMatch[0]);
+    const raw = await askAI(prompt)
+    const clean = raw.replace(/```json|```/g, '').trim()
+    const start = clean.indexOf('{')
+    const end = clean.lastIndexOf('}')
+    const scores = JSON.parse(clean.slice(start, end + 1))
 
-    // Calculate a weighted total (Impact and ATS carry more weight)
     const scoreTotal = Math.round(
-      (scores.scoreImpact * 0.3) + 
-      (scores.scoreAts * 0.3) + 
-      (scores.scoreKeywords * 0.2) + 
-      (scores.scoreClarity * 0.2)
-    );
+      (scores.scoreClarity + scores.scoreImpact + scores.scoreAts +
+       scores.scoreKeywords + scores.scoreFormatting + scores.scoreReadability) / 6
+    )
 
-    // Save to Database
     const analysis = await prisma.aiAnalysis.create({
       data: {
         resumeId,
@@ -84,20 +64,20 @@ Return ONLY a JSON object with these keys:
         scoreKeywords: scores.scoreKeywords,
         scoreFormatting: scores.scoreFormatting,
         scoreReadability: scores.scoreReadability,
-        scoreTotal: scoreTotal, // This is the final realistic score
+        scoreTotal,
         aiModel: 'llama-3.3-70b-versatile',
         rawResponse: raw,
       }
-    });
+    })
 
-    // Return response including the improvements array for the frontend
-    res.json({ ...analysis, improvements: scores.improvements });
-    
+    res.json({ ...analysis, improvements: scores.improvements })
   } catch (error) {
-    console.error('Score error:', error.message);
-    res.status(500).json({ message: 'Analysis failed: ' + error.message });
+    console.error('Score error:', error.message)
+    res.status(500).json({ message: error.message || 'Scoring failed' })
   }
-};
+}
+
+// ══ KEYWORD GAP ══
 const findKeywordGaps = async (req, res) => {
   try {
     const { resumeId, jobDescription } = req.body
@@ -106,21 +86,26 @@ const findKeywordGaps = async (req, res) => {
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
-    const prompt = `Compare this resume against the job description and find keyword gaps.
+    const prompt = `Compare this resume to the job description. Find keyword gaps.
 
 Resume:
-${resume.rawText.slice(0, 2000)}
+"""
+${resume.rawText.slice(0, 2500)}
+"""
 
 Job Description:
-${jobDescription.slice(0, 1500)}
+"""
+${(jobDescription || '').slice(0, 1500)}
+"""
 
-Return ONLY this exact JSON, no explanation, no markdown:
-{"keywordsFound": ["React", "Node.js", "JavaScript"], "keywordsMissing": ["TypeScript", "Docker", "AWS"]}`
+Return ONLY this JSON, no markdown:
+{"keywordsFound":["React","Node.js","JavaScript","Git"],"keywordsMissing":["TypeScript","Docker","AWS","GraphQL"]}`
 
     const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const jsonMatch = clean.match(/\{[\s\S]*\}/)
-    const result = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
+    const start = clean.indexOf('{')
+    const end = clean.lastIndexOf('}')
+    const result = JSON.parse(clean.slice(start, end + 1))
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
@@ -128,7 +113,7 @@ Return ONLY this exact JSON, no explanation, no markdown:
         type: 'KEYWORD_GAP',
         keywordsFound: JSON.stringify(result.keywordsFound),
         keywordsMissing: JSON.stringify(result.keywordsMissing),
-        aiModel: 'llama3-8b-8192',
+        aiModel: 'llama-3.3-70b-versatile',
       }
     })
 
@@ -139,6 +124,7 @@ Return ONLY this exact JSON, no explanation, no markdown:
   }
 }
 
+// ══ REWRITE BULLETS ══
 const rewriteBullets = async (req, res) => {
   try {
     const { resumeId } = req.body
@@ -147,19 +133,27 @@ const rewriteBullets = async (req, res) => {
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
-    const prompt = `Extract bullet points from this resume and rewrite them with action verbs and quantified impact.
+    const prompt = `Extract weak bullet points from this resume and rewrite them with strong action verbs and quantified impact.
 
 Resume:
-${resume.rawText.slice(0, 2000)}
+"""
+${resume.rawText.slice(0, 3000)}
+"""
 
-Return ONLY this exact JSON, no explanation, no markdown:
-{"originalBullets": ["worked on web apps", "helped with database"], "rewrittenBullets": ["Developed 5 full-stack web applications using React and Node.js, improving load time by 30%", "Optimized MySQL database queries reducing response time by 40%"]}
-Maximum 6 bullets.`
+Rules for rewriting:
+- Start with strong action verbs (Developed, Implemented, Optimized, Led, Built)
+- Add specific numbers, percentages, or metrics
+- Make them concise and impactful
+- Keep them relevant to the actual content
+
+Return ONLY this JSON, no markdown, exactly 5-6 bullets:
+{"originalBullets":["actual bullet from resume 1","actual bullet from resume 2","actual bullet from resume 3"],"rewrittenBullets":["Rewritten version 1 with metrics","Rewritten version 2 with metrics","Rewritten version 3 with metrics"]}`
 
     const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const jsonMatch = clean.match(/\{[\s\S]*\}/)
-    const result = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
+    const start = clean.indexOf('{')
+    const end = clean.lastIndexOf('}')
+    const result = JSON.parse(clean.slice(start, end + 1))
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
@@ -167,7 +161,7 @@ Maximum 6 bullets.`
         type: 'BULLET_REWRITE',
         originalBullets: JSON.stringify(result.originalBullets),
         rewrittenBullets: JSON.stringify(result.rewrittenBullets),
-        aiModel: 'llama3-8b-8192',
+        aiModel: 'llama-3.3-70b-versatile',
       }
     })
 
@@ -178,6 +172,7 @@ Maximum 6 bullets.`
   }
 }
 
+// ══ COVER LETTER ══
 const generateCoverLetter = async (req, res) => {
   try {
     const { resumeId, jobDescription } = req.body
@@ -186,24 +181,41 @@ const generateCoverLetter = async (req, res) => {
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
-    const prompt = `Write a professional 3-paragraph cover letter.
+    const jd = jobDescription || ''
+    const style = jd.includes('Style:') ? jd.split('Style:')[1]?.split('\n')[0]?.trim() : 'formal'
+
+    const prompt = `Write a professional cover letter based on this resume for the specified job.
 
 Resume:
-${resume.rawText.slice(0, 2000)}
+"""
+${resume.rawText.slice(0, 2500)}
+"""
 
-Job Description:
-${jobDescription.slice(0, 1000)}
+Job Details:
+"""
+${jd.slice(0, 1500)}
+"""
 
-Start directly with "Dear Hiring Manager," - no preamble, no markdown, just the letter text.`
+Style: ${style}
 
-    const coverLetter = await askAI(prompt)
+Requirements:
+- Use the candidate's ACTUAL name from the resume
+- Reference SPECIFIC skills and projects from their resume
+- Mention the specific company and role from the job details
+- Write 3-4 paragraphs
+- Start with "Dear Hiring Manager,"
+- End with "Sincerely," and the candidate's name
+- NO markdown, NO asterisks, plain text only
+- Make it personal and specific, not generic`
+
+    const coverLetter = await askAI(prompt, 1024)
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
         resumeId,
         type: 'COVER_LETTER',
         coverLetter,
-        aiModel: 'llama3-8b-8192',
+        aiModel: 'llama-3.3-70b-versatile',
       }
     })
 
@@ -214,6 +226,7 @@ Start directly with "Dear Hiring Manager," - no preamble, no markdown, just the 
   }
 }
 
+// ══ JOB MATCH ══
 const scoreJobMatch = async (req, res) => {
   try {
     const { jobDescription, resumeId } = req.body
@@ -224,61 +237,36 @@ const scoreJobMatch = async (req, res) => {
         where: { id: resumeId, userId: req.user.id }
       })
     }
-
     if (!resume) {
       resume = await prisma.resume.findFirst({
         where: { userId: req.user.id },
         orderBy: { createdAt: 'desc' },
       })
     }
+    if (!resume) return res.status(404).json({ message: 'No resume found' })
 
-    if (!resume) return res.status(404).json({ message: 'No resume found. Upload one first.' })
+    const prompt = `You are an ATS job matching system. Rate how well this resume matches the job description.
 
-    if (!resume.rawText || resume.rawText.length < 50) {
-      return res.status(400).json({ message: 'Resume text too short for analysis.' })
-    }
-
-    const prompt = `You are a strict ATS job matching system used by real recruiters. Analyze how well this resume matches the job description. Be REALISTIC - average match is 40-60%.
-
-RESUME:
+Resume:
 """
-${resume.rawText.slice(0, 3000)}
+${resume.rawText.slice(0, 2500)}
 """
 
-JOB DESCRIPTION:
+Job Description:
 """
-${jobDescription.slice(0, 2000)}
+${(jobDescription || '').slice(0, 1500)}
 """
 
-Analyze these specific areas:
+Be REALISTIC. Average match is 40-60%. Only give 80%+ if most requirements are truly met.
 
-1. REQUIRED SKILLS MATCH: List every required skill from the JD. Check if resume has each one.
-2. EXPERIENCE LEVEL: Does the resume meet the years of experience required?
-3. EDUCATION: Does education match requirements?
-4. KEYWORDS: What percentage of important JD keywords appear in the resume?
-5. JOB TITLE RELEVANCE: How relevant is their experience to this specific role?
-
-Scoring rules:
-- 90-100: Perfect match, almost all requirements met
-- 75-89: Strong match, most requirements met  
-- 60-74: Good match, many requirements met but some gaps
-- 45-59: Partial match, several important gaps
-- 30-44: Weak match, many missing requirements
-- Below 30: Poor match, major skills/experience gaps
-
-Return ONLY valid JSON:
-{
-  "jobMatchScore": <realistic number 0-100>,
-  "jobMatchSummary": "<2-3 sentences explaining the match score with specific details about what matches and what's missing>",
-  "matchedSkills": ["skill1", "skill2"],
-  "missingSkills": ["skill3", "skill4"],
-  "recommendation": "<specific actionable advice to improve match>"
-}`
+Return ONLY this JSON, no markdown:
+{"jobMatchScore":62,"jobMatchSummary":"Your React and Node.js experience matches well but you are missing TypeScript and AWS which are required. Your 2 projects demonstrate relevant skills.","matchedSkills":["React","Node.js","JavaScript","Git"],"missingSkills":["TypeScript","AWS","Docker"],"recommendation":"Add TypeScript to your projects and get AWS Cloud Practitioner certification to significantly improve your match."}`
 
     const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const jsonMatch = clean.match(/\{[\s\S]*\}/)
-    const result = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
+    const start = clean.indexOf('{')
+    const end = clean.lastIndexOf('}')
+    const result = JSON.parse(clean.slice(start, end + 1))
 
     res.json(result)
   } catch (error) {
@@ -287,6 +275,7 @@ Return ONLY valid JSON:
   }
 }
 
+// ══ SKILL GAP ══
 const analyzeSkillGap = async (req, res) => {
   try {
     const { jobDescription } = req.body
@@ -296,29 +285,33 @@ const analyzeSkillGap = async (req, res) => {
     })
     if (!resume) return res.status(404).json({ message: 'No resume found' })
 
-    const prompt = `Find skills missing from resume that are required by the job description.
+    const prompt = `Find skills missing from this resume that are needed for the job.
 
 Resume:
+"""
 ${resume.rawText.slice(0, 2000)}
+"""
 
 Job Description:
-${jobDescription.slice(0, 1000)}
+"""
+${(jobDescription || '').slice(0, 1000)}
+"""
 
-Return ONLY a JSON array, no explanation, no markdown:
-[{"skill": "TypeScript", "description": "Required for type-safe development", "resource": "https://www.typescriptlang.org/docs/"}]
-Maximum 6 items.`
+Return ONLY a JSON array, no markdown, max 6 items:
+[{"skill":"TypeScript","description":"Required for type-safe development in this role","resource":"https://www.typescriptlang.org/docs/"},{"skill":"Docker","description":"Used for containerization and deployment","resource":"https://docs.docker.com/get-started/"}]`
 
     const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const jsonMatch = clean.match(/\[[\s\S]*\]/)
-    const skills = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
+    const start = clean.indexOf('[')
+    const end = clean.lastIndexOf(']')
+    const skills = JSON.parse(clean.slice(start, end + 1))
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
         resumeId: resume.id,
         type: 'SKILL_GAP',
         missingSkills: JSON.stringify(skills),
-        aiModel: 'llama3-8b-8192',
+        aiModel: 'llama-3.3-70b-versatile',
       }
     })
 
@@ -329,6 +322,7 @@ Maximum 6 items.`
   }
 }
 
+// ══ INTERVIEW QUESTIONS ══
 const generateInterviewQuestions = async (req, res) => {
   try {
     const { targetRole } = req.body
@@ -337,20 +331,28 @@ const generateInterviewQuestions = async (req, res) => {
       orderBy: { createdAt: 'desc' },
     })
 
-    const resumeText = resume ? resume.rawText.slice(0, 2000) : `Candidate for ${targetRole}`
+    const resumeText = resume ? resume.rawText.slice(0, 2500) : `Candidate applying for ${targetRole}`
 
-    const prompt = `Generate 8 interview questions for a ${targetRole} position based on this resume.
+    const prompt = `Generate 8 realistic interview questions for a ${targetRole} position based on this resume.
 
 Resume:
+"""
 ${resumeText}
+"""
 
-Return ONLY a JSON array, no explanation, no markdown:
-[{"question": "Tell me about your experience with React?", "hint": "Describe a specific project using STAR format: Situation, Task, Action, Result"}]`
+Generate questions that are:
+- Specific to their actual projects and experience
+- Mix of technical and behavioral
+- Realistic for the ${targetRole} role
+
+Return ONLY a JSON array, no markdown:
+[{"question":"Tell me about your ResumeIQ project and the technical challenges you faced?","hint":"Use STAR format: describe the challenge, your approach, and the specific results achieved"},{"question":"How did you implement the AI integration in your projects?","hint":"Explain the API integration, error handling, and how you managed rate limits"}]`
 
     const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const jsonMatch = clean.match(/\[[\s\S]*\]/)
-    const questions = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
+    const start = clean.indexOf('[')
+    const end = clean.lastIndexOf(']')
+    const questions = JSON.parse(clean.slice(start, end + 1))
 
     if (resume) {
       await prisma.aiAnalysis.create({
@@ -358,7 +360,7 @@ Return ONLY a JSON array, no explanation, no markdown:
           resumeId: resume.id,
           type: 'INTERVIEW_QUESTIONS',
           interviewQuestions: JSON.stringify(questions),
-          aiModel: 'llama3-8b-8192',
+          aiModel: 'llama-3.3-70b-versatile',
         }
       })
     }
@@ -370,17 +372,24 @@ Return ONLY a JSON array, no explanation, no markdown:
   }
 }
 
+// ══ EVALUATE ANSWER ══
 const evaluateAnswer = async (req, res) => {
   try {
     const { question, answer, role } = req.body
 
-    const prompt = `You are interviewing for a ${role} position.
-Question: "${question}"
-Candidate answer: "${answer}"
+    const prompt = `You are an experienced interviewer for ${role} positions.
 
-Give 2-3 sentences of constructive feedback. Be encouraging but honest. No markdown, plain text only.`
+Question asked: "${question}"
+Candidate's answer: "${answer}"
 
-    const feedback = await askAI(prompt)
+Evaluate the answer and provide:
+1. What was good about the answer
+2. What was missing or could be improved
+3. A specific suggestion for improvement
+
+Keep feedback to 3-4 sentences. Be constructive and encouraging. No markdown, plain text only.`
+
+    const feedback = await askAI(prompt, 512)
     res.json({ feedback })
   } catch (error) {
     console.error('Evaluate error:', error.message)
@@ -388,6 +397,7 @@ Give 2-3 sentences of constructive feedback. Be encouraging but honest. No markd
   }
 }
 
+// ══ LINKEDIN ANALYZER ══
 const analyzeLinkedIn = async (req, res) => {
   try {
     const { linkedinUrl, resumeId } = req.body
@@ -396,20 +406,23 @@ const analyzeLinkedIn = async (req, res) => {
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
-    const prompt = `A candidate's LinkedIn is: ${linkedinUrl}
+    const prompt = `A candidate's LinkedIn profile URL is: ${linkedinUrl}
 
-Based on this resume, suggest what inconsistencies might exist and give improvement tips.
+Based on their resume, suggest LinkedIn improvements and potential inconsistencies.
 
 Resume:
+"""
 ${resume.rawText.slice(0, 2000)}
+"""
 
-Return ONLY this exact JSON, no explanation, no markdown:
-{"consistent": ["Education background matches", "Work experience timeline aligns"], "inconsistencies": ["Skills section may differ", "Recent project missing on LinkedIn"], "suggestions": "Update your LinkedIn headline to match your resume title and add your latest projects to the Featured section."}`
+Return ONLY this JSON, no markdown:
+{"consistent":["Work experience dates likely match","Education credentials should be consistent"],"inconsistencies":["LinkedIn headline may not match resume title","Projects section may be missing on LinkedIn","Skills section order may differ"],"suggestions":"Update your LinkedIn headline to match your resume title exactly. Add all projects from your resume to the Featured section. Request recommendations from your internship managers to strengthen your profile."}`
 
     const raw = await askAI(prompt)
     const clean = raw.replace(/```json|```/g, '').trim()
-    const jsonMatch = clean.match(/\{[\s\S]*\}/)
-    const result = JSON.parse(jsonMatch ? jsonMatch[0] : clean)
+    const start = clean.indexOf('{')
+    const end = clean.lastIndexOf('}')
+    const result = JSON.parse(clean.slice(start, end + 1))
 
     res.json(result)
   } catch (error) {
@@ -417,6 +430,62 @@ Return ONLY this exact JSON, no explanation, no markdown:
     res.status(500).json({ message: error.message || 'LinkedIn analysis failed' })
   }
 }
+
+// ══ LEADERBOARD ══
+const getLeaderboard = async (req, res) => {
+  try {
+    const analyses = await prisma.aiAnalysis.findMany({
+      where: {
+        type: 'SCORE',
+        scoreTotal: { not: null }
+      },
+      include: {
+        resume: {
+          include: {
+            user: {
+              select: { id: true, name: true }
+            }
+          }
+        }
+      },
+      orderBy: { scoreTotal: 'desc' }
+    })
+
+    const userBestScores = {}
+    analyses.forEach(a => {
+      const userId = a.resume?.user?.id
+      const userName = a.resume?.user?.name
+      if (!userId || !userName) return
+      if (!userBestScores[userId] || a.scoreTotal > userBestScores[userId].score) {
+        userBestScores[userId] = {
+          userId,
+          name: userName,
+          score: a.scoreTotal,
+          resumeTitle: a.resume?.title || 'Resume',
+        }
+      }
+    })
+
+    const leaderboard = Object.values(userBestScores)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 20)
+      .map((entry, index) => ({
+        rank: index + 1,
+        name: entry.name,
+        score: entry.score,
+        resumeTitle: entry.resumeTitle,
+        isCurrentUser: entry.userId === req.user.id,
+        badge: index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '',
+      }))
+
+    res.json(leaderboard)
+  } catch (error) {
+    console.error('Leaderboard error:', error)
+    res.status(500).json({ message: 'Failed to fetch leaderboard' })
+  }
+}
+
+// ══ USER STATS ══
 const getUserStats = async (req, res) => {
   try {
     const resumes = await prisma.resume.findMany({
@@ -456,62 +525,124 @@ const getUserStats = async (req, res) => {
     res.status(500).json({ message: 'Failed to get stats' })
   }
 }
-const getLeaderboard = async (req, res) => {
+
+// ══ PARSE RESUME WITH AI ══
+const parseResumeWithAI = async (req, res) => {
   try {
-    // 1. Fetch ALL scores, but order them by the NEWEST date first
-    const analyses = await prisma.aiAnalysis.findMany({
-      where: {
-        type: 'SCORE',
-        scoreTotal: { not: null }
-      },
-      include: {
-        resume: {
-          include: {
-            user: {
-              select: { id: true, name: true }
-            }
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc' // This ensures we see the most recent analysis first
-      }
+    const { resumeId } = req.body
+    const resume = await prisma.resume.findFirst({
+      where: { id: resumeId, userId: req.user.id }
     })
+    if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
-    // 2. Filter to keep only the LATEST score for each unique user
-    const userLatestScores = {}
-    analyses.forEach(analysis => {
-      const userId = analysis.resume?.user?.id
-      // If we already added this user, skip (because the first one found is the newest)
-      if (!userId || userLatestScores[userId]) return 
+    const rawText = resume.rawText || ''
+    console.log('Parsing resume, length:', rawText.length)
 
-      userLatestScores[userId] = {
-        userId,
-        name: analysis.resume.user.name,
-        score: analysis.scoreTotal,
-        resumeTitle: analysis.resume.title || 'Resume',
-      }
-    })
+    if (rawText.length < 50) {
+      return res.status(400).json({
+        message: 'Resume text too short. Delete and re-upload your PDF.'
+      })
+    }
 
-    // 3. Sort the final unique list by the score value for the ranking
-    const leaderboard = Object.values(userLatestScores)
-      .sort((a, b) => b.score - a.score) // High scores still go to the top
-      .slice(0, 20)
-      .map((entry, index) => ({
-        rank: index + 1,
-        name: entry.name,
-        score: entry.score,
-        resumeTitle: entry.resumeTitle,
-        isCurrentUser: entry.userId === req.user.id,
-        badge: index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '',
-      }))
+    const prompt = `Parse this resume and extract all information into structured JSON.
 
-    res.json(leaderboard)
+RESUME:
+"""
+${rawText.slice(0, 5000)}
+"""
+
+Extract carefully:
+- Name is usually the first line
+- Email contains @ symbol
+- Phone is a number sequence
+- Summary/Objective is a paragraph about the person
+- Education has college/school names with years
+- Experience has company names, roles, dates and bullet points starting with •
+- Projects have project names with dates and bullet points
+- Skills section has categories like CAD Software, Programming etc
+- Key Achievements has bullet points with accomplishments
+
+Return ONLY this JSON with NO markdown, NO explanation:
+{
+  "name": "full name from first line",
+  "email": "email address with @",
+  "phone": "10 digit phone number",
+  "linkedin": "",
+  "github": "",
+  "location": "city and state",
+  "summary": "the full summary/objective paragraph",
+  "education": [
+    {
+      "institution": "college or school name",
+      "degree": "degree type",
+      "year": "year range",
+      "gpa": "cgpa or percentage"
+    }
+  ],
+  "experience": [
+    {
+      "company": "company name",
+      "role": "job title like Intern",
+      "duration": "month year",
+      "location": "city state",
+      "bullets": ["bullet 1 text", "bullet 2 text", "bullet 3 text"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "project name",
+      "description": "brief description",
+      "tech": "tools or technologies mentioned",
+      "link": "",
+      "bullets": ["what was done", "what was achieved"]
+    }
+  ],
+  "skills": {
+    "languages": "programming languages if any",
+    "frameworks": "frameworks if any",
+    "tools": "CAD and other tools",
+    "databases": "databases if any",
+    "other": "soft skills and other skills"
+  },
+  "achievements": ["achievement 1", "achievement 2"],
+  "certifications": []
+}`
+
+    const raw = await askAI(prompt, 3000)
+    console.log('AI response length:', raw.length)
+    console.log('First 300 chars:', raw.slice(0, 300))
+
+    let clean = raw
+      .replace(/```json/gi, '')
+      .replace(/```/gi, '')
+      .trim()
+
+    const start = clean.indexOf('{')
+    const end = clean.lastIndexOf('}')
+
+    if (start === -1 || end === -1) {
+      console.error('No JSON in response:', clean.slice(0, 500))
+      throw new Error('AI did not return valid JSON. Try again.')
+    }
+
+    const jsonStr = clean.slice(start, end + 1)
+    const parsed = JSON.parse(jsonStr)
+
+    console.log('Parsed successfully:')
+    console.log('  Name:', parsed.name)
+    console.log('  Email:', parsed.email)
+    console.log('  Education:', parsed.education?.length)
+    console.log('  Experience:', parsed.experience?.length)
+    console.log('  Projects:', parsed.projects?.length)
+    console.log('  Achievements:', parsed.achievements?.length)
+
+    res.json(parsed)
   } catch (error) {
-    console.error('Leaderboard error:', error)
-    res.status(500).json({ message: 'Failed to fetch leaderboard' })
+    console.error('Parse error:', error.message)
+    res.status(500).json({ message: 'Parsing failed: ' + error.message })
   }
 }
+
 module.exports = {
   scoreResume,
   findKeywordGaps,
@@ -524,4 +655,5 @@ module.exports = {
   analyzeLinkedIn,
   getLeaderboard,
   getUserStats,
+  parseResumeWithAI,
 }
