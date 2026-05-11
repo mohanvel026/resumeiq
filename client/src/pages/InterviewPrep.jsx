@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 import { trackActivity } from '../utils/activity'
 
 export default function InterviewPrep() {
+  const { dark } = useTheme()
   const [role, setRole] = useState('')
   const [questions, setQuestions] = useState([])
   const [loading, setLoading] = useState(false)

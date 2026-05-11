@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 import { trackActivity } from '../utils/activity'
 
 export default function JobListings() {
+  const { dark } = useTheme()
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')

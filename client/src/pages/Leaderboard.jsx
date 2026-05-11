@@ -1,4 +1,5 @@
 // import { useState, useEffect } from 'react'
+import { useTheme } from '../context/ThemeContext'
 // import { Link } from 'react-router-dom'
 // import Layout from '../components/Layout'
 // import api from '../utils/api'
@@ -14,6 +15,7 @@
 // }
 
 // export default function Leaderboard() {
+  const { dark } = useTheme()
 //   const [board, setBoard] = useState([])
 //   const [loading, setLoading] = useState(true)
 //   const [error, setError] = useState('')
@@ -208,6 +210,7 @@
 // }
 
 import { useState, useEffect } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import { Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import api from '../utils/api'
@@ -225,6 +228,7 @@ function ScoreBadge({ score }) {
 }
 
 export default function Leaderboard() {
+  const { dark } = useTheme()
   const [board, setBoard] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

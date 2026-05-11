@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../utils/api'
 
 export default function UploadResume() {
+  const { dark } = useTheme()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [file, setFile] = useState(null)

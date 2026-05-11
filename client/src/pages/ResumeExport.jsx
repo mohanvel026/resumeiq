@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 import { trackActivity } from '../utils/activity'
@@ -487,6 +488,7 @@ const generatePDF = async (template, resume) => {
 }
 
 export default function ResumeExport() {
+  const { dark } = useTheme()
   const [resumes, setResumes] = useState([])
   const [selected, setSelected] = useState(null)
   const [resume, setResume] = useState(null)

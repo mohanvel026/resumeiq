@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 import { trackActivity } from '../utils/activity'
 
 export default function SkillGap() {
+  const { dark } = useTheme()
   const [jd, setJd] = useState('')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)

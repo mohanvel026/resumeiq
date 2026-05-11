@@ -1,6 +1,6 @@
 import Layout from '../components/Layout'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-
+import { useTheme } from '../context/ThemeContext'
 const scoreHistory = [
   { date: 'Week 1', score: 52 }, { date: 'Week 2', score: 61 },
   { date: 'Week 3', score: 68 }, { date: 'Week 4', score: 74 },
@@ -19,6 +19,7 @@ const skills = [
 ]
 
 export default function Analytics() {
+  const { dark } = useTheme()
   return (
     <Layout>
       <div className="page-header">

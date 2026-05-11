@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 import { trackActivity } from '../utils/activity'
@@ -12,6 +13,7 @@ const STYLES = [
 ]
 
 export default function CoverLetterTemplates() {
+  const { dark } = useTheme()
   const [resumes, setResumes] = useState([])
   const [selectedResume, setSelectedResume] = useState('')
   const [style, setStyle] = useState('formal')

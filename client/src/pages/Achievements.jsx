@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import api from '../utils/api'
-
+import { useTheme } from '../context/ThemeContext'
 const BADGES = [
   { id: 'first_upload', icon: '📄', name: 'First Resume', desc: 'Upload your first resume', check: s => s.resumes >= 1, hint: 'Upload a resume to earn this' },
   { id: 'analyzer', icon: '⚡', name: 'AI Analyzer', desc: 'Analyze your resume with AI', check: s => s.analyses >= 1, hint: 'Go to any resume → click Analyze Resume' },
@@ -30,7 +30,7 @@ const DEFAULT_STATS = {
 export default function Achievements() {
   const [stats, setStats] = useState(DEFAULT_STATS)
   const [loading, setLoading] = useState(true)
-
+  const { dark } = useTheme()
   useEffect(() => {
     loadStats()
   }, [])

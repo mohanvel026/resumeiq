@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import { Link, useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 
 export default function MyResumes() {
+  const { dark } = useTheme()
   const [resumes, setResumes] = useState([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(null)

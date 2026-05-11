@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 import { trackActivity } from '../utils/activity'
 
 export default function MockInterview() {
+  const { dark } = useTheme()
   const [role, setRole] = useState('')
   const [started, setStarted] = useState(false)
   const [messages, setMessages] = useState([])

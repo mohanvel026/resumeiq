@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
 
 export default function Landing() {
+  const { dark } = useTheme()
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (

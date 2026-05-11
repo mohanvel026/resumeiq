@@ -1,4 +1,5 @@
 // import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
 // import { useParams } from 'react-router-dom'
 // import Layout from '../components/Layout'
 // import api from '../utils/api'
@@ -7,6 +8,7 @@
 // const DIM_LABELS = { scoreClarity: 'Clarity', scoreImpact: 'Impact', scoreAts: 'ATS Score', scoreKeywords: 'Keywords', scoreFormatting: 'Formatting', scoreReadability: 'Readability' }
 
 // export default function ResumeDetail() {
+  const { dark } = useTheme()
 //   const { id } = useParams()
 //   const [tab, setTab] = useState('score')
 //   const [jd, setJd] = useState('')
@@ -200,6 +202,7 @@
 // }
 
 import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import { useParams } from 'react-router-dom'
 import Layout from '../components/Layout'
 import api from '../utils/api'
@@ -215,6 +218,7 @@ const DIM_LABELS = {
 }
 
 export default function ResumeDetail() {
+  const { dark } = useTheme()
   const { id } = useParams()
   const [tab, setTab] = useState('score')
   const [jd, setJd] = useState('')

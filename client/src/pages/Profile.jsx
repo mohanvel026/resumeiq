@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import Layout from '../components/Layout'
 import { useAuth } from '../context/AuthContext'
 
 export default function Profile() {
+  const { dark } = useTheme()
   const { user } = useAuth()
   const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '', phone: '', location: '', title: '', bio: '' })
   const [saved, setSaved] = useState(false)

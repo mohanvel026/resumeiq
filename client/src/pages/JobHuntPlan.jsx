@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 import { trackActivity } from '../utils/activity'
 export default function JobHuntPlan() {
+  const { dark } = useTheme()
   const [role, setRole] = useState('')
   const [plan, setPlan] = useState(null)
   const [loading, setLoading] = useState(false)
