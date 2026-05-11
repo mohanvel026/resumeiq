@@ -1,16 +1,72 @@
 const prisma = require('../utils/prisma')
 const Groq = require('groq-sdk')
+const axios = require('axios')
 
-const client = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const groqClient1 = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const groqClient2 = process.env.GROQ_API_KEY_2
+  ? new Groq({ apiKey: process.env.GROQ_API_KEY_2 })
+  : null
 
-const askAI = async (prompt, maxTokens = 2048) => {
-  const completion = await client.chat.completions.create({
-    messages: [{ role: 'user', content: prompt }],
-    model: 'llama-3.3-70b-versatile',
-    temperature: 0.2,
-    max_tokens: maxTokens,
-  })
-  return completion.choices[0].message.content
+const askAI = async (prompt, maxTokens = 1500) => {
+  const providers = [
+    // Groq Key 1 - llama
+    async () => {
+      const c = await groqClient1.chat.completions.create({
+        messages: [{ role: 'user', content: prompt }],
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.2,
+        max_tokens: maxTokens,
+      })
+      return c.choices[0].message.content
+    },
+    // Groq Key 1 - gemma fallback
+    async () => {
+      const c = await groqClient1.chat.completions.create({
+        messages: [{ role: 'user', content: prompt }],
+        model: 'gemma2-9b-it',
+        temperature: 0.2,
+        max_tokens: maxTokens,
+      })
+      return c.choices[0].message.content
+    },
+    // Groq Key 2 - if available
+    async () => {
+      if (!groqClient2) throw new Error('No second Groq key')
+      const c = await groqClient2.chat.completions.create({
+        messages: [{ role: 'user', content: prompt }],
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.2,
+        max_tokens: maxTokens,
+      })
+      return c.choices[0].message.content
+    },
+    // Gemini fallback
+    async () => {
+      if (!process.env.GEMINI_API_KEY) throw new Error('No Gemini key')
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`
+      const response = await axios.post(url, {
+        contents: [{ parts: [{ text: prompt }] }]
+      }, { timeout: 30000 })
+      return response.data.candidates[0].content.parts[0].text
+    },
+  ]
+
+  let lastError = null
+  for (let i = 0; i < providers.length; i++) {
+    try {
+      console.log(`AI attempt ${i + 1}/${providers.length}`)
+      const result = await providers[i]()
+      return result
+    } catch (err) {
+      const msg = err.message || ''
+      console.log(`Attempt ${i + 1} failed:`, msg.slice(0, 80))
+      lastError = err
+      if (i < providers.length - 1) {
+        await new Promise(r => setTimeout(r, 500))
+      }
+    }
+  }
+  throw new Error('All AI providers exhausted. Please try again in a few minutes.')
 }
 
 const parseJSON = (raw) => {
@@ -63,7 +119,7 @@ const scoreResume = async (req, res) => {
 
 RESUME TEXT:
 """
-${text.slice(0, 4000)}
+${text.slice(0, 2500)}
 """
 
 CONTEXT ABOUT THIS RESUME:
@@ -158,7 +214,7 @@ Return ONLY this exact JSON:
   "assessment": "This resume shows good foundational structure but lacks quantified achievements. Adding specific metrics and stronger keywords will significantly improve ATS ranking."
 }`
 
-    const raw = await askAI(prompt, 1500)
+    const raw = await askAI(prompt, 800)
     const scores = parseJSON(raw)
 
     // Calculate weighted total (ATS and Keywords weighted higher)
