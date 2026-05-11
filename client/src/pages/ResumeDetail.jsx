@@ -1,438 +1,419 @@
-// import { useState } from 'react'
-import { useTheme } from '../context/ThemeContext'
-// import { useParams } from 'react-router-dom'
-// import Layout from '../components/Layout'
-// import api from '../utils/api'
-
-// const DIMS = ['scoreClarity', 'scoreImpact', 'scoreAts', 'scoreKeywords', 'scoreFormatting', 'scoreReadability']
-// const DIM_LABELS = { scoreClarity: 'Clarity', scoreImpact: 'Impact', scoreAts: 'ATS Score', scoreKeywords: 'Keywords', scoreFormatting: 'Formatting', scoreReadability: 'Readability' }
-
-// export default function ResumeDetail() {
-  const { dark } = useTheme()
-//   const { id } = useParams()
-//   const [tab, setTab] = useState('score')
-//   const [jd, setJd] = useState('')
-//   const [analysis, setAnalysis] = useState(null)
-//   const [keywords, setKeywords] = useState(null)
-//   const [bullets, setBullets] = useState(null)
-//   const [coverLetter, setCoverLetter] = useState('')
-//   const [loading, setLoading] = useState(false)
-//   const [msg, setMsg] = useState('')
-
-//   const analyze = async (type) => {
-//     setLoading(true); setMsg('')
-//     try {
-//       if (type === 'score') {
-//         const r = await api.post('/api/analysis/score', { resumeId: parseInt(id) })
-//         setAnalysis(r.data)
-//       } else if (type === 'keywords') {
-//         const r = await api.post('/api/analysis/keywords', { resumeId: parseInt(id), jobDescription: jd })
-//         setKeywords(r.data)
-//       } else if (type === 'rewrite') {
-//         const r = await api.post('/api/analysis/rewrite', { resumeId: parseInt(id) })
-//         setBullets(r.data)
-//       } else if (type === 'cover') {
-//         const r = await api.post('/api/analysis/cover-letter', { resumeId: parseInt(id), jobDescription: jd })
-//         setCoverLetter(r.data.coverLetter)
-//       }
-//     } catch { setMsg('Analysis failed. Make sure your AI API key is set.') }
-//     finally { setLoading(false) }
-//   }
-
-//   const tabs = ['score', 'keywords', 'rewrite', 'cover']
-//   const tabLabels = { score: '📊 Score', keywords: '🔍 Keywords', rewrite: '✍️ Rewriter', cover: '📧 Cover Letter' }
-
-//   return (
-//     <Layout>
-//       <div className="page-header">
-//         <h2 className="page-title">Resume Analysis</h2>
-//         <p className="page-subtitle">AI-powered insights for your resume</p>
-//       </div>
-
-//       {/* Tabs */}
-//       <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-//         {tabs.map(t => (
-//           <button key={t} onClick={() => setTab(t)}
-//             className={`btn btn-sm ${tab === t ? 'btn-secondary' : 'btn-ghost'}`}>
-//             {tabLabels[t]}
-//           </button>
-//         ))}
-//       </div>
-
-//       {msg && <div className="alert alert-danger">{msg}</div>}
-
-//       {/* Score Tab */}
-// {tab === 'score' && (
-//   <div>
-//     <button className="btn btn-primary" onClick={() => analyze('score')} disabled={loading} style={{ marginBottom: '1.5rem' }}>
-//       {loading ? 'Analyzing...' : '⚡ Analyze Resume'}
-//     </button>
-
-//     {analysis && (
-//       <>
-//         {/* Metric Cards Grid */}
-//         <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-//           {DIMS.map(dim => (
-//             <div key={dim} className="card" style={{ textAlign: 'center', borderTop: `4px solid ${analysis[dim] > 70 ? 'var(--success)' : 'var(--gold-500)'}` }}>
-//               <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--gray-500)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-//                 {DIM_LABELS[dim]}
-//               </p>
-//               <h2 style={{ fontSize: '2.5rem', margin: '0.5rem 0', color: 'var(--navy-900)' }}>
-//                 {analysis[dim] || 0}<span style={{ fontSize: '1rem' }}>%</span>
-//               </h2>
-//               <div style={{ width: '100%', height: '8px', background: 'var(--gray-200)', borderRadius: '10px', overflow: 'hidden' }}>
-//                 <div style={{ 
-//                   width: `${analysis[dim]}%`, 
-//                   height: '100%', 
-//                   background: analysis[dim] > 70 ? 'var(--success)' : analysis[dim] > 40 ? 'var(--gold-500)' : 'var(--danger)',
-//                   transition: 'width 1s ease-out'
-//                 }} />
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-
-//         {/* Improvements Section */}
-//         {analysis.improvements && (
-//           <div className="card" style={{ borderLeft: '4px solid var(--gold-500)' }}>
-//             <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>💡 AI Improvement Suggestions</h4>
-//             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-//               {analysis.improvements.map((tip, i) => (
-//                 <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-//                   <span style={{
-//                     background: 'var(--navy-900)', color: 'var(--gold-500)',
-//                     width: '24px', height: '24px', borderRadius: '50%',
-//                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-//                     fontSize: '0.8rem', fontWeight: 'bold', flexShrink: 0
-//                   }}>{i + 1}</span>
-//                   <p style={{ color: 'var(--gray-700)', margin: 0, fontSize: '0.95rem' }}>{tip}</p>
-//                 </div>
-//               ))}
-//             </div>
-//           </div>
-//         )}
-//       </>
-//     )}
-//   </div>
-// )}
-
-//       {/* Keywords Tab */}
-//       {tab === 'keywords' && (
-//         <div>
-//           <div className="card" style={{ marginBottom: '1.5rem' }}>
-//             <div className="form-group">
-//               <label className="form-label">Paste Job Description</label>
-//               <textarea className="form-textarea" rows={6} placeholder="Paste the full job description here..." value={jd} onChange={e => setJd(e.target.value)} />
-//             </div>
-//             <button className="btn btn-primary" onClick={() => analyze('keywords')} disabled={loading || !jd}>
-//               {loading ? 'Finding gaps...' : '🔍 Find Keyword Gaps'}
-//             </button>
-//           </div>
-//           {keywords && (
-//             <div className="grid-2">
-//               <div className="card">
-//                 <h4 style={{ color: 'var(--success)', marginBottom: '1rem' }}>✓ Keywords Found ({JSON.parse(keywords.keywordsFound || '[]').length})</h4>
-//                 <div className="chip-list">
-//                   {JSON.parse(keywords.keywordsFound || '[]').map(k => <span key={k} className="chip chip-found">{k}</span>)}
-//                 </div>
-//               </div>
-//               <div className="card">
-//                 <h4 style={{ color: 'var(--danger)', marginBottom: '1rem' }}>✗ Missing Keywords ({JSON.parse(keywords.keywordsMissing || '[]').length})</h4>
-//                 <div className="chip-list">
-//                   {JSON.parse(keywords.keywordsMissing || '[]').map(k => <span key={k} className="chip chip-missing">{k}</span>)}
-//                 </div>
-//               </div>
-//             </div>
-//           )}
-//         </div>
-//       )}
-
-//       {/* Bullet Rewriter Tab */}
-//       {tab === 'rewrite' && (
-//         <div>
-//           <button className="btn btn-primary" onClick={() => analyze('rewrite')} disabled={loading} style={{ marginBottom: '1.5rem' }}>
-//             {loading ? 'Rewriting...' : '✍️ Rewrite Weak Bullets'}
-//           </button>
-//           {bullets && (
-//             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-//               {JSON.parse(bullets.originalBullets || '[]').map((orig, i) => (
-//                 <div key={i} className="card">
-//                   <div style={{ marginBottom: '10px' }}>
-//                     <span className="badge badge-danger" style={{ marginBottom: '6px' }}>Original</span>
-//                     <p style={{ color: 'var(--gray-700)', margin: 0 }}>{orig}</p>
-//                   </div>
-//                   <div style={{ borderTop: '1px solid var(--gray-200)', paddingTop: '10px' }}>
-//                     <span className="badge badge-success" style={{ marginBottom: '6px' }}>AI Improved</span>
-//                     <p style={{ color: 'var(--navy-800)', fontWeight: '500', margin: 0 }}>{JSON.parse(bullets.rewrittenBullets || '[]')[i]}</p>
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-//           )}
-//         </div>
-//       )}
-
-//       {/* Cover Letter Tab */}
-//       {tab === 'cover' && (
-//         <div>
-//           <div className="card" style={{ marginBottom: '1.5rem' }}>
-//             <div className="form-group">
-//               <label className="form-label">Job Description (for tailored cover letter)</label>
-//               <textarea className="form-textarea" rows={5} placeholder="Paste job description..." value={jd} onChange={e => setJd(e.target.value)} />
-//             </div>
-//             <button className="btn btn-primary" onClick={() => analyze('cover')} disabled={loading || !jd}>
-//               {loading ? 'Generating...' : '📧 Generate Cover Letter'}
-//             </button>
-//           </div>
-//           {coverLetter && (
-//             <div className="card">
-//               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-//                 <h4 style={{ color: 'var(--navy-800)' }}>Generated Cover Letter</h4>
-//                 <button className="btn btn-ghost btn-sm" onClick={() => navigator.clipboard.writeText(coverLetter)}>Copy</button>
-//               </div>
-//               <div style={{ whiteSpace: 'pre-wrap', color: 'var(--gray-700)', lineHeight: '1.8', fontSize: '0.9375rem', background: 'var(--gray-50)', padding: '1.5rem', borderRadius: 'var(--border-radius)', border: '1px solid var(--gray-200)' }}>
-//                 {coverLetter}
-//               </div>
-//             </div>
-//           )}
-//         </div>
-//       )}
-//     </Layout>
-//   )
-// }
-
-import { useState } from 'react'
-import { useTheme } from '../context/ThemeContext'
-import { useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useParams, Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import api from '../utils/api'
+import { useTheme } from '../context/ThemeContext'
+import { trackActivity, trackScore } from '../utils/activity'
 
-const DIMS = ['scoreClarity', 'scoreImpact', 'scoreAts', 'scoreKeywords', 'scoreFormatting', 'scoreReadability']
-const DIM_LABELS = { 
-  scoreClarity: 'Clarity', 
-  scoreImpact: 'Impact', 
-  scoreAts: 'ATS Score', 
-  scoreKeywords: 'Keywords', 
-  scoreFormatting: 'Formatting', 
-  scoreReadability: 'Readability' 
+const ScoreRing = ({ score, label, color }) => {
+  const radius = 28
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference - (score / 100) * circumference
+
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <svg width="70" height="70" viewBox="0 0 70 70">
+        <circle cx="35" cy="35" r={radius} fill="none" stroke="#E9ECEF" strokeWidth="6" />
+        <circle cx="35" cy="35" r={radius} fill="none" stroke={color} strokeWidth="6"
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          strokeLinecap="round" transform="rotate(-90 35 35)"
+          style={{ transition: 'stroke-dashoffset 1s ease' }} />
+        <text x="35" y="39" textAnchor="middle" fontSize="14" fontWeight="700" fill={color}>{score}</text>
+      </svg>
+      <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6C757D', marginTop: '4px' }}>{label}</div>
+    </div>
+  )
 }
 
-export default function ResumeDetail() {
-  const { dark } = useTheme()
-  const { id } = useParams()
-  const [tab, setTab] = useState('score')
-  const [jd, setJd] = useState('')
-  const [analysis, setAnalysis] = useState(null)
-  const [keywords, setKeywords] = useState(null)
-  const [bullets, setBullets] = useState(null)
-  const [coverLetter, setCoverLetter] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [msg, setMsg] = useState('')
+const ScoreBar = ({ label, score, color, desc }) => (
+  <div style={{ marginBottom: '14px' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+      <div>
+        <span style={{ fontWeight: '600', fontSize: '0.9rem', color: '#0D1F3C' }}>{label}</span>
+        <span style={{ fontSize: '0.8rem', color: '#6C757D', marginLeft: '8px' }}>{desc}</span>
+      </div>
+      <span style={{ fontWeight: '700', color, fontSize: '0.9rem' }}>{score}/100</span>
+    </div>
+    <div style={{ background: '#E9ECEF', borderRadius: '20px', height: '10px', overflow: 'hidden' }}>
+      <div style={{ width: `${score}%`, height: '100%', background: color, borderRadius: '20px', transition: 'width 1s ease' }} />
+    </div>
+  </div>
+)
 
-  const analyze = async (type) => {
-    setLoading(true); setMsg('')
+export default function ResumeDetail() {
+  const { id } = useParams()
+  const { dark } = useTheme()
+  const [resume, setResume] = useState(null)
+  const [analysis, setAnalysis] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [analyzing, setAnalyzing] = useState(false)
+  const [tab, setTab] = useState('score')
+  const [jobDesc, setJobDesc] = useState('')
+  const [keywordResult, setKeywordResult] = useState(null)
+  const [bulletResult, setBulletResult] = useState(null)
+  const [coverLetter, setCoverLetter] = useState('')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    api.get(`/api/resume/${id}`)
+      .then(r => setResume(r.data))
+      .catch(() => setError('Failed to load resume'))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  const analyze = async () => {
+    setAnalyzing(true)
+    setError('')
     try {
-      if (type === 'score') {
-        const r = await api.post('/api/analysis/score', { resumeId: parseInt(id) })
-        setAnalysis(r.data)
-      } else if (type === 'keywords') {
-        const r = await api.post('/api/analysis/keywords', { resumeId: parseInt(id), jobDescription: jd })
-        setKeywords(r.data)
-      } else if (type === 'rewrite') {
-        const r = await api.post('/api/analysis/rewrite', { resumeId: parseInt(id) })
-        setBullets(r.data)
-      } else if (type === 'cover') {
-        const r = await api.post('/api/analysis/cover-letter', { resumeId: parseInt(id), jobDescription: jd })
-        setCoverLetter(r.data.coverLetter)
-      }
-    } catch (err) { 
-      setMsg('Analysis failed. Make sure your AI API key is set and your server is running.') 
-    } finally { 
-      setLoading(false) 
+      const r = await api.post('/api/analysis/score', { resumeId: parseInt(id) })
+      setAnalysis(r.data)
+      trackActivity('analyses')
+      if (r.data.scoreTotal) trackScore(r.data.scoreTotal)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Analysis failed. Try again.')
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
+  const findKeywords = async () => {
+    if (!jobDesc.trim()) return setError('Please paste a job description first')
+    setAnalyzing(true)
+    setError('')
+    try {
+      const r = await api.post('/api/analysis/keywords', { resumeId: parseInt(id), jobDescription: jobDesc })
+      setKeywordResult(r.data)
+      trackActivity('keywords')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Keyword analysis failed')
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
+  const rewrite = async () => {
+    setAnalyzing(true)
+    setError('')
+    try {
+      const r = await api.post('/api/analysis/rewrite', { resumeId: parseInt(id) })
+      setBulletResult(r.data)
+      trackActivity('rewrites')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Rewrite failed')
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
+  const generateCL = async () => {
+    if (!jobDesc.trim()) return setError('Please paste a job description first')
+    setAnalyzing(true)
+    setError('')
+    try {
+      const r = await api.post('/api/analysis/cover-letter', {
+        resumeId: parseInt(id),
+        jobDescription: jobDesc
+      })
+      setCoverLetter(r.data.coverLetter)
+      trackActivity('coverLetters')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Cover letter generation failed')
+    } finally {
+      setAnalyzing(false)
     }
   }
 
   const getScoreColor = (score) => {
-    if (score >= 70) return 'var(--success)';
-    if (score >= 40) return 'var(--gold-500)';
-    return 'var(--danger)';
+    if (score >= 80) return '#28A745'
+    if (score >= 65) return '#C9A84C'
+    if (score >= 50) return '#FD7E14'
+    return '#DC3545'
   }
 
-  const tabs = ['score', 'keywords', 'rewrite', 'cover']
-  const tabLabels = { score: '📊 Score', keywords: '🔍 Keywords', rewrite: '✍️ Rewriter', cover: '📧 Cover Letter' }
+  const getScoreLabel = (score) => {
+    if (score >= 80) return 'Excellent'
+    if (score >= 65) return 'Good'
+    if (score >= 50) return 'Average'
+    if (score >= 35) return 'Below Average'
+    return 'Poor'
+  }
+
+  const cardBg = dark ? '#1E293B' : '#FFFFFF'
+  const textPrimary = dark ? '#F1F5F9' : '#0D1F3C'
+  const textSecondary = dark ? '#94A3B8' : '#6C757D'
+  const textBody = dark ? '#CBD5E1' : '#495057'
+  const borderColor = dark ? '#334155' : '#E9ECEF'
+  const inputBg = dark ? '#0F172A' : '#FFFFFF'
+
+  if (loading) return (
+    <Layout>
+      <div style={{ textAlign: 'center', padding: '4rem' }}>
+        <div className="spinner" style={{ margin: '0 auto 1rem' }} />
+        <p style={{ color: textSecondary }}>Loading resume...</p>
+      </div>
+    </Layout>
+  )
+
+  if (error && !resume) return (
+    <Layout>
+      <div className="alert alert-danger">{error}</div>
+      <Link to="/resumes" className="btn btn-ghost btn-sm" style={{ marginTop: '1rem' }}>← Back to Resumes</Link>
+    </Layout>
+  )
 
   return (
     <Layout>
-      <div className="page-header">
-        <h2 className="page-title">Resume Analysis</h2>
-        <p className="page-subtitle">AI-powered insights to beat the Applicant Tracking Systems</p>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <Link to="/resumes" style={{ color: textSecondary, textDecoration: 'none', fontSize: '0.875rem' }}>← My Resumes</Link>
+          </div>
+          <h2 style={{ color: textPrimary, margin: '0 0 4px', fontSize: '1.5rem' }}>{resume?.title}</h2>
+          <p style={{ color: textSecondary, margin: 0, fontSize: '0.875rem' }}>
+            {resume?.fileType?.toUpperCase()} · Uploaded {new Date(resume?.createdAt).toLocaleDateString()}
+            {analysis && <span style={{ marginLeft: '12px', fontWeight: '600', color: getScoreColor(analysis.scoreTotal) }}>ATS Score: {analysis.scoreTotal}/100</span>}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <Link to="/export" className="btn btn-ghost btn-sm">📄 Export PDF</Link>
+        </div>
       </div>
 
+      {error && <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>{error}</div>}
+
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        {tabs.map(t => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`btn btn-sm ${tab === t ? 'btn-secondary' : 'btn-ghost'}`}>
-            {tabLabels[t]}
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '1.5rem', flexWrap: 'wrap', background: dark ? '#0F172A' : '#F1F3F5', borderRadius: '10px', padding: '4px', width: 'fit-content' }}>
+        {[
+          { id: 'score', label: '📊 ATS Score' },
+          { id: 'keywords', label: '🔍 Keywords' },
+          { id: 'rewrite', label: '✍️ Rewriter' },
+          { id: 'cover', label: '📧 Cover Letter' },
+        ].map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: tab === t.id ? '600' : '400', background: tab === t.id ? (dark ? '#1E293B' : '#FFFFFF') : 'transparent', color: tab === t.id ? textPrimary : textSecondary, boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.1)' : 'none', fontSize: '0.875rem', transition: 'all 0.15s' }}>
+            {t.label}
           </button>
         ))}
       </div>
 
-      {msg && <div className="alert alert-danger">{msg}</div>}
-
-      {/* Score Tab */}
+      {/* ── SCORE TAB ── */}
       {tab === 'score' && (
         <div>
-          <button className="btn btn-primary" onClick={() => analyze('score')} disabled={loading} style={{ marginBottom: '1.5rem' }}>
-            {loading ? 'Crunching Numbers...' : '⚡ Generate ATS Score'}
-          </button>
-
-          {analysis && (
-            <>
-              {/* Overall Score Hero Card */}
-              <div className="card" style={{ textAlign: 'center', marginBottom: '2rem', background: 'var(--navy-900)', color: 'var(--white)' }}>
-                <h3 style={{ fontSize: '1rem', textTransform: 'uppercase', opacity: 0.8 }}>Overall ATS Compatibility</h3>
-                <h1 style={{ fontSize: '4rem', color: getScoreColor(analysis.scoreTotal), margin: '10px 0' }}>
-                  {analysis.scoreTotal}%
-                </h1>
-                <p style={{ maxWidth: '500px', margin: '0 auto', fontSize: '0.9rem', opacity: 0.9 }}>
-                  Based on current industry standards, a score above 75% is considered highly competitive for Fortune 500 roles.
+          {!analysis ? (
+            <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '12px', padding: '3rem', textAlign: 'center' }}>
+              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎯</div>
+              <h3 style={{ color: textPrimary, marginBottom: '0.5rem' }}>Get Your ATS Score</h3>
+              <p style={{ color: textSecondary, marginBottom: '1.5rem', maxWidth: '480px', margin: '0 auto 1.5rem' }}>
+                Our AI analyzes your resume like a real ATS system — checking keyword density, formatting, impact, and more.
+              </p>
+              <button className="btn btn-primary" onClick={analyze} disabled={analyzing} style={{ fontSize: '1rem', padding: '12px 28px' }}>
+                {analyzing ? '🤖 Analyzing your resume...' : '⚡ Analyze Resume Now'}
+              </button>
+              {analyzing && (
+                <p style={{ color: textSecondary, fontSize: '0.875rem', marginTop: '1rem' }}>
+                  AI is reading your resume... this takes 10-15 seconds
                 </p>
-              </div>
-
-              {/* Metric Cards Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                {DIMS.map(dim => (
-                  <div key={dim} className="card" style={{ textAlign: 'center', borderTop: `4px solid ${getScoreColor(analysis[dim])}` }}>
-                    <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--gray-500)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                      {DIM_LABELS[dim]}
-                    </p>
-                    <h2 style={{ fontSize: '2.5rem', margin: '0.5rem 0', color: 'var(--navy-900)' }}>
-                      {analysis[dim] || 0}<span style={{ fontSize: '1rem' }}>%</span>
-                    </h2>
-                    <div style={{ width: '100%', height: '8px', background: 'var(--gray-200)', borderRadius: '10px', overflow: 'hidden' }}>
-                      <div style={{ 
-                        width: `${analysis[dim]}%`, 
-                        height: '100%', 
-                        background: getScoreColor(analysis[dim]),
-                        transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)'
-                      }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Improvements Section */}
-              {analysis.improvements && (
-                <div className="card" style={{ borderLeft: '4px solid var(--gold-500)' }}>
-                  <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>💡 Strategic Improvements</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {analysis.improvements.map((tip, i) => (
-                      <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                        <span style={{
-                          background: 'var(--navy-900)', color: 'var(--gold-500)',
-                          width: '24px', height: '24px', borderRadius: '50%',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.8rem', fontWeight: 'bold', flexShrink: 0
-                        }}>{i + 1}</span>
-                        <p style={{ color: 'var(--gray-700)', margin: 0, fontSize: '0.95rem', lineHeight: '1.5' }}>{tip}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               )}
-            </>
+            </div>
+          ) : (
+            <div>
+              {/* Overall score hero */}
+              <div style={{ background: dark ? '#0F172A' : '#0A1628', border: `1px solid ${dark ? '#1E293B' : '#1E3A5F'}`, borderRadius: '16px', padding: '2rem', marginBottom: '1.5rem', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.875rem', color: '#94A3B8', marginBottom: '8px' }}>Overall ATS Score</div>
+                <div style={{ fontSize: '4rem', fontWeight: '800', color: getScoreColor(analysis.scoreTotal), marginBottom: '8px' }}>
+                  {analysis.scoreTotal}
+                  <span style={{ fontSize: '1.5rem', color: '#94A3B8' }}>/100</span>
+                </div>
+                <div style={{ display: 'inline-block', padding: '4px 16px', borderRadius: '20px', background: getScoreColor(analysis.scoreTotal) + '22', color: getScoreColor(analysis.scoreTotal), fontWeight: '600', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                  {getScoreLabel(analysis.scoreTotal)}
+                </div>
+
+                {analysis.assessment && (
+                  <p style={{ color: '#CBD5E1', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto', lineHeight: '1.7' }}>
+                    {analysis.assessment}
+                  </p>
+                )}
+
+                {/* Score rings */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+                  <ScoreRing score={analysis.scoreAts} label="ATS" color={getScoreColor(analysis.scoreAts)} />
+                  <ScoreRing score={analysis.scoreKeywords} label="Keywords" color={getScoreColor(analysis.scoreKeywords)} />
+                  <ScoreRing score={analysis.scoreImpact} label="Impact" color={getScoreColor(analysis.scoreImpact)} />
+                  <ScoreRing score={analysis.scoreFormatting} label="Format" color={getScoreColor(analysis.scoreFormatting)} />
+                  <ScoreRing score={analysis.scoreClarity} label="Clarity" color={getScoreColor(analysis.scoreClarity)} />
+                  <ScoreRing score={analysis.scoreReadability} label="Readability" color={getScoreColor(analysis.scoreReadability)} />
+                </div>
+              </div>
+
+              {/* Detailed bars */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '12px', padding: '1.5rem' }}>
+                  <h4 style={{ color: textPrimary, marginBottom: '1.25rem' }}>📊 Detailed Breakdown</h4>
+                  <ScoreBar label="ATS Compatibility" score={analysis.scoreAts} color={getScoreColor(analysis.scoreAts)} desc="How well ATS can parse your resume" />
+                  <ScoreBar label="Keyword Density" score={analysis.scoreKeywords} color={getScoreColor(analysis.scoreKeywords)} desc="Industry keywords present" />
+                  <ScoreBar label="Impact & Achievements" score={analysis.scoreImpact} color={getScoreColor(analysis.scoreImpact)} desc="Quantified results and action verbs" />
+                  <ScoreBar label="Formatting" score={analysis.scoreFormatting} color={getScoreColor(analysis.scoreFormatting)} desc="Professional structure and layout" />
+                  <ScoreBar label="Writing Clarity" score={analysis.scoreClarity} color={getScoreColor(analysis.scoreClarity)} desc="Clear concise language" />
+                  <ScoreBar label="Readability" score={analysis.scoreReadability} color={getScoreColor(analysis.scoreReadability)} desc="6-second recruiter scan test" />
+                </div>
+
+                <div>
+                  {/* Strengths */}
+                  {analysis.strengths?.length > 0 && (
+                    <div style={{ background: 'rgba(40,167,69,0.08)', border: '1px solid rgba(40,167,69,0.2)', borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem' }}>
+                      <h4 style={{ color: '#1a7a32', marginBottom: '0.75rem' }}>✅ What's Good</h4>
+                      {analysis.strengths.map((s, i) => (
+                        <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                          <span style={{ color: '#28A745', flexShrink: 0 }}>•</span>
+                          <span style={{ color: dark ? '#CBD5E1' : '#495057', fontSize: '0.9rem' }}>{s}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Improvements */}
+                  {analysis.improvements?.length > 0 && (
+                    <div style={{ background: 'rgba(220,53,69,0.06)', border: '1px solid rgba(220,53,69,0.2)', borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem' }}>
+                      <h4 style={{ color: '#9c1c28', marginBottom: '0.75rem' }}>🔧 Must Improve</h4>
+                      {analysis.improvements.map((imp, i) => (
+                        <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'flex-start' }}>
+                          <span style={{ background: '#DC3545', color: 'white', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '700', flexShrink: 0 }}>{i + 1}</span>
+                          <span style={{ color: dark ? '#CBD5E1' : '#495057', fontSize: '0.9rem', lineHeight: '1.6' }}>{imp}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Re-analyze button */}
+                  <button className="btn btn-ghost btn-sm btn-full" onClick={analyze} disabled={analyzing}>
+                    {analyzing ? '🤖 Re-analyzing...' : '🔄 Re-analyze Resume'}
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       )}
 
-      {/* Keywords Tab */}
+      {/* ── KEYWORDS TAB ── */}
       {tab === 'keywords' && (
         <div>
-          <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <div className="form-group">
-              <label className="form-label">Target Job Description</label>
-              <textarea className="form-textarea" rows={6} placeholder="Paste the specific job description to find missing keywords..." value={jd} onChange={e => setJd(e.target.value)} />
-            </div>
-            <button className="btn btn-primary" onClick={() => analyze('keywords')} disabled={loading || !jd}>
-              {loading ? 'Comparing...' : '🔍 Find Keyword Gaps'}
+          <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '12px', padding: '1.5rem', marginBottom: '1rem' }}>
+            <h4 style={{ color: textPrimary, marginBottom: '0.5rem' }}>Paste Job Description</h4>
+            <p style={{ color: textSecondary, fontSize: '0.875rem', marginBottom: '1rem' }}>
+              Copy and paste the full job description to find which keywords you're missing
+            </p>
+            <textarea
+              style={{ width: '100%', minHeight: '140px', padding: '12px', borderRadius: '8px', border: `1px solid ${borderColor}`, background: inputBg, color: dark ? '#E2E8F0' : '#212529', fontSize: '0.9rem', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
+              placeholder="Paste the full job description here..."
+              value={jobDesc}
+              onChange={e => setJobDesc(e.target.value)}
+            />
+            <button className="btn btn-primary" onClick={findKeywords} disabled={analyzing} style={{ marginTop: '1rem' }}>
+              {analyzing ? '🔍 Analyzing keywords...' : '🔍 Find Keyword Gaps'}
             </button>
           </div>
-          {keywords && (
-            <div className="grid-2">
-              <div className="card">
-                <h4 style={{ color: 'var(--success)', marginBottom: '1rem' }}>✓ Optimized Keywords ({JSON.parse(keywords.keywordsFound || '[]').length})</h4>
-                <div className="chip-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {JSON.parse(keywords.keywordsFound || '[]').map(k => <span key={k} className="chip chip-found" style={{ background: '#e6fffa', color: '#2c7a7b', padding: '4px 12px', borderRadius: '16px', fontSize: '0.85rem' }}>{k}</span>)}
+
+          {keywordResult && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+              <div style={{ background: 'rgba(40,167,69,0.08)', border: '1px solid rgba(40,167,69,0.2)', borderRadius: '12px', padding: '1.25rem' }}>
+                <h4 style={{ color: '#1a7a32', marginBottom: '1rem' }}>✅ Keywords Found ({JSON.parse(keywordResult.keywordsFound || '[]').length})</h4>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {JSON.parse(keywordResult.keywordsFound || '[]').map((k, i) => (
+                    <span key={i} style={{ padding: '4px 12px', borderRadius: '20px', background: 'rgba(40,167,69,0.15)', color: '#1a7a32', fontSize: '0.8125rem', fontWeight: '500' }}>{k}</span>
+                  ))}
                 </div>
               </div>
-              <div className="card">
-                <h4 style={{ color: 'var(--danger)', marginBottom: '1rem' }}>✗ Missing Keywords ({JSON.parse(keywords.keywordsMissing || '[]').length})</h4>
-                <div className="chip-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {JSON.parse(keywords.keywordsMissing || '[]').map(k => <span key={k} className="chip chip-missing" style={{ background: '#fff5f5', color: '#c53030', padding: '4px 12px', borderRadius: '16px', fontSize: '0.85rem' }}>{k}</span>)}
+              <div style={{ background: 'rgba(220,53,69,0.06)', border: '1px solid rgba(220,53,69,0.2)', borderRadius: '12px', padding: '1.25rem' }}>
+                <h4 style={{ color: '#9c1c28', marginBottom: '1rem' }}>❌ Missing Keywords ({JSON.parse(keywordResult.keywordsMissing || '[]').length})</h4>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '1rem' }}>
+                  {JSON.parse(keywordResult.keywordsMissing || '[]').map((k, i) => (
+                    <span key={i} style={{ padding: '4px 12px', borderRadius: '20px', background: 'rgba(220,53,69,0.1)', color: '#9c1c28', fontSize: '0.8125rem', fontWeight: '500' }}>{k}</span>
+                  ))}
                 </div>
+                {keywordResult.suggestion && (
+                  <div style={{ background: 'rgba(201,168,76,0.1)', borderRadius: '8px', padding: '10px 12px', marginTop: '10px' }}>
+                    <span style={{ fontSize: '0.8125rem', color: dark ? '#CBD5E1' : '#495057' }}>💡 {keywordResult.suggestion}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
         </div>
       )}
 
-      {/* Bullet Rewriter Tab */}
+      {/* ── REWRITE TAB ── */}
       {tab === 'rewrite' && (
         <div>
-          <button className="btn btn-primary" onClick={() => analyze('rewrite')} disabled={loading} style={{ marginBottom: '1.5rem' }}>
-            {loading ? 'Enhancing...' : '✍️ Rewrite for High Impact'}
-          </button>
-          {bullets && (
+          <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '12px', padding: '1.5rem', marginBottom: '1rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>✍️</div>
+            <h4 style={{ color: textPrimary, marginBottom: '0.5rem' }}>AI Bullet Point Rewriter</h4>
+            <p style={{ color: textSecondary, fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+              AI reads your resume bullets and rewrites them with strong action verbs and quantified impact
+            </p>
+            <button className="btn btn-primary" onClick={rewrite} disabled={analyzing}>
+              {analyzing ? '🤖 Rewriting bullets...' : '✨ Rewrite My Bullets'}
+            </button>
+          </div>
+
+          {bulletResult && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {JSON.parse(bullets.originalBullets || '[]').map((orig, i) => (
-                <div key={i} className="card">
-                  <div style={{ marginBottom: '10px' }}>
-                    <span className="badge badge-danger" style={{ marginBottom: '6px', fontSize: '0.7rem' }}>Current Bullet</span>
-                    <p style={{ color: 'var(--gray-700)', margin: 0 }}>{orig}</p>
+              {JSON.parse(bulletResult.originalBullets || '[]').map((orig, i) => {
+                const rewrites = JSON.parse(bulletResult.rewrittenBullets || '[]')
+                return (
+                  <div key={i} style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '12px', padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '10px' }}>
+                      <span style={{ padding: '3px 10px', borderRadius: '20px', background: 'rgba(220,53,69,0.1)', color: '#9c1c28', fontSize: '0.75rem', fontWeight: '600', flexShrink: 0 }}>Original</span>
+                      <p style={{ color: textSecondary, margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>{orig}</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <span style={{ padding: '3px 10px', borderRadius: '20px', background: 'rgba(40,167,69,0.12)', color: '#1a7a32', fontSize: '0.75rem', fontWeight: '600', flexShrink: 0 }}>AI Improved</span>
+                      <p style={{ color: textPrimary, margin: 0, fontSize: '0.9rem', lineHeight: '1.6', fontWeight: '500' }}>{rewrites[i] || 'Improved version coming...'}</p>
+                    </div>
                   </div>
-                  <div style={{ borderTop: '1px solid var(--gray-200)', paddingTop: '10px' }}>
-                    <span className="badge badge-success" style={{ marginBottom: '6px', fontSize: '0.7rem' }}>Recommended (Quantified Impact)</span>
-                    <p style={{ color: 'var(--navy-800)', fontWeight: '500', margin: 0 }}>{JSON.parse(bullets.rewrittenBullets || '[]')[i]}</p>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
       )}
 
-      {/* Cover Letter Tab */}
+      {/* ── COVER LETTER TAB ── */}
       {tab === 'cover' && (
         <div>
-          <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <div className="form-group">
-              <label className="form-label">Job Details for Tailoring</label>
-              <textarea className="form-textarea" rows={5} placeholder="Paste job description here to tailor your cover letter..." value={jd} onChange={e => setJd(e.target.value)} />
-            </div>
-            <button className="btn btn-primary" onClick={() => analyze('cover')} disabled={loading || !jd}>
-              {loading ? 'Writing...' : '📧 Draft Tailored Cover Letter'}
+          <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '12px', padding: '1.5rem', marginBottom: '1rem' }}>
+            <h4 style={{ color: textPrimary, marginBottom: '0.5rem' }}>Generate AI Cover Letter</h4>
+            <p style={{ color: textSecondary, fontSize: '0.875rem', marginBottom: '1rem' }}>
+              Paste the job description and AI will write a personalized cover letter using your resume
+            </p>
+            <textarea
+              style={{ width: '100%', minHeight: '140px', padding: '12px', borderRadius: '8px', border: `1px solid ${borderColor}`, background: inputBg, color: dark ? '#E2E8F0' : '#212529', fontSize: '0.9rem', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
+              placeholder="Paste job description here..."
+              value={jobDesc}
+              onChange={e => setJobDesc(e.target.value)}
+            />
+            <button className="btn btn-primary" onClick={generateCL} disabled={analyzing} style={{ marginTop: '1rem' }}>
+              {analyzing ? '🤖 Writing cover letter...' : '📧 Generate Cover Letter'}
             </button>
           </div>
+
           {coverLetter && (
-            <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h4 style={{ color: 'var(--navy-800)' }}>AI-Generated Draft</h4>
-                <button className="btn btn-ghost btn-sm" onClick={() => {
-                    navigator.clipboard.writeText(coverLetter);
-                    alert('Copied to clipboard!');
-                }}>Copy Text</button>
+            <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '12px', padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '8px' }}>
+                <h4 style={{ color: textPrimary, margin: 0 }}>📧 Your Cover Letter</h4>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button className="btn btn-ghost btn-sm" onClick={() => { navigator.clipboard.writeText(coverLetter); alert('Copied!') }}>📋 Copy</button>
+                  <button className="btn btn-primary btn-sm" onClick={() => {
+                    const blob = new Blob([coverLetter], { type: 'text/plain' })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url; a.download = 'cover-letter.txt'; a.click()
+                    URL.revokeObjectURL(url)
+                  }}>⬇️ Download</button>
+                </div>
               </div>
-              <div style={{ 
-                whiteSpace: 'pre-wrap', 
-                color: 'var(--gray-700)', 
-                lineHeight: '1.8', 
-                fontSize: '0.9375rem', 
-                background: 'var(--gray-50)', 
-                padding: '1.5rem', 
-                borderRadius: '8px', 
-                border: '1px solid var(--gray-200)' 
-              }}>
+              <div style={{ whiteSpace: 'pre-wrap', color: textBody, lineHeight: '1.9', fontSize: '0.9375rem', background: dark ? '#0F172A' : '#F8F9FA', padding: '1.5rem', borderRadius: '8px', border: `1px solid ${borderColor}` }}>
                 {coverLetter}
               </div>
             </div>

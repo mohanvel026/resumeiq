@@ -6,7 +6,6 @@ require('dotenv').config()
 
 const app = express()
 
-// CORS - allow frontend
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -22,48 +21,47 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-// Create uploads folder if not exists
+// Create uploads folder
 const uploadsDir = path.join(process.cwd(), 'uploads')
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true })
-  console.log('Created uploads directory')
 }
 
-// Health check
 app.get('/', (req, res) => {
-  res.json({
-    message: 'ResumeIQ API is running!',
-    status: 'ok',
-    timestamp: new Date().toISOString()
-  })
+  res.json({ message: 'ResumeIQ API running!', status: 'ok', version: '2.0' })
 })
 
 // Routes
 try {
-  const authRoutes = require('./src/routes/authRoutes')
-  app.use('/api/auth', authRoutes)
-  console.log('✓ Auth routes loaded')
-} catch(e) { console.log('✗ authRoutes error:', e.message) }
+  app.use('/api/auth', require('./src/routes/authRoutes'))
+  console.log('✓ Auth routes')
+} catch(e) { console.log('✗ authRoutes:', e.message) }
 
 try {
-  const resumeRoutes = require('./src/routes/resumeRoutes')
-  app.use('/api/resume', resumeRoutes)
-  console.log('✓ Resume routes loaded')
-} catch(e) { console.log('✗ resumeRoutes error:', e.message) }
+  app.use('/api/resume', require('./src/routes/resumeRoutes'))
+  console.log('✓ Resume routes')
+} catch(e) { console.log('✗ resumeRoutes:', e.message) }
 
 try {
-  const analysisRoutes = require('./src/routes/analysisRoutes')
-  app.use('/api/analysis', analysisRoutes)
-  console.log('✓ Analysis routes loaded')
-} catch(e) { console.log('✗ analysisRoutes error:', e.message) }
+  app.use('/api/analysis', require('./src/routes/analysisRoutes'))
+  console.log('✓ Analysis routes')
+} catch(e) { console.log('✗ analysisRoutes:', e.message) }
 
 try {
-  const jobRoutes = require('./src/routes/jobRoutes')
-  app.use('/api/jobs', jobRoutes)
-  console.log('✓ Job routes loaded')
-} catch(e) { console.log('✗ jobRoutes error:', e.message) }
+  app.use('/api/jobs', require('./src/routes/jobRoutes'))
+  console.log('✓ Job routes')
+} catch(e) { console.log('✗ jobRoutes:', e.message) }
 
-// Global error handler
+try {
+  app.use('/api/email', require('./src/routes/emailRoutes'))
+  console.log('✓ Email routes')
+} catch(e) { console.log('✗ emailRoutes:', e.message) }
+
+try {
+  app.use('/api/export', require('./src/routes/exportRoutes'))
+  console.log('✓ Export routes')
+} catch(e) { console.log('✗ exportRoutes:', e.message) }
+
 app.use((err, req, res, next) => {
   console.error('Global error:', err.message)
   res.status(500).json({ message: err.message || 'Internal server error' })
@@ -71,6 +69,6 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`ResumeIQ Server running on port ${PORT}`)
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`\nResumeIQ Server running on port ${PORT}`)
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}\n`)
 })

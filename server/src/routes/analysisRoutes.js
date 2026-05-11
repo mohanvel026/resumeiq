@@ -14,6 +14,7 @@ const {
   analyzeLinkedIn,
   getLeaderboard,
   getUserStats,
+  parseResumeWithAI,
 } = require('../controllers/analysisController')
 
 router.post('/score', auth, scoreResume)
@@ -27,5 +28,6 @@ router.post('/evaluate-answer', auth, evaluateAnswer)
 router.post('/linkedin', auth, analyzeLinkedIn)
 router.get('/leaderboard', auth, getLeaderboard)
 router.get('/user-stats', auth, getUserStats)
+router.post('/parse-resume', auth, parseResumeWithAI)
 
 module.exports = router
