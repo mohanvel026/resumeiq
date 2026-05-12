@@ -488,7 +488,7 @@ const generatePDF = async (template, resume) => {
 }
 
 export default function ResumeExport() {
-  const { dark } = useTheme()
+
   const [resumes, setResumes] = useState([])
   const [selected, setSelected] = useState(null)
   const [resume, setResume] = useState(null)

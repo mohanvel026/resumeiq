@@ -19,7 +19,7 @@ const skills = [
 ]
 
 export default function Analytics() {
-  const { dark } = useTheme()
+
   return (
     <Layout>
       <div className="page-header">

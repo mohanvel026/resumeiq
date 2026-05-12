@@ -4,7 +4,7 @@ import Layout from '../components/Layout'
 import api from '../utils/api'
 
 export default function LinkedInAnalyzer() {
-  const { dark } = useTheme()
+
   const [url, setUrl] = useState('')
   const [resumeId, setResumeId] = useState('')
   const [result, setResult] = useState(null)

@@ -4,7 +4,7 @@ import Layout from '../components/Layout'
 import { useAuth } from '../context/AuthContext'
 
 export default function Referral() {
-  const { dark } = useTheme()
+
   const { user } = useAuth()
   const [copied, setCopied] = useState(false)
 

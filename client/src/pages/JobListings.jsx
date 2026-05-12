@@ -5,7 +5,7 @@ import api from '../utils/api'
 import { trackActivity } from '../utils/activity'
 
 export default function JobListings() {
-  const { dark } = useTheme()
+
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')

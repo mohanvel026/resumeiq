@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
 export default function Settings() {
-  const { dark } = useTheme()
+
   const { logout } = useAuth()
   const navigate = useNavigate()
   const [notifications, setNotifications] = useState({

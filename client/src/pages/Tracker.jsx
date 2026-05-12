@@ -6,7 +6,7 @@ const COLS = ['APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED']
 const COL_COLORS = { APPLIED: 'var(--info)', INTERVIEWING: 'var(--gold-500)', OFFER: 'var(--success)', REJECTED: 'var(--danger)' }
 
 export default function Tracker() {
-  const { dark } = useTheme()
+
   const [cards, setCards] = useState([
     { id: 1, company: 'Google', role: 'Frontend Developer', status: 'APPLIED', date: '2026-04-20' },
     { id: 2, company: 'Zoho', role: 'Full Stack Developer', status: 'INTERVIEWING', date: '2026-04-18' },

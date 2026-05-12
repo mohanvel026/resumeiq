@@ -23,7 +23,7 @@
 // const EXP_MULTIPLIER = { '0-1': 0.7, '1-3': 1.0, '3-5': 1.4, '5-8': 1.8, '8+': 2.3 }
 
 // export default function SalaryInsights() {
-//   const { dark } = useTheme()
+// 
 //   const [role, setRole] = useState('Full Stack Developer')
 //   const [city, setCity] = useState('Bangalore')
 //   const [experience, setExperience] = useState('1-3')
@@ -148,7 +148,7 @@
 
 
 import React, { useState, useMemo } from 'react';
-import { useTheme } from '../context/ThemeContext';
+
 import Layout from '../components/Layout';
 import api from '../utils/api';
 
@@ -178,7 +178,7 @@ const TIER_MULTIPLIER = { 'Service/Mid': 0.8, 'Product/Startup': 1.2, 'Big Tech/
 const MAX_CITY_MULT = Math.max(...Object.values(CITY_MULTIPLIER));
 
 export default function SalaryInsights() {
-  const { dark } = useTheme();
+;
   
   // State Management
   const [role, setRole] = useState('Full Stack Developer');

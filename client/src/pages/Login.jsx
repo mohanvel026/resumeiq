@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
-  const { dark } = useTheme()
+
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()

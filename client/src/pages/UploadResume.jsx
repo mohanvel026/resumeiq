@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import api from '../utils/api'
 
 export default function UploadResume() {
-  const { dark } = useTheme()
+
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [file, setFile] = useState(null)

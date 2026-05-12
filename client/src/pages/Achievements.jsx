@@ -30,7 +30,7 @@ const DEFAULT_STATS = {
 export default function Achievements() {
   const [stats, setStats] = useState(DEFAULT_STATS)
   const [loading, setLoading] = useState(true)
-  const { dark } = useTheme()
+
   useEffect(() => {
     loadStats()
   }, [])

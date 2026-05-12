@@ -23,8 +23,8 @@ const FEATURES = [
 export default function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const { dark } = useTheme()
-  const T = getStyles(dark)
+
+
   return (
     <Layout>
       <div className="page-header">
