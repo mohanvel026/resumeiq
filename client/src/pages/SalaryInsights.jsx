@@ -117,7 +117,6 @@ const MAX_C = Math.max(...Object.values(CITY_MULT))
 
 export default function SalaryInsights() {
   const { dark } = useTheme()
-  const { user } = useAuth()
   const [category, setCategory] = useState('CSE - Software Engineering')
   const [role, setRole]         = useState('Full Stack Developer')
   const [city, setCity]         = useState('Bangalore')
@@ -130,13 +129,19 @@ export default function SalaryInsights() {
   const [activeTab, setActiveTab] = useState('calculator')
 
   useEffect(() => {
+    console.log('Fetching resumes for SalaryInsights...')
     api.get('/api/resume/my-resumes')
       .then(r => {
+        console.log('Resumes fetched:', r.data?.length)
         setResumes(r.data || [])
-        if (r.data && r.data.length > 0) setResumeId(String(r.data[0].id))
+        if (r.data && r.data.length > 0) {
+          const firstId = String(r.data[0].id)
+          setResumeId(firstId)
+          console.log('Initial resumeId set to:', firstId)
+        }
       })
       .catch(err => {
-        console.error('Failed to load resumes', err)
+        console.error('Failed to load resumes:', err)
         setResumes([])
       })
   }, [])
@@ -158,20 +163,26 @@ export default function SalaryInsights() {
     }))
   }, [role, exp, tier, city])
 
-  const topRoles = useMemo(() => {
+  // FIX: Filter roles PER CATEGORY first, then sort by salary
+  const categoryRoles = useMemo(() => {
     const m = (CITY_MULT[city] || 1) * (EXP_MULT[exp] || 1) * (TIER_MULT[tier] || 1)
+    const allowed = CATEGORIES[category] || []
     return Object.entries(SALARY_DATA)
+      .filter(([r]) => allowed.includes(r))
       .map(([r, d]) => ({ role: r, avg: d.avg * m, max: d.max * m, hot: d.hot, trend: d.trend }))
       .sort((a, b) => b.avg - a.avg)
-      .slice(0, 15)
-  }, [city, exp, tier])
+  }, [category, city, exp, tier])
 
   const getAiTip = async () => {
-    if (!resumeId) return alert('Please upload and select a resume first.')
+    if (!resumeId) {
+      console.warn('Attempted roadmap generation without resumeId')
+      return alert('Please upload and select a resume first.')
+    }
     setLoading(true); setAiResult(null)
+    console.log('Generating roadmap for resumeId:', resumeId)
     try {
       const res = await api.post('/api/analysis/salary-tips', {
-        resumeId: resumeId,
+        resumeId: String(resumeId),
         role,
         domain: category,
         experience: exp,
@@ -179,13 +190,14 @@ export default function SalaryInsights() {
         tier,
         targetSalary: metrics.max
       })
+      console.log('Roadmap received:', !!res.data)
       setAiResult(res.data)
     } catch (error) {
-      console.error('Roadmap error:', error)
+      console.error('Roadmap API failed:', error)
       setAiResult({
         strategy: `Your path to ₹${metrics.max}L involves strategic upskilling in high-demand technical areas.`,
         topSkills: ['System Design', 'Scalability', 'Backend Architecture'],
-        targetCompanies: ['Google', 'Amazon', 'Tier-1 Startups'],
+        targetCompanies: ['MAANG', 'Tier-1 Startups'],
         certifications: ['AWS Solutions Architect'],
         leverageTip: 'Negotiate based on your specific projects and business outcomes from your resume.',
         marketRange: { min: metrics.min, avg: metrics.avg, max: metrics.max }
@@ -298,7 +310,11 @@ export default function SalaryInsights() {
                 <div style={{ fontSize: '1.1rem', fontWeight: '700' }}>{role}</div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px', textAlign: 'center', marginBottom: '1.5rem' }}>
-                {[['MIN', aiResult?.marketRange?.min || metrics.min, '#ef4444'], ['AVG', aiResult?.marketRange?.avg || metrics.avg, '#C9A84C'], ['MAX', aiResult?.marketRange?.max || metrics.max, '#22c55e']].map(([l, v, c]) => (
+                {[
+                  ['MIN', aiResult?.marketRange?.min || metrics.min, '#ef4444'],
+                  ['AVG', aiResult?.marketRange?.avg || metrics.avg, '#C9A84C'],
+                  ['MAX', aiResult?.marketRange?.max || metrics.max, '#22c55e']
+                ].map(([l, v, c]) => (
                   <div key={l}>
                     <div style={{ fontSize: '1.5rem', fontWeight: '800', color: c }}>₹{v}</div>
                     <div style={{ fontSize: '0.6rem', color: 'var(--gray-400)' }}>{l} (LPA)</div>
@@ -347,23 +363,29 @@ export default function SalaryInsights() {
               {Object.keys(CATEGORIES).map(cat => <option key={cat} value={cat}>{cat}</option>)}
             </select>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-            {topRoles.filter(r => (CATEGORIES[category] || []).includes(r.role)).map(r => (
-              <div key={r.role} className="card" onClick={() => { setRole(r.role); setActiveTab('calculator') }} style={{ cursor: 'pointer' }}>
-                <div style={{ fontWeight: '700', marginBottom: '8px' }}>{r.role}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                  <div>
-                    <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--gold-500)' }}>₹{fmt(r.avg)}L</div>
-                    <div style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>Avg LPA</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ color: '#22c55e', fontSize: '0.8rem', fontWeight: '700' }}>{r.trend}</div>
-                    {r.hot && <span style={{ fontSize: '0.6rem', color: '#ef4444', fontWeight: '800' }}>HOT</span>}
+          {categoryRoles.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+              {categoryRoles.map(r => (
+                <div key={r.role} className="card" onClick={() => { setRole(r.role); setActiveTab('calculator') }} style={{ cursor: 'pointer' }}>
+                  <div style={{ fontWeight: '700', marginBottom: '8px' }}>{r.role}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--gold-500)' }}>₹{fmt(r.avg)}L</div>
+                      <div style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>Avg LPA</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ color: '#22c55e', fontSize: '0.8rem', fontWeight: '700' }}>{r.trend}</div>
+                      {r.hot && <span style={{ fontSize: '0.6rem', color: '#ef4444', fontWeight: '800' }}>HOT</span>}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+              No data available for this category yet.
+            </div>
+          )}
         </div>
       )}
     </Layout>
