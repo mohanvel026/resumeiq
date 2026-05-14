@@ -664,37 +664,47 @@ Keep response to 3-4 sentences. No markdown, plain text only.`
 // ══ SALARY CAREER TIPS ══
 const getSalaryCareerTips = async (req, res) => {
   try {
-    const { role, domain, experience, city, tier, targetSalary } = req.body
+    const { role, domain, experience, city, tier, targetSalary, resumeId } = req.body
+
+    let resumeText = 'No resume provided.'
+    if (resumeId) {
+      const resume = await prisma.resume.findFirst({
+        where: { id: resumeId, userId: req.user.id }
+      })
+      if (resume) resumeText = resume.rawText
+    }
 
     const prompt = `You are a high-level executive career coach and compensation expert for the Indian tech and engineering market.
 
-CONTEXT:
-- Candidate Role: ${role} (${domain} domain)
-- Experience: ${experience} years
-- Current/Target Location: ${city}
+CANDIDATE PROFILE:
+- Current Resume Content: """${resumeText.slice(0, 3000)}"""
+- Target Role: ${role} (${domain} domain)
+- Target Experience Level: ${experience} years
+- Target Location: ${city}
 - Target Company Tier: ${tier}
 - High-end Salary Target: ₹${targetSalary}LPA
 
 TASK:
-Provide a highly specific, actionable strategy for the candidate to reach or exceed their target salary. 
-Focus on:
-1. Critical skills (Technical & Leadership)
-2. Strategic career moves (When to switch, which companies to target)
-3. High-value certifications or projects
-4. Negotiation leverage for this specific domain
-
-Tone: Professional, high-impact, and data-driven.
+1. Analyze the candidate's current resume against the target role and salary bracket.
+2. Identify specific technical skills or certifications they are MISSING to qualify for a ₹${targetSalary}LPA package.
+3. Do NOT just suggest "Leadership" or "Communication" unless they are senior (8+ yrs). Focus on HARD technical gaps first.
+4. Provide a roadmap to bridge these gaps.
 
 Return ONLY this JSON format:
 {
-  "strategy": "A 2-3 sentence overarching strategy for their career stage.",
-  "topSkills": ["Skill 1", "Skill 2", "Skill 3"],
+  "strategy": "A 2-3 sentence personalized strategy based on their SPECIFIC resume content (e.g. 'Your React skills are strong, but to hit ₹${targetSalary}L as a Full Stack dev, you need to master distributed systems...').",
+  "marketRange": {
+    "min": "Current realistic min LPA for this role/tier",
+    "avg": "Current realistic avg LPA",
+    "max": "Current realistic max LPA for top performers"
+  },
+  "topSkills": ["Specific Skill 1 they lack", "Specific Skill 2 they lack", "Specific Skill 3 they lack"],
   "targetCompanies": ["Company A", "Company B", "Company C"],
-  "certifications": ["Cert 1", "Cert 2"],
-  "leverageTip": "A specific tip on how to negotiate or position themselves for a ₹${targetSalary}L+ package."
+  "certifications": ["Specific Cert 1", "Specific Cert 2"],
+  "leverageTip": "A specific tip on how to use their EXISTING experience from their resume to negotiate a ₹${targetSalary}L+ package."
 }`
 
-    const raw = await askAI(prompt, 1000)
+    const raw = await askAI(prompt, 1200)
     const result = parseJSON(raw)
     res.json(result)
   } catch (error) {
