@@ -116,6 +116,7 @@ const MAX_C = Math.max(...Object.values(CITY_MULT))
 
 export default function SalaryInsights() {
   const { dark } = useTheme()
+  const [category, setCategory] = useState('CSE — Software Engineering')
   const [role, setRole]         = useState('Full Stack Developer')
   const [city, setCity]         = useState('Bangalore')
   const [exp, setExp]           = useState('1-3')
@@ -203,12 +204,21 @@ export default function SalaryInsights() {
               <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.25rem' }}>Configure</h4>
 
               <div className="form-group">
+                <label className="form-label">Job Domain</label>
+                <select className="form-select" value={category} onChange={e => {
+                  const newCat = e.target.value;
+                  setCategory(newCat);
+                  setRole(CATEGORIES[newCat][0]);
+                }}>
+                  {Object.keys(CATEGORIES).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
+              </div>
+
+              <div className="form-group">
                 <label className="form-label">Job Role</label>
                 <select className="form-select" value={role} onChange={e => setRole(e.target.value)}>
-                  {Object.entries(CATEGORIES).map(([cat, roles]) => (
-                    <optgroup key={cat} label={cat}>
-                      {roles.map(r => <option key={r} value={r}>{r}{SALARY_DATA[r]?.hot ? ' 🔥' : ''}</option>)}
-                    </optgroup>
+                  {CATEGORIES[category].map(r => (
+                    <option key={r} value={r}>{r}{SALARY_DATA[r]?.hot ? ' 🔥' : ''}</option>
                   ))}
                 </select>
               </div>
