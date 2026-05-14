@@ -99,130 +99,158 @@ const scoreResume = async (req, res) => {
 
     const text = resume.rawText
 
-    // Step 1: Extract actual content metrics
+    // Pre-analysis metrics (deterministic)
     const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(text)
-    const hasPhone = /(\+?\d[\d\s\-().]{8,}\d)/.test(text)
-    const hasLinkedIn = /linkedin/i.test(text)
-    const hasGitHub = /github/i.test(text)
+    const hasPhone = /(\+?\d[\d\s\-().]{7,}\d)/.test(text)
+    const hasLinkedIn = /linkedin\.com|linkedin/i.test(text)
+    const hasGitHub = /github\.com|github/i.test(text)
     const wordCount = text.split(/\s+/).length
-    const bulletCount = (text.match(/[•\-\*▪◦]/g) || []).length
-    const hasQuantifiedAchievements = /\d+%|\d+x|\$\d+|\d+ (years|months|users|clients|projects|teams|members)/i.test(text)
-    const hasSummary = /summary|objective|profile|about/i.test(text)
-    const hasEducation = /education|university|college|bachelor|master|degree|cgpa|gpa/i.test(text)
-    const hasExperience = /experience|internship|work|employment|job/i.test(text)
-    const hasSkills = /skills|technologies|tools|languages|frameworks/i.test(text)
-    const hasProjects = /project|built|developed|created|implemented/i.test(text)
-    const hasActionVerbs = /developed|implemented|designed|led|managed|created|built|improved|optimized|analyzed|increased|decreased|achieved|delivered/i.test(text)
+    const bulletCount = (text.match(/[•\-\*▪◦→]/g) || []).length
+    const hasNumbers = /\d+%|\d+x|\d+\s*(lakh|crore|million|billion|k|users|clients|projects|members|students|teams)/i.test(text)
+    const hasSummary = /summary|objective|profile|about\s*me/i.test(text)
+    const hasEducation = /education|university|college|bachelor|master|b\.tech|m\.tech|b\.e|cgpa|gpa|percentage/i.test(text)
+    const hasExperience = /experience|internship|work|employment|position|company/i.test(text)
+    const hasSkills = /skills|technologies|tech\s*stack|tools|languages|frameworks|proficient/i.test(text)
+    const hasProjects = /project|built|developed|created|implemented|designed/i.test(text)
+    const hasActionVerbs = /\b(developed|implemented|designed|led|managed|created|built|improved|optimized|analyzed|increased|reduced|achieved|delivered|engineered|architected|launched|established|collaborated|automated|integrated)\b/i.test(text)
+    const hasDate = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)\s+\d{4}\b/i.test(text)
+    const pageEstimate = wordCount > 800 ? 'too long' : wordCount < 200 ? 'too short' : 'good'
 
-    // Step 2: AI detailed analysis
-    const prompt = `You are a professional ATS (Applicant Tracking System) analyzer used by Fortune 500 companies. Analyze this resume with strict realistic scoring.
+    const prompt = `You are a senior ATS (Applicant Tracking System) evaluator used by top MNCs like Google, Microsoft, Amazon, TCS, Infosys. Analyze this resume with STRICT industry-standard scoring used by real recruiters.
 
 RESUME TEXT:
 """
-${text.slice(0, 2500)}
+${text.slice(0, 4000)}
 """
 
-CONTEXT ABOUT THIS RESUME:
-- Word count: ${wordCount}
-- Has email: ${hasEmail}
-- Has phone: ${hasPhone}
-- Has LinkedIn: ${hasLinkedIn}
-- Has GitHub: ${hasGitHub}
-- Bullet points count: ${bulletCount}
-- Has quantified achievements: ${hasQuantifiedAchievements}
-- Has summary section: ${hasSummary}
-- Has education section: ${hasEducation}
-- Has experience section: ${hasExperience}
-- Has skills section: ${hasSkills}
-- Has projects section: ${hasProjects}
-- Uses action verbs: ${hasActionVerbs}
+PRE-ANALYZED METRICS (use these in scoring):
+- Has email: ${hasEmail} ${!hasEmail ? '(CRITICAL MISSING -20)' : ''}
+- Has phone: ${hasPhone} ${!hasPhone ? '(CRITICAL MISSING -15)' : ''}
+- Has LinkedIn: ${hasLinkedIn} ${!hasLinkedIn ? '(missing -5)' : ''}
+- Has GitHub: ${hasGitHub} ${!hasGitHub ? '(missing for tech roles -5)' : ''}
+- Word count: ${wordCount} (ideal: 400-700) ${pageEstimate === 'too long' ? '(too long -10)' : pageEstimate === 'too short' ? '(too short -10)' : ''}
+- Bullet points: ${bulletCount} ${bulletCount < 5 ? '(too few -10)' : ''}
+- Has quantified achievements: ${hasNumbers} ${!hasNumbers ? '(MISSING -15)' : ''}
+- Has summary: ${hasSummary} ${!hasSummary ? '(missing -8)' : ''}
+- Has education: ${hasEducation}
+- Has experience/internship: ${hasExperience}
+- Has skills section: ${hasSkills} ${!hasSkills ? '(missing -10)' : ''}
+- Has projects: ${hasProjects}
+- Uses action verbs: ${hasActionVerbs} ${!hasActionVerbs ? '(weak -10)' : ''}
+- Has proper dates: ${hasDate} ${!hasDate ? '(missing -8)' : ''}
 
-Score each dimension REALISTICALLY (average resume scores 55-65 overall):
+INDUSTRY SCORING STANDARDS:
+90-100: Executive/expert level resume (rare, <5% of resumes)
+80-89: Strong professional resume (top 15%)
+70-79: Good resume with minor gaps (top 30%)
+60-69: Average resume, needs improvement (50%)
+50-59: Below average, significant gaps (60%)
+40-49: Poor resume, major issues (70%)
+Below 40: Needs complete rewrite (bottom 30%)
 
-1. scoreAts (0-100): Pure ATS parsing compatibility
-   - Standard section headings (+20)
-   - No tables/columns/graphics (+15)
-   - Contact info present (+20)
-   - Standard file format (+10)
-   - No special characters breaking parsing (+15)
-   - Machine readable font (+10)
-   - Proper date formatting (+10)
-   DEDUCTIONS: Missing contact info (-20), special chars (-10), tables (-15)
+For a FRESH GRADUATE / STUDENT resume:
+- Typical realistic score: 45-65
+- Good student resume: 60-72
+- Excellent student resume: 72-82
 
-2. scoreKeywords (0-100): Keyword optimization
-   - Industry-specific technical skills present
-   - Job title keywords matching common roles
-   - Action verbs used
-   - Relevant certifications
-   - Tools and technologies mentioned
-   DEDUCTIONS: Generic descriptions (-10 each), missing industry terms (-5 each)
+Score EACH dimension separately with DIFFERENT values (do NOT give same score to all):
 
-3. scoreFormatting (0-100): Professional formatting
-   - Consistent structure
-   - Appropriate length (1-2 pages)
-   - Proper sections
-   - Clear hierarchy
-   - White space usage
-   DEDUCTIONS: Too long/short (-15), inconsistent dates (-10), missing sections (-10)
+1. scoreAts (ATS Parsing): Can ATS software parse this resume?
+   Start at 100, deduct:
+   - Missing email: -20
+   - Missing phone: -15  
+   - No standard sections: -15
+   - Special characters/symbols: -5 each
+   - Tables or columns: -15
+   - Missing dates: -8
+   - Inconsistent formatting: -5
 
-4. scoreImpact (0-100): Achievement impact
-   - Quantified results (%, $, numbers)
-   - Strong action verbs
-   - Specific accomplishments
-   - Business impact shown
-   DEDUCTIONS: No numbers (-20), weak verbs like "helped" (-5 each), vague statements (-10)
+2. scoreKeywords (Keyword Match): Industry keyword density
+   Start at 100, deduct:
+   - Missing skills section: -20
+   - No technical keywords: -15
+   - Generic descriptions only: -10
+   - No tools/technologies: -10
+   - Missing job-title keywords: -8
 
-5. scoreClarity (0-100): Writing clarity
-   - Clear concise language
-   - No typos or grammar errors
-   - Easy to read bullets
-   - Professional tone
-   DEDUCTIONS: Vague language (-10), run-on sentences (-5), unprofessional tone (-15)
+3. scoreImpact (Achievement Impact): Quantified results
+   Start at 100, deduct:
+   - Zero quantified achievements: -25
+   - All bullets start with "worked on/helped": -15
+   - No metrics (%, numbers, scale): -15
+   - Vague descriptions: -10 each
 
-6. scoreReadability (0-100): Recruiter scan test (6 second test)
-   - Key info visible immediately
-   - Clear visual hierarchy
-   - Scannable bullet points
-   - Name and contact prominent
-   - Most recent experience first
-   DEDUCTIONS: Buried contact info (-15), no bullets (-15), unclear sections (-10)
+4. scoreFormatting (Professional Format): Visual structure
+   Start at 100, deduct:
+   - No bullet points: -15
+   - Too long (>2 pages): -15
+   - Too short (<1 page): -10
+   - Missing key sections: -8 each
+   - Inconsistent date format: -8
 
-Be STRICT. Most fresh graduate resumes score 45-65. Only excellent resumes score 75+.
+5. scoreClarity (Writing Quality): Clear professional language
+   Start at 100, deduct:
+   - Run-on sentences: -8 each
+   - Vague language: -5 each
+   - Unprofessional tone: -15
+   - Grammar issues: -5 each
+   - Typos: -10 each
 
-Also provide:
-- 3 specific improvements they MUST make
-- 2 things that are good about this resume
-- Overall assessment in 2 sentences
+6. scoreReadability (6-Second Scan): First impression
+   Start at 100, deduct:
+   - Name not prominent: -20
+   - Contact buried: -15
+   - No clear sections: -15
+   - Dense paragraphs: -12
+   - Latest experience not first: -10
 
-Return ONLY this exact JSON:
+IMPORTANT: Each score MUST be different from each other. Do NOT round all to same number.
+
+Return ONLY valid JSON (no markdown):
 {
-  "scoreAts": 68,
-  "scoreKeywords": 62,
-  "scoreFormatting": 71,
-  "scoreImpact": 55,
-  "scoreClarity": 70,
+  "scoreAts": 71,
+  "scoreKeywords": 58,
+  "scoreImpact": 45,
+  "scoreFormatting": 68,
+  "scoreClarity": 72,
   "scoreReadability": 65,
   "improvements": [
-    "Add quantified achievements: instead of 'worked on X' write 'improved X by 30%'",
-    "Include a professional summary of 2-3 sentences at the top",
-    "Add more industry-specific keywords matching job descriptions you are targeting"
+    "Add quantified achievements: change 'worked on maintenance' to 'maintained 12+ pumps reducing downtime by 15%'",
+    "Add a 2-3 sentence professional summary at the top of your resume",
+    "Include LinkedIn profile URL in contact section"
   ],
   "strengths": [
-    "Good use of bullet points for experience section",
+    "Good project diversity showing practical engineering skills",
     "Clear education section with CGPA mentioned"
   ],
-  "assessment": "This resume shows good foundational structure but lacks quantified achievements. Adding specific metrics and stronger keywords will significantly improve ATS ranking."
+  "assessment": "This mechanical engineering student resume shows solid foundational structure with relevant internship experience at NLC India Limited. However, it lacks quantified achievements and a professional summary which significantly impacts ATS ranking.",
+  "industryBenchmark": "Entry-level Mechanical Engineering",
+  "percentile": 42
 }`
 
-    const raw = await askAI(prompt, 800)
-    const scores = parseJSON(raw)
+    const raw = await askAI(prompt, 1200)
+    let scores
+    try {
+      scores = parseJSON(raw)
+    } catch (e) {
+      throw new Error('AI returned invalid JSON. Please try again.')
+    }
 
-    // Calculate weighted total (ATS and Keywords weighted higher)
+    // Validate scores are in range
+    const clamp = (v) => Math.min(100, Math.max(0, parseInt(v) || 50))
+    scores.scoreAts = clamp(scores.scoreAts)
+    scores.scoreKeywords = clamp(scores.scoreKeywords)
+    scores.scoreImpact = clamp(scores.scoreImpact)
+    scores.scoreFormatting = clamp(scores.scoreFormatting)
+    scores.scoreClarity = clamp(scores.scoreClarity)
+    scores.scoreReadability = clamp(scores.scoreReadability)
+
+    // Weighted total (ATS industry standard weights)
     const scoreTotal = Math.round(
       scores.scoreAts * 0.25 +
       scores.scoreKeywords * 0.20 +
-      scores.scoreFormatting * 0.15 +
       scores.scoreImpact * 0.20 +
+      scores.scoreFormatting * 0.15 +
       scores.scoreClarity * 0.10 +
       scores.scoreReadability * 0.10
     )
@@ -245,9 +273,11 @@ Return ONLY this exact JSON:
 
     res.json({
       ...analysis,
-      improvements: scores.improvements,
-      strengths: scores.strengths,
-      assessment: scores.assessment,
+      improvements: scores.improvements || [],
+      strengths: scores.strengths || [],
+      assessment: scores.assessment || '',
+      industryBenchmark: scores.industryBenchmark || '',
+      percentile: scores.percentile || 50,
     })
   } catch (error) {
     console.error('Score error:', error.message)
