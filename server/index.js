@@ -62,6 +62,11 @@ try {
   console.log('✓ Export routes')
 } catch(e) { console.log('✗ exportRoutes:', e.message) }
 
+try {
+  app.use('/api/applications', require('./src/routes/jobApplicationRoutes'))
+  console.log('✓ Application routes')
+} catch(e) { console.log('✗ jobApplicationRoutes:', e.message) }
+
 app.use((err, req, res, next) => {
   console.error('Global error:', err.message)
   res.status(500).json({ message: err.message || 'Internal server error' })

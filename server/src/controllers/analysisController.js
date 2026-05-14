@@ -243,7 +243,8 @@ Return ONLY valid JSON (no markdown, no explanation):
   ],
   "assessment": "<2-3 sentence honest assessment of this specific resume, mentioning the actual content found>",
   "industryBenchmark": "<detected role/level e.g. 'Entry-level Software Engineer' or 'Mid-level Mechanical Engineer'>",
-  "percentile": <realistic percentile 1-99 matching the score>
+  "percentile": <realistic percentile 1-99 matching the score>,
+  "topSkills": ["Skill1", "Skill2", "Skill3", "Skill4", "Skill5", "Skill6"]
 }`
 
     const raw = await askAI(prompt, 1200)
@@ -272,6 +273,14 @@ Return ONLY valid JSON (no markdown, no explanation):
       scores.scoreClarity * 0.10 +
       scores.scoreReadability * 0.10
     )
+
+    // Update resume with extracted skills
+    if (scores.topSkills) {
+      await prisma.resume.update({
+        where: { id: resumeId },
+        data: { extractedSkills: JSON.stringify(scores.topSkills) }
+      })
+    }
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
@@ -821,24 +830,96 @@ const getUserStats = async (req, res) => {
   try {
     const resumes = await prisma.resume.findMany({
       where: { userId: req.user.id },
-      include: { analyses: true }   // correct Prisma relation name
+      include: { 
+        analyses: {
+          orderBy: { createdAt: 'asc' }
+        },
+        jobApplications: true
+      }
     })
 
-    let bestScore = 0, analyses = 0, coverLetters = 0
-    let keywords = 0, rewrites = 0, interviews = 0
+    // 1. Core Metrics
+    let bestScore = 0
+    let totalAnalyses = 0
+    let coverLetters = 0
+    
+    // 2. Score History (Trends)
+    const scoreHistoryMap = {}
+    
+    // 3. Skills Analysis
+    const skillCounts = {}
 
     resumes.forEach(resume => {
+      // Process extracted skills
+      if (resume.extractedSkills) {
+        try {
+          const skills = JSON.parse(resume.extractedSkills)
+          if (Array.isArray(skills)) {
+            skills.forEach(s => {
+              skillCounts[s] = (skillCounts[s] || 0) + 1
+            })
+          }
+        } catch (e) {}
+      }
+
       resume.analyses?.forEach(a => {
-        analyses++
-        if (a.type === 'SCORE' && a.scoreTotal > bestScore) bestScore = a.scoreTotal
+        totalAnalyses++
+        if (a.type === 'SCORE') {
+          if (a.scoreTotal > bestScore) bestScore = a.scoreTotal
+          const date = a.createdAt.toISOString().slice(0, 10)
+          scoreHistoryMap[date] = a.scoreTotal
+        }
         if (a.type === 'COVER_LETTER') coverLetters++
-        if (a.type === 'KEYWORD_GAP') keywords++
-        if (a.type === 'BULLET_REWRITE') rewrites++
-        if (a.type === 'INTERVIEW_QUESTIONS') interviews++
       })
     })
 
-    res.json({ resumes: resumes.length, analyses, bestScore, coverLetters, keywords, rewrites, interviews })
+    const scoreHistory = Object.entries(scoreHistoryMap)
+      .map(([date, score]) => ({ date, score }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-10) // last 10 data points
+
+    const topSkills = Object.entries(skillCounts)
+      .map(([skill, count]) => ({ skill, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8)
+
+    // 4. Job Application Stats
+    const applications = await prisma.jobApplication.findMany({
+      where: { userId: req.user.id }
+    })
+
+    const appStatusCounts = {
+      APPLIED: 0,
+      INTERVIEWING: 0,
+      OFFER: 0,
+      REJECTED: 0
+    }
+    applications.forEach(app => {
+      if (appStatusCounts[app.status] !== undefined) {
+        appStatusCounts[app.status]++
+      }
+    })
+
+    const appStatus = Object.entries(appStatusCounts).map(([name, value]) => ({
+      name,
+      value,
+      color: name === 'APPLIED' ? '#17A2B8' : name === 'INTERVIEWING' ? '#C9A84C' : name === 'OFFER' ? '#22c55e' : '#ef4444'
+    }))
+
+    // 5. Market Readiness Calculation
+    const marketReadiness = Math.round((bestScore * 0.7) + (applications.length * 2))
+
+    res.json({
+      resumes: resumes.length,
+      totalAnalyses,
+      bestScore,
+      coverLetters,
+      scoreHistory,
+      topSkills,
+      appStatus,
+      totalApplications: applications.length,
+      marketReadiness: Math.min(100, marketReadiness)
+    })
   } catch (error) {
     console.error('Stats error:', error)
     res.status(500).json({ message: 'Failed to get stats' })
