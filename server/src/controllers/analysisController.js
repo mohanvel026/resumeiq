@@ -241,10 +241,10 @@ Return ONLY valid JSON (no markdown, no explanation):
     "<specific thing done well in THIS resume>",
     "<specific thing done well in THIS resume>"
   ],
-  "assessment": "<2-3 sentence honest assessment of this specific resume, mentioning the actual content found>",
-  "industryBenchmark": "<detected role/level e.g. 'Entry-level Software Engineer' or 'Mid-level Mechanical Engineer'>",
+  "assessment": "<2-3 sentence honest assessment of this specific resume. IF THIS IS A NON-TECH RESUME (e.g. Mechanical, Civil), ACKNOWLEDGE THE DOMAIN and score accordingly.>",
+  "industryBenchmark": "<detected role/level - e.g. 'Senior Mechanical Engineer' or 'Entry-level VLSI Engineer'>",
   "percentile": <realistic percentile 1-99 matching the score>,
-  "topSkills": ["Skill1", "Skill2", "Skill3", "Skill4", "Skill5", "Skill6"]
+  "topSkills": ["CRITICAL: Extract ONLY skills actually present in the text. For Mechanical, extract things like 'AutoCAD', 'SolidWorks', 'Thermodynamics', 'HVAC'. DO NOT include software terms like 'React' or 'JavaScript' if they are not in the text. List 6-8 core technical skills found."]
 }`
 
     const raw = await askAI(prompt, 1200)
@@ -990,11 +990,11 @@ Extract carefully. Return ONLY valid JSON, no markdown:
     }
   ],
   "skills": {
-    "languages": "programming languages or empty",
-    "frameworks": "frameworks or empty",
-    "tools": "tools and software",
-    "databases": "databases or empty",
-    "other": "soft skills and other skills"
+    "core_technical": "primary professional skills (e.g. thermodynamics, circuit design, or programming languages)",
+    "frameworks_or_methodologies": "frameworks, methodologies, or specialized workflows",
+    "software_tools": "specific software tools (e.g. AutoCAD, SolidWorks, VS Code, Excel)",
+    "soft_skills": "communication, leadership, etc.",
+    "other": "any other relevant skills"
   },
   "achievements": ["achievement 1", "achievement 2"],
   "certifications": ["certification 1"]
