@@ -44,7 +44,7 @@ export default function MyResumes() {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🗑️</div>
-              <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>Delete Resume?</h3>
+              <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Delete Resume?</h3>
               <p style={{ color: 'var(--gray-500)', fontSize: '0.9rem' }}>
                 Are you sure you want to delete <strong>"{confirmDelete.title}"</strong>?
                 This will also delete all AI analyses for this resume.
@@ -85,7 +85,7 @@ export default function MyResumes() {
       ) : resumes.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📄</div>
-          <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>No resumes yet</h3>
+          <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No resumes yet</h3>
           <p style={{ color: 'var(--gray-500)', marginBottom: '1.5rem' }}>Upload your first resume to get AI-powered analysis</p>
           <Link to="/upload" className="btn btn-primary">Upload Resume</Link>
         </div>
@@ -115,7 +115,7 @@ export default function MyResumes() {
                 </div>
               </div>
 
-              <h4 style={{ color: 'var(--navy-800)', marginBottom: '4px' }}>{r.title}</h4>
+              <h4 style={{ color: 'var(--text-primary)', marginBottom: '4px' }}>{r.title}</h4>
               <p style={{ color: 'var(--gray-500)', fontSize: '0.8125rem', margin: '0 0 1rem' }}>
                 📅 {new Date(r.createdAt).toLocaleDateString('en-IN', {
                   day: 'numeric', month: 'short', year: 'numeric'

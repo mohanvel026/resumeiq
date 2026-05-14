@@ -36,7 +36,7 @@ export default function Landing() {
       {/* ── NAVBAR ── */}
       <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: 'rgba(10,22,40,0.97)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #1E3A5F', height: '64px', display: 'flex', alignItems: 'center', padding: '0 1.5rem' }}>
         <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ fontSize: '1.375rem', fontWeight: '800', color: 'white', letterSpacing: '-0.5px' }}>
+          <div style={{ fontSize: '1.375rem', fontWeight: '800', color: 'var(--bg-card)', letterSpacing: '-0.5px' }}>
             Resume<span style={{ color: '#C9A84C' }}>IQ</span>
           </div>
 
@@ -53,7 +53,7 @@ export default function Landing() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Link to="/login" style={{ color: '#CBD5E1', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '500', padding: '8px 16px', borderRadius: '8px', border: '1px solid #334155', transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.target.style.background = '#1E293B'; e.target.style.color = 'white' }}
+              onMouseEnter={e => { e.target.style.background = '#1E293B'; e.target.style.color = 'var(--bg-card)' }}
               onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = '#CBD5E1' }}>
               Login
             </Link>
@@ -73,7 +73,7 @@ export default function Landing() {
             🚀 AI-Powered Career Platform
           </div>
 
-          <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', fontWeight: '800', color: 'white', lineHeight: '1.15', marginBottom: '1.25rem', letterSpacing: '-1px' }}>
+          <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', fontWeight: '800', color: 'var(--bg-card)', lineHeight: '1.15', marginBottom: '1.25rem', letterSpacing: '-1px' }}>
             Land Your Dream Job<br />
             <span style={{ color: '#C9A84C' }}>with AI Precision</span>
           </h1>
@@ -86,7 +86,7 @@ export default function Landing() {
             <Link to="/register" style={{ background: '#C9A84C', color: '#0A1628', textDecoration: 'none', fontWeight: '700', fontSize: '1rem', padding: '14px 28px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}>
               Start Free — No Credit Card →
             </Link>
-            <a href="#features" style={{ background: 'rgba(255,255,255,0.08)', color: 'white', textDecoration: 'none', fontWeight: '600', fontSize: '1rem', padding: '14px 28px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', display: 'inline-flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}>
+            <a href="#features" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--bg-card)', textDecoration: 'none', fontWeight: '600', fontSize: '1rem', padding: '14px 28px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.15)', display: 'inline-flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s' }}>
               See All Features
             </a>
           </div>
@@ -126,7 +126,7 @@ export default function Landing() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
             {FEATURES.map(f => (
-              <div key={f.title} style={{ background: 'white', borderRadius: '14px', padding: '1.5rem', border: '1px solid #E9ECEF', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s', cursor: 'default' }}
+              <div key={f.title} style={{ background: 'var(--bg-card)', borderRadius: '14px', padding: '1.5rem', border: '1px solid #E9ECEF', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s', cursor: 'default' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)'; e.currentTarget.style.borderColor = '#C9A84C' }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'; e.currentTarget.style.borderColor = '#E9ECEF' }}>
                 <div style={{ fontSize: '2rem', marginBottom: '12px' }}>{f.icon}</div>
@@ -139,7 +139,7 @@ export default function Landing() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how" style={{ padding: '5rem 1.5rem', background: 'white' }}>
+      <section id="how" style={{ padding: '5rem 1.5rem', background: 'var(--bg-card)' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '800', color: '#0A1628', marginBottom: '12px' }}>
@@ -168,7 +168,7 @@ export default function Landing() {
       {/* ── CTA ── */}
       <section style={{ background: 'linear-gradient(135deg, #0A1628, #1E3A5F)', padding: '5rem 1.5rem', textAlign: 'center' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '800', color: 'white', marginBottom: '1rem' }}>
+          <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '800', color: 'var(--bg-card)', marginBottom: '1rem' }}>
             Ready to Transform Your Career?
           </h2>
           <p style={{ color: '#94A3B8', fontSize: '1.0625rem', marginBottom: '2rem', lineHeight: '1.7' }}>
@@ -182,7 +182,7 @@ export default function Landing() {
 
       {/* ── FOOTER ── */}
       <footer style={{ background: '#020817', padding: '2rem 1.5rem', textAlign: 'center', borderTop: '1px solid #1E293B' }}>
-        <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'white', marginBottom: '8px' }}>
+        <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--bg-card)', marginBottom: '8px' }}>
           Resume<span style={{ color: '#C9A84C' }}>IQ</span>
         </div>
         <p style={{ color: '#475569', fontSize: '0.875rem', margin: 0 }}>

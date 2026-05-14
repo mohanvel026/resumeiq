@@ -293,7 +293,7 @@ export default function ResumeDetail() {
                       <h4 style={{ color: '#9c1c28', marginBottom: '0.75rem' }}>🔧 Must Improve</h4>
                       {analysis.improvements.map((imp, i) => (
                         <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'flex-start' }}>
-                          <span style={{ background: '#DC3545', color: 'white', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '700', flexShrink: 0 }}>{i + 1}</span>
+                          <span style={{ background: '#DC3545', color: 'var(--bg-card)', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '700', flexShrink: 0 }}>{i + 1}</span>
                           <span style={{ color: dark ? '#CBD5E1' : '#495057', fontSize: '0.9rem', lineHeight: '1.6' }}>{imp}</span>
                         </div>
                       ))}

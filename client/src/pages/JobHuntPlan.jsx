@@ -77,7 +77,7 @@ export default function JobHuntPlan() {
       {!plan ? (
         <div className="card" style={{ maxWidth: '500px' }}>
           <div style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '1rem' }}>📅</div>
-          <h3 style={{ color: 'var(--navy-800)', textAlign: 'center', marginBottom: '0.5rem' }}>Generate Your Plan</h3>
+          <h3 style={{ color: 'var(--text-primary)', textAlign: 'center', marginBottom: '0.5rem' }}>Generate Your Plan</h3>
           <p style={{ color: 'var(--gray-500)', textAlign: 'center', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
             Get a day-by-day personalized action plan to land a job in 30 days
           </p>
@@ -93,7 +93,7 @@ export default function JobHuntPlan() {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <h3 style={{ color: 'var(--navy-800)', margin: '0 0 4px' }}>30-Day Plan for {role}</h3>
+              <h3 style={{ color: 'var(--text-primary)', margin: '0 0 4px' }}>30-Day Plan for {role}</h3>
               <p style={{ color: 'var(--gray-500)', margin: 0, fontSize: '0.875rem' }}>{completedCount}/30 days completed</p>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -127,7 +127,7 @@ export default function JobHuntPlan() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {d.tasks.map((task, i) => (
-                    <div key={i} style={{ display: 'flex', gap: '6px', fontSize: '0.8125rem', color: 'var(--gray-600)' }}>
+                    <div key={i} style={{ display: 'flex', gap: '6px', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
                       <span style={{ color: catColor[d.category], flexShrink: 0 }}>•</span>
                       {task}
                     </div>

@@ -81,7 +81,7 @@ export default function Leaderboard() {
       ) : board.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
-          <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>No scores yet!</h3>
+          <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No scores yet!</h3>
           <p style={{ color: 'var(--gray-500)', marginBottom: '1.5rem' }}>
             Be the first! Analyze your resume to get on the leaderboard.
           </p>
@@ -94,14 +94,14 @@ export default function Leaderboard() {
             {board.slice(0, Math.min(3, board.length)).map(p => (
               <div key={p.rank} className="card" style={{
                 textAlign: 'center',
-                background: p.rank === 1 ? 'var(--navy-900)' : 'white',
+                background: p.rank === 1 ? 'var(--navy-900)' : 'var(--bg-card)',
                 border: p.isCurrentUser ? '2px solid var(--gold-500)' : p.rank === 1 ? '2px solid var(--gold-500)' : '1px solid var(--gray-200)',
               }}>
                 <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{p.badge || `#${p.rank}`}</div>
                 <div style={{ fontSize: '2rem', fontWeight: '800', color: p.rank === 1 ? 'var(--gold-500)' : getScoreColor(p.score), marginBottom: '4px' }}>
                   {p.score}<span style={{ fontSize: '1rem', color: 'var(--gray-400)' }}>/100</span>
                 </div>
-                <div style={{ fontWeight: '600', color: p.rank === 1 ? 'white' : 'var(--navy-800)', marginBottom: '4px' }}>
+                <div style={{ fontWeight: '600', color: p.rank === 1 ? 'var(--bg-card)' : 'var(--navy-800)', marginBottom: '4px' }}>
                   {p.name}
                   {p.isCurrentUser && <span style={{ display: 'block', color: 'var(--gold-500)', fontSize: '0.75rem' }}>← You</span>}
                 </div>
@@ -135,12 +135,12 @@ export default function Leaderboard() {
                       </span>
                     </td>
                     <td>
-                      <div style={{ fontWeight: '600', color: 'var(--navy-800)' }}>
+                      <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
                         {p.name}
                         {p.isCurrentUser && <span style={{ marginLeft: '6px', color: 'var(--gold-500)', fontSize: '0.75rem' }}>← You</span>}
                       </div>
                     </td>
-                    <td style={{ color: 'var(--gray-600)', fontSize: '0.8125rem' }}>{p.resumeTitle}</td>
+                    <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{p.resumeTitle}</td>
                     <td>
                       <span style={{ fontSize: '1.1rem', fontWeight: '700', color: getScoreColor(p.score) }}>{p.score}</span>
                       <span style={{ color: 'var(--gray-500)', fontSize: '0.8125rem' }}>/100</span>

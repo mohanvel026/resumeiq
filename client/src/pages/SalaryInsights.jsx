@@ -61,7 +61,7 @@
 
 //       <div className="grid-2" style={{ alignItems: 'start' }}>
 //         <div className="card">
-//           <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Configure Search</h4>
+//           <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>Configure Search</h4>
 //           <div className="form-group">
 //             <label className="form-label">Job Role</label>
 //             <select className="form-select" value={role} onChange={e => setRole(e.target.value)}>
@@ -116,14 +116,14 @@
 //           </div>
 
 //           <div className="card" style={{ marginBottom: '1rem' }}>
-//             <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>City Comparison</h4>
+//             <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>City Comparison</h4>
 //             {CITIES.map(c => {
 //               const mult = CITY_MULTIPLIER[c] || 1
 //               const avg = (base.avg * mult * expMult).toFixed(1)
 //               const pct = Math.round((mult - 0.7) / 0.5 * 100)
 //               return (
 //                 <div key={c} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-//                   <span style={{ fontSize: '0.8125rem', color: 'var(--gray-700)', minWidth: '90px' }}>{c}</span>
+//                   <span style={{ fontSize: '0.8125rem', color: 'var(--text-body)', minWidth: '90px' }}>{c}</span>
 //                   <div style={{ flex: 1, background: 'var(--gray-100)', borderRadius: '20px', height: '8px', overflow: 'hidden' }}>
 //                     <div style={{ width: `${pct}%`, height: '100%', background: c === city ? 'var(--gold-500)' : 'var(--navy-600)', borderRadius: '20px', transition: 'width 0.3s' }} />
 //                   </div>
@@ -135,8 +135,8 @@
 
 //           {aiInsight && (
 //             <div className="card" style={{ borderLeft: '3px solid var(--gold-500)' }}>
-//               <h4 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>💡 AI Career Tip</h4>
-//               <p style={{ color: 'var(--gray-700)', fontSize: '0.9rem', margin: 0, lineHeight: '1.7' }}>{aiInsight}</p>
+//               <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>💡 AI Career Tip</h4>
+//               <p style={{ color: 'var(--text-body)', fontSize: '0.9rem', margin: 0, lineHeight: '1.7' }}>{aiInsight}</p>
 //             </div>
 //           )}
 //         </div>
@@ -255,7 +255,7 @@ export default function SalaryInsights() {
         
         {/* --- LEFT: CONFIGURATION (The Dropdown Boxes) --- */}
         <div className="card">
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '1.25rem' }}>Configure Search</h4>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.25rem' }}>Configure Search</h4>
           
           <div className="form-group">
             <label className="form-label">Job Role</label>
@@ -293,7 +293,7 @@ export default function SalaryInsights() {
 
         {/* --- RIGHT: VISUALIZATIONS --- */}
         <div>
-          <div className="card" style={{ background: 'var(--navy-900)', color: 'white', marginBottom: '1.5rem', border: 'none' }}>
+          <div className="card" style={{ background: 'var(--navy-900)', color: 'var(--bg-card)', marginBottom: '1.5rem', border: 'none' }}>
             <p style={{ opacity: 0.6, fontSize: '0.8rem', margin: '0 0 1rem' }}>{role} • {city} • {tier}</p>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem', textAlign: 'center' }}>
@@ -313,22 +313,22 @@ export default function SalaryInsights() {
 
             <div style={{ background: 'var(--navy-800)', borderRadius: '20px', height: '10px', position: 'relative', padding: '0 5px', display: 'flex', alignItems: 'center' }}>
               <div style={{ width: '100%', height: '4px', borderRadius: '10px', background: 'linear-gradient(to right, var(--danger), var(--gold-500), var(--success))' }} />
-              <div style={{ position: 'absolute', left: '48%', width: '14px', height: '14px', background: 'white', borderRadius: '50%', border: '3px solid var(--gold-500)' }} />
+              <div style={{ position: 'absolute', left: '48%', width: '14px', height: '14px', background: 'var(--bg-card)', borderRadius: '50%', border: '3px solid var(--gold-500)' }} />
             </div>
           </div>
 
           {aiInsight.text && (
             <div className="card" style={{ borderLeft: '4px solid var(--gold-500)', background: dark ? 'rgba(255,191,0,0.05)' : '#fffdf2', marginBottom: '1.5rem' }}>
-              <h4 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem', fontSize: '0.95rem' }}>✨ AI Career Recommendation</h4>
-              <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--gray-700)', margin: 0 }}>{aiInsight.text}</p>
+              <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', fontSize: '0.95rem' }}>✨ AI Career Recommendation</h4>
+              <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-body)', margin: 0 }}>{aiInsight.text}</p>
             </div>
           )}
 
           <div className="card">
-            <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--navy-800)' }}>Location Comparison (Avg LPA)</h4>
+            <h4 style={{ marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Location Comparison (Avg LPA)</h4>
             {cityComparisons.map(data => (
               <div key={data.city} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-                <span style={{ fontSize: '0.75rem', width: '80px', color: 'var(--gray-600)' }}>{data.city}</span>
+                <span style={{ fontSize: '0.75rem', width: '80px', color: 'var(--text-secondary)' }}>{data.city}</span>
                 <div style={{ flex: 1, background: 'var(--gray-100)', height: '6px', borderRadius: '10px', overflow: 'hidden' }}>
                   <div style={{ width: `${data.pct}%`, height: '100%', background: data.isSelected ? 'var(--gold-500)' : 'var(--navy-500)', transition: 'width 0.5s ease' }} />
                 </div>

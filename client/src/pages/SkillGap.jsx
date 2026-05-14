@@ -44,15 +44,15 @@ export default function SkillGap() {
 
       {result && result.length > 0 && (
         <div>
-          <h3 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Missing Skills ({result.length})</h3>
+          <h3 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>Missing Skills ({result.length})</h3>
           <div className="grid-2">
             {result.map((skill, i) => (
               <div key={i} className="card" style={{ borderLeft: '3px solid var(--danger)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <h4 style={{ color: 'var(--navy-800)', margin: 0 }}>{skill.skill}</h4>
+                  <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>{skill.skill}</h4>
                   <span className="badge badge-danger">Missing</span>
                 </div>
-                <p style={{ color: 'var(--gray-600)', fontSize: '0.875rem', margin: '0 0 12px' }}>{skill.description}</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: '0 0 12px' }}>{skill.description}</p>
                 {skill.resource && (
                   <a href={skill.resource} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" style={{ width: '100%' }}>
                     📚 Learn for Free →

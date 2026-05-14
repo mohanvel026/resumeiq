@@ -45,14 +45,14 @@ export default function InterviewPrep() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                   <span style={{ background: 'var(--navy-900)', color: 'var(--gold-500)', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8125rem', fontWeight: '700', flexShrink: 0 }}>{i + 1}</span>
-                  <span style={{ fontWeight: '500', color: 'var(--navy-800)', fontSize: '0.9375rem' }}>{q.question}</span>
+                  <span style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '0.9375rem' }}>{q.question}</span>
                 </div>
                 <span style={{ color: 'var(--gray-400)', fontSize: '1.2rem', flexShrink: 0 }}>{open === i ? '▲' : '▼'}</span>
               </div>
               {open === i && (
                 <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--gray-50)', borderRadius: 'var(--border-radius)', borderLeft: '3px solid var(--gold-500)' }}>
                   <div style={{ fontSize: '0.8125rem', fontWeight: '600', color: 'var(--gold-500)', marginBottom: '6px' }}>💡 STAR Format Hint</div>
-                  <p style={{ color: 'var(--gray-700)', margin: 0, fontSize: '0.9rem', lineHeight: '1.7' }}>{q.hint}</p>
+                  <p style={{ color: 'var(--text-body)', margin: 0, fontSize: '0.9rem', lineHeight: '1.7' }}>{q.hint}</p>
                 </div>
               )}
             </div>
@@ -63,7 +63,7 @@ export default function InterviewPrep() {
       {questions.length === 0 && !loading && (
         <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎤</div>
-          <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>Ready to Practice?</h3>
+          <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Ready to Practice?</h3>
           <p style={{ color: 'var(--gray-500)' }}>Enter your target role and get 10 AI-generated interview questions with answer hints</p>
         </div>
       )}

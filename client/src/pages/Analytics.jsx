@@ -44,7 +44,7 @@ export default function Analytics() {
 
       <div className="grid-2" style={{ marginBottom: '1.5rem' }}>
         <div className="card">
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '1.5rem' }}>Resume Score History</h4>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.5rem' }}>Resume Score History</h4>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={scoreHistory}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -57,7 +57,7 @@ export default function Analytics() {
         </div>
 
         <div className="card">
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '1.5rem' }}>Application Status</h4>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.5rem' }}>Application Status</h4>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={appStatus} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
@@ -71,7 +71,7 @@ export default function Analytics() {
       </div>
 
       <div className="card">
-        <h4 style={{ color: 'var(--navy-800)', marginBottom: '1.5rem' }}>Top Skills in Job Listings</h4>
+        <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.5rem' }}>Top Skills in Job Listings</h4>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={skills}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />

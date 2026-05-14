@@ -85,7 +85,7 @@ const parseJSONArray = (raw) => {
   return JSON.parse(clean.slice(start, end + 1))
 }
 
-// ══ REAL ATS SCORE ══
+// ══ INDUSTRY-LEVEL ATS SCORE ══
 const scoreResume = async (req, res) => {
   try {
     const { resumeId } = req.body
@@ -99,133 +99,151 @@ const scoreResume = async (req, res) => {
 
     const text = resume.rawText
 
-    // Pre-analysis metrics (deterministic)
+    // ── Deterministic pre-checks (mirrors what Taleo/Workday/iCIMS parse) ──
     const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(text)
     const hasPhone = /(\+?\d[\d\s\-().]{7,}\d)/.test(text)
-    const hasLinkedIn = /linkedin\.com|linkedin/i.test(text)
-    const hasGitHub = /github\.com|github/i.test(text)
-    const wordCount = text.split(/\s+/).length
-    const bulletCount = (text.match(/[•\-\*▪◦→]/g) || []).length
-    const hasNumbers = /\d+%|\d+x|\d+\s*(lakh|crore|million|billion|k|users|clients|projects|members|students|teams)/i.test(text)
-    const hasSummary = /summary|objective|profile|about\s*me/i.test(text)
-    const hasEducation = /education|university|college|bachelor|master|b\.tech|m\.tech|b\.e|cgpa|gpa|percentage/i.test(text)
-    const hasExperience = /experience|internship|work|employment|position|company/i.test(text)
-    const hasSkills = /skills|technologies|tech\s*stack|tools|languages|frameworks|proficient/i.test(text)
-    const hasProjects = /project|built|developed|created|implemented|designed/i.test(text)
-    const hasActionVerbs = /\b(developed|implemented|designed|led|managed|created|built|improved|optimized|analyzed|increased|reduced|achieved|delivered|engineered|architected|launched|established|collaborated|automated|integrated)\b/i.test(text)
-    const hasDate = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)\s+\d{4}\b/i.test(text)
-    const pageEstimate = wordCount > 800 ? 'too long' : wordCount < 200 ? 'too short' : 'good'
+    const hasLinkedIn = /linkedin\.com\/in\//i.test(text)
+    const hasGitHub = /github\.com\//i.test(text)
+    const hasPortfolio = /portfolio|website|behance\.net|dribbble\.com/i.test(text)
+    const wordCount = text.trim().split(/\s+/).length
+    const sentenceCount = (text.match(/[.!?]+/g) || []).length
+    const bulletCount = (text.match(/^\s*[•\-\*▪◦→✓✔◆■]\s/gm) || []).length
+    const lineCount = text.split('\n').filter(l => l.trim().length > 0).length
 
-    const prompt = `You are a senior ATS (Applicant Tracking System) evaluator used by top MNCs like Google, Microsoft, Amazon, TCS, Infosys. Analyze this resume with STRICT industry-standard scoring used by real recruiters.
+    // Section detection
+    const hasSummary = /\b(summary|professional summary|profile|objective|about me|career objective)\b/i.test(text)
+    const hasEducation = /\b(education|academic|university|college|bachelor|master|b\.tech|m\.tech|b\.e\.|cgpa|gpa|graduation)\b/i.test(text)
+    const hasExperience = /\b(experience|work experience|employment|internship|professional experience|career history)\b/i.test(text)
+    const hasSkills = /\b(skills|technical skills|technologies|tech stack|core competencies|tools|expertise|proficiency)\b/i.test(text)
+    const hasProjects = /\b(projects|personal projects|academic projects|key projects|portfolio)\b/i.test(text)
+    const hasCerts = /\b(certification|certificate|certified|course|training|license)\b/i.test(text)
+    const hasAwards = /\b(awards|achievements|honors|recognition|accomplishments)\b/i.test(text)
 
-RESUME TEXT:
+    // Impact analysis
+    const quantifiedPattern = /\d+\s*(%|percent|x|times|users|clients|projects|members|lakh|crore|million|billion|k\b|hours|days|weeks|months|\+)/i
+    const hasQuantified = quantifiedPattern.test(text)
+    const quantifiedCount = (text.match(new RegExp(quantifiedPattern.source, 'gi')) || []).length
+
+    // Action verb richness (strong vs weak)
+    const strongVerbs = /\b(engineered|architected|spearheaded|orchestrated|pioneered|transformed|accelerated|optimized|automated|integrated|deployed|launched|scaled|generated|secured|negotiated|mentored|led|reduced|increased|delivered|achieved|established|built|designed|implemented|developed|created)\b/gi
+    const weakVerbs = /\b(helped|assisted|worked on|participated|involved|supported|contributed to|responsible for|duties include)\b/gi
+    const strongVerbCount = (text.match(strongVerbs) || []).length
+    const weakVerbCount = (text.match(weakVerbs) || []).length
+
+    // Date consistency
+    const datePattern = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{4}\b|\b\d{4}\s*[-–]\s*(\d{4}|present|current)\b/gi
+    const dateCount = (text.match(datePattern) || []).length
+
+    // Length penalty
+    const pageLengthStatus = wordCount > 900 ? 'over' : wordCount < 250 ? 'under' : 'ideal'
+
+    // Grammar signals (proxy check)
+    const consecutiveCaps = (text.match(/[A-Z]{5,}/g) || []).length
+    const hasSpecialSymbols = /[|}{<>\\]/.test(text)
+
+    // Count mandatory sections present
+    const sectionScore = [hasSummary, hasEducation, hasExperience, hasSkills, hasProjects].filter(Boolean).length
+
+    const prompt = `You are ResumeIQ's senior ATS engine, trained on scoring logic used by enterprise ATS platforms (Taleo, Workday, iCIMS, Greenhouse, Lever, SAP SuccessFactors). Your job is to produce REALISTIC, DIFFERENTIATED scores that match what a real recruiter at a top company would see.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RESUME TEXT (first 4000 chars):
 """
 ${text.slice(0, 4000)}
 """
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-PRE-ANALYZED METRICS (use these in scoring):
-- Has email: ${hasEmail} ${!hasEmail ? '(CRITICAL MISSING -20)' : ''}
-- Has phone: ${hasPhone} ${!hasPhone ? '(CRITICAL MISSING -15)' : ''}
-- Has LinkedIn: ${hasLinkedIn} ${!hasLinkedIn ? '(missing -5)' : ''}
-- Has GitHub: ${hasGitHub} ${!hasGitHub ? '(missing for tech roles -5)' : ''}
-- Word count: ${wordCount} (ideal: 400-700) ${pageEstimate === 'too long' ? '(too long -10)' : pageEstimate === 'too short' ? '(too short -10)' : ''}
-- Bullet points: ${bulletCount} ${bulletCount < 5 ? '(too few -10)' : ''}
-- Has quantified achievements: ${hasNumbers} ${!hasNumbers ? '(MISSING -15)' : ''}
-- Has summary: ${hasSummary} ${!hasSummary ? '(missing -8)' : ''}
-- Has education: ${hasEducation}
-- Has experience/internship: ${hasExperience}
-- Has skills section: ${hasSkills} ${!hasSkills ? '(missing -10)' : ''}
-- Has projects: ${hasProjects}
-- Uses action verbs: ${hasActionVerbs} ${!hasActionVerbs ? '(weak -10)' : ''}
-- Has proper dates: ${hasDate} ${!hasDate ? '(missing -8)' : ''}
+PRE-COMPUTED SIGNALS (use EXACTLY these in your scoring math):
 
-INDUSTRY SCORING STANDARDS:
-90-100: Executive/expert level resume (rare, <5% of resumes)
-80-89: Strong professional resume (top 15%)
-70-79: Good resume with minor gaps (top 30%)
-60-69: Average resume, needs improvement (50%)
-50-59: Below average, significant gaps (60%)
-40-49: Poor resume, major issues (70%)
-Below 40: Needs complete rewrite (bottom 30%)
+CONTACT SECTION:
+  • Email present:         ${hasEmail}      ${!hasEmail ? '→ CRITICAL: -20 pts from scoreAts' : ''}
+  • Phone present:         ${hasPhone}      ${!hasPhone ? '→ CRITICAL: -15 pts from scoreAts' : ''}
+  • LinkedIn URL:          ${hasLinkedIn}   ${!hasLinkedIn ? '→ Missing: -8 pts from scoreReadability' : ''}
+  • GitHub URL:            ${hasGitHub}     ${!hasGitHub ? '→ Missing for tech roles: -5 pts from scoreKeywords' : ''}
+  • Portfolio/website:     ${hasPortfolio}
 
-For a FRESH GRADUATE / STUDENT resume:
-- Typical realistic score: 45-65
-- Good student resume: 60-72
-- Excellent student resume: 72-82
+SECTIONS DETECTED (${sectionScore}/5 required):
+  • Summary/Objective:     ${hasSummary}    ${!hasSummary ? '→ Missing: -10 pts from scoreFormatting' : ''}
+  • Education:             ${hasEducation}
+  • Experience/Internship: ${hasExperience} ${!hasExperience ? '→ Missing: -15 pts from scoreAts' : ''}
+  • Skills:                ${hasSkills}     ${!hasSkills ? '→ Missing: -18 pts from scoreKeywords' : ''}
+  • Projects:              ${hasProjects}   ${!hasProjects ? '→ No projects: -10 pts from scoreImpact' : ''}
+  • Certifications:        ${hasCerts}
+  • Awards/Achievements:   ${hasAwards}
 
-Score EACH dimension separately with DIFFERENT values (do NOT give same score to all):
+CONTENT QUALITY:
+  • Word count:            ${wordCount}     (ideal 400–700) → ${pageLengthStatus === 'over' ? 'Too long: -12 pts from scoreFormatting' : pageLengthStatus === 'under' ? 'Too short: -10 pts from scoreFormatting' : 'Good length'}
+  • Bullet point lines:    ${bulletCount}   ${bulletCount < 4 ? '→ Too few bullets: -12 pts from scoreFormatting' : ''}
+  • Quantified results:    ${hasQuantified} (${quantifiedCount} instances) ${!hasQuantified ? '→ ZERO metrics: -25 pts from scoreImpact' : quantifiedCount < 3 ? '→ Too few metrics: -12 pts from scoreImpact' : ''}
+  • Strong action verbs:   ${strongVerbCount} (engineered, deployed, optimized…)
+  • Weak passive phrases:  ${weakVerbCount}  ${weakVerbCount > 3 ? '→ Heavy weak language: -15 pts from scoreClarity' : ''}
+  • Date ranges found:     ${dateCount}     ${dateCount < 2 ? '→ Missing employment dates: -8 pts from scoreAts' : ''}
+  • All-caps sequences:    ${consecutiveCaps} ${consecutiveCaps > 2 ? '→ ATS parsing issue: -5 pts from scoreAts' : ''}
+  • Table/symbol chars:    ${hasSpecialSymbols} ${hasSpecialSymbols ? '→ ATS unfriendly: -10 pts from scoreAts' : ''}
 
-1. scoreAts (ATS Parsing): Can ATS software parse this resume?
-   Start at 100, deduct:
-   - Missing email: -20
-   - Missing phone: -15  
-   - No standard sections: -15
-   - Special characters/symbols: -5 each
-   - Tables or columns: -15
-   - Missing dates: -8
-   - Inconsistent formatting: -5
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SCORING FRAMEWORK (industry weights):
 
-2. scoreKeywords (Keyword Match): Industry keyword density
-   Start at 100, deduct:
-   - Missing skills section: -20
-   - No technical keywords: -15
-   - Generic descriptions only: -10
-   - No tools/technologies: -10
-   - Missing job-title keywords: -8
+1. scoreAts (25% weight) — Parse compatibility with Taleo/Workday
+   Perfect ATS = plain text, clear sections, standard headers, no tables/columns/images
+   Start 100 → apply deductions from signals above → add your assessment of structure clarity
 
-3. scoreImpact (Achievement Impact): Quantified results
-   Start at 100, deduct:
-   - Zero quantified achievements: -25
-   - All bullets start with "worked on/helped": -15
-   - No metrics (%, numbers, scale): -15
-   - Vague descriptions: -10 each
+2. scoreKeywords (20% weight) — Keyword density & relevance
+   Perfect = rich with job-title-specific terms, tools, frameworks, certifications
+   Start 100 → deduct for missing skills, generic descriptions, no tech stack details
 
-4. scoreFormatting (Professional Format): Visual structure
-   Start at 100, deduct:
-   - No bullet points: -15
-   - Too long (>2 pages): -15
-   - Too short (<1 page): -10
-   - Missing key sections: -8 each
-   - Inconsistent date format: -8
+3. scoreImpact (20% weight) — Achievement orientation
+   Perfect = every bullet has a metric, scope, or business outcome
+   Start 100 → deduct based on quantifiedCount and weakVerbCount above
 
-5. scoreClarity (Writing Quality): Clear professional language
-   Start at 100, deduct:
-   - Run-on sentences: -8 each
-   - Vague language: -5 each
-   - Unprofessional tone: -15
-   - Grammar issues: -5 each
-   - Typos: -10 each
+4. scoreFormatting (15% weight) — Structure & visual hierarchy
+   Perfect = proper sections in order, consistent dates, right length, no design gimmicks
+   Start 100 → deduct based on section gaps, length, bullet count
 
-6. scoreReadability (6-Second Scan): First impression
-   Start at 100, deduct:
-   - Name not prominent: -20
-   - Contact buried: -15
-   - No clear sections: -15
-   - Dense paragraphs: -12
-   - Latest experience not first: -10
+5. scoreClarity (10% weight) — Language quality & readability
+   Perfect = active voice, no jargon soup, clear concise sentences under 25 words
+   Start 100 → deduct for passive voice, vague language, grammar signals
 
-IMPORTANT: Each score MUST be different from each other. Do NOT round all to same number.
+6. scoreReadability (10% weight) — 6-second recruiter scan test
+   Perfect = name at top, contact visible, sections scannable, reverse-chronological
+   Start 100 → deduct if contact buried, no clear hierarchy, wall of text
 
-Return ONLY valid JSON (no markdown):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INDUSTRY BENCHMARK DISTRIBUTION (be realistic):
+
+Fresh Graduate (0–1 yr exp):  typical 42–65, good 65–75, exceptional 75–82
+Junior Professional (1–3 yr): typical 55–70, good 70–80, exceptional 80–87
+Senior Professional (5+ yr):  typical 65–78, good 78–88, exceptional 88–95
+Executive (10+ yr):           typical 72–84, good 84–92, exceptional 92–100
+
+CRITICAL RULES:
+• ALL 6 scores must be DIFFERENT values — never give the same number twice
+• Scores reflect the PRE-COMPUTED signals above — if email is missing, scoreAts cannot be above 60
+• If quantifiedCount = 0, scoreImpact must be below 45
+• If skills section missing, scoreKeywords must be below 40
+• Be STRICT — a score of 80+ means the resume is genuinely impressive
+
+Return ONLY valid JSON (no markdown, no explanation):
 {
-  "scoreAts": 71,
-  "scoreKeywords": 58,
-  "scoreImpact": 45,
-  "scoreFormatting": 68,
-  "scoreClarity": 72,
-  "scoreReadability": 65,
+  "scoreAts": <number 0-100>,
+  "scoreKeywords": <number 0-100>,
+  "scoreImpact": <number 0-100>,
+  "scoreFormatting": <number 0-100>,
+  "scoreClarity": <number 0-100>,
+  "scoreReadability": <number 0-100>,
   "improvements": [
-    "Add quantified achievements: change 'worked on maintenance' to 'maintained 12+ pumps reducing downtime by 15%'",
-    "Add a 2-3 sentence professional summary at the top of your resume",
-    "Include LinkedIn profile URL in contact section"
+    "<specific, actionable fix with example — no vague advice>",
+    "<specific, actionable fix with example>",
+    "<specific, actionable fix with example>",
+    "<specific, actionable fix with example>"
   ],
   "strengths": [
-    "Good project diversity showing practical engineering skills",
-    "Clear education section with CGPA mentioned"
+    "<specific thing done well in THIS resume>",
+    "<specific thing done well in THIS resume>"
   ],
-  "assessment": "This mechanical engineering student resume shows solid foundational structure with relevant internship experience at NLC India Limited. However, it lacks quantified achievements and a professional summary which significantly impacts ATS ranking.",
-  "industryBenchmark": "Entry-level Mechanical Engineering",
-  "percentile": 42
+  "assessment": "<2-3 sentence honest assessment of this specific resume, mentioning the actual content found>",
+  "industryBenchmark": "<detected role/level e.g. 'Entry-level Software Engineer' or 'Mid-level Mechanical Engineer'>",
+  "percentile": <realistic percentile 1-99 matching the score>
 }`
 
     const raw = await askAI(prompt, 1200)
@@ -693,9 +711,10 @@ Return ONLY this JSON:
   }
 }
 
-// ══ LEADERBOARD ══
+// ══ LEADERBOARD — shows LATEST score per user (most recent analysis) ══
 const getLeaderboard = async (req, res) => {
   try {
+    // Get all SCORE analyses ordered by newest first
     const analyses = await prisma.aiAnalysis.findMany({
       where: { type: 'SCORE', scoreTotal: { not: null } },
       include: {
@@ -705,32 +724,35 @@ const getLeaderboard = async (req, res) => {
           }
         }
       },
-      orderBy: { scoreTotal: 'desc' }
+      orderBy: { createdAt: 'desc' }   // newest first → first match per user = latest
     })
 
-    const userBestScores = {}
+    // Keep only the LATEST analysis per user (first occurrence since sorted desc)
+    const userLatestScores = {}
     analyses.forEach(a => {
       const userId = a.resume?.user?.id
       const userName = a.resume?.user?.name
       if (!userId || !userName) return
-      if (!userBestScores[userId] || a.scoreTotal > userBestScores[userId].score) {
-        userBestScores[userId] = {
+      if (!userLatestScores[userId]) {   // first = latest because of desc sort
+        userLatestScores[userId] = {
           userId,
           name: userName,
           score: a.scoreTotal,
           resumeTitle: a.resume?.title || 'Resume',
+          analyzedAt: a.createdAt,
         }
       }
     })
 
-    const leaderboard = Object.values(userBestScores)
-      .sort((a, b) => b.score - a.score)
+    const leaderboard = Object.values(userLatestScores)
+      .sort((a, b) => b.score - a.score)   // rank by score descending
       .slice(0, 20)
       .map((entry, index) => ({
         rank: index + 1,
         name: entry.name,
         score: entry.score,
         resumeTitle: entry.resumeTitle,
+        analyzedAt: entry.analyzedAt,
         isCurrentUser: entry.userId === req.user.id,
         badge: index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '',
       }))
@@ -747,14 +769,14 @@ const getUserStats = async (req, res) => {
   try {
     const resumes = await prisma.resume.findMany({
       where: { userId: req.user.id },
-      include: { aiAnalyses: true }
+      include: { analyses: true }   // correct Prisma relation name
     })
 
     let bestScore = 0, analyses = 0, coverLetters = 0
     let keywords = 0, rewrites = 0, interviews = 0
 
     resumes.forEach(resume => {
-      resume.aiAnalyses?.forEach(a => {
+      resume.analyses?.forEach(a => {
         analyses++
         if (a.type === 'SCORE' && a.scoreTotal > bestScore) bestScore = a.scoreTotal
         if (a.type === 'COVER_LETTER') coverLetters++
@@ -859,6 +881,108 @@ Extract carefully. Return ONLY valid JSON, no markdown:
   }
 }
 
+// ══ SUGGEST RESUME IMPROVEMENTS ══
+const suggestResumeImprovements = async (req, res) => {
+  try {
+    const { resumeId } = req.body
+    const resume = await prisma.resume.findFirst({ where: { id: resumeId, userId: req.user.id } })
+    if (!resume) return res.status(404).json({ message: 'Resume not found' })
+    if (!resume.rawText || resume.rawText.length < 50) return res.status(400).json({ message: 'Resume text too short' })
+
+    const prompt = `You are an expert resume coach. Analyze this resume and return SPECIFIC, ACTIONABLE improvement suggestions.
+
+RESUME:
+"""
+${resume.rawText.slice(0, 3500)}
+"""
+
+Return ONLY valid JSON with this exact structure:
+{
+  "overallScore": <number 0-100>,
+  "targetRole": "<detected role e.g. Software Engineer, Mechanical Engineer>",
+  "suggestions": [
+    {
+      "id": "s1",
+      "category": "Summary",
+      "priority": "high",
+      "issue": "<what's wrong>",
+      "current": "<exact current text or 'Missing'>",
+      "improved": "<the improved version ready to use>",
+      "impact": "<why this helps ATS/recruiters>"
+    },
+    {
+      "id": "s2",
+      "category": "Bullet Points",
+      "priority": "high",
+      "issue": "<what's wrong>",
+      "current": "<exact current bullet>",
+      "improved": "<quantified improved bullet>",
+      "impact": "<why this helps>"
+    }
+  ],
+  "missingKeywords": ["<keyword1>", "<keyword2>", "<keyword3>"],
+  "quickWins": ["<one-line quick fix>", "<one-line quick fix>"]
+}
+
+Generate 5-8 suggestions across categories: Summary, Bullet Points, Skills, Contact, Formatting, Keywords.
+Priority must be: high, medium, or low.`
+
+    const raw = await askAI(prompt, 1500)
+    const result = parseJSON(raw)
+    res.json(result)
+  } catch (error) {
+    console.error('Suggest improvements error:', error.message)
+    res.status(500).json({ message: 'AI suggestion failed: ' + error.message })
+  }
+}
+
+// ══ ENHANCE RESUME CONTENT (apply selected suggestions) ══
+const enhanceResumeContent = async (req, res) => {
+  try {
+    const { resumeId, selectedIds, suggestions, template } = req.body
+    const resume = await prisma.resume.findFirst({ where: { id: resumeId, userId: req.user.id } })
+    if (!resume) return res.status(404).json({ message: 'Resume not found' })
+
+    const selected = suggestions.filter(s => selectedIds.includes(s.id))
+    const changes = selected.map(s => `• [${s.category}] ${s.issue} → Apply: "${s.improved}"`).join('\n')
+
+    const prompt = `You are a professional resume writer. Rewrite this resume applying EXACTLY the selected improvements listed below.
+
+ORIGINAL RESUME:
+"""
+${resume.rawText.slice(0, 3000)}
+"""
+
+APPLY THESE SPECIFIC IMPROVEMENTS:
+${changes}
+
+Return ONLY valid JSON:
+{
+  "name": "<full name from resume>",
+  "contact": ["<email>", "<phone>", "<linkedin if present>", "<github if present>"],
+  "summary": "<2-3 sentence professional summary with keywords>",
+  "experience": [
+    { "title": "<job title>", "company": "<company>", "date": "<dates>", "bullets": ["<bullet 1>", "<bullet 2>"] }
+  ],
+  "education": [
+    { "degree": "<degree>", "institution": "<university>", "date": "<year>", "details": "<GPA or relevant details>" }
+  ],
+  "skills": ["<skill category>: <skills>"],
+  "projects": [
+    { "name": "<project name>", "tech": "<tech stack>", "bullets": ["<bullet 1>"] }
+  ],
+  "achievements": ["<achievement 1>", "<achievement 2>"]
+}`
+
+    const raw = await askAI(prompt, 1800)
+    const enhanced = parseJSON(raw)
+    res.json({ enhanced, template })
+  } catch (error) {
+    console.error('Enhance resume error:', error.message)
+    res.status(500).json({ message: 'Enhancement failed: ' + error.message })
+  }
+}
+
 module.exports = {
   scoreResume,
   findKeywordGaps,
@@ -872,4 +996,6 @@ module.exports = {
   getLeaderboard,
   getUserStats,
   parseResumeWithAI,
+  suggestResumeImprovements,
+  enhanceResumeContent,
 }

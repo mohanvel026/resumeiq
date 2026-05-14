@@ -172,7 +172,7 @@ export default function CoverLetterTemplates() {
         <div className="grid-2" style={{ alignItems: 'start' }}>
           <div>
             <div className="card" style={{ marginBottom: '1rem' }}>
-              <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Job Details</h4>
+              <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>Job Details</h4>
 
               <div className="form-group">
                 <label className="form-label">Select Your Resume</label>
@@ -201,13 +201,13 @@ export default function CoverLetterTemplates() {
 
           <div>
             <div className="card" style={{ marginBottom: '1rem' }}>
-              <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Cover Letter Style</h4>
+              <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>Cover Letter Style</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {STYLES.map(s => (
                   <div key={s.id} onClick={() => setStyle(s.id)}
-                    style={{ padding: '12px', border: `2px solid ${style === s.id ? 'var(--gold-500)' : 'var(--gray-200)'}`, borderRadius: 'var(--border-radius)', cursor: 'pointer', background: style === s.id ? 'rgba(201,168,76,0.05)' : 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s ease' }}>
+                    style={{ padding: '12px', border: `2px solid ${style === s.id ? 'var(--gold-500)' : 'var(--border-color)'}`, borderRadius: 'var(--border-radius)', cursor: 'pointer', background: style === s.id ? 'rgba(201,168,76,0.05)' : 'var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s ease' }}>
                     <div>
-                      <div style={{ fontWeight: '600', color: 'var(--navy-800)', fontSize: '0.9rem' }}>{s.name}</div>
+                      <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{s.name}</div>
                       <div style={{ color: 'var(--gray-500)', fontSize: '0.8125rem' }}>{s.desc}</div>
                     </div>
                     {style === s.id && <span style={{ color: 'var(--gold-500)', fontSize: '1.2rem' }}>✓</span>}
@@ -235,7 +235,7 @@ export default function CoverLetterTemplates() {
               <div className="card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '8px' }}>
                   <div>
-                    <h4 style={{ color: 'var(--navy-800)', margin: '0 0 4px' }}>
+                    <h4 style={{ color: 'var(--text-primary)', margin: '0 0 4px' }}>
                       Cover Letter — {jobTitle} at {company}
                     </h4>
                     <span style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>
@@ -248,16 +248,16 @@ export default function CoverLetterTemplates() {
                     <button className="btn btn-ghost btn-sm" onClick={() => setTab('generate')}>✏️ Edit Details</button>
                   </div>
                 </div>
-                <div style={{ whiteSpace: 'pre-wrap', color: 'var(--gray-700)', lineHeight: '1.9', fontSize: '0.9375rem', background: 'var(--gray-50)', padding: '2rem', borderRadius: 'var(--border-radius)', border: '1px solid var(--gray-200)', minHeight: '400px' }}>
+                <div style={{ whiteSpace: 'pre-wrap', color: 'var(--text-body)', lineHeight: '1.9', fontSize: '0.9375rem', background: 'var(--gray-50)', padding: '2rem', borderRadius: 'var(--border-radius)', border: '1px solid var(--gray-200)', minHeight: '400px' }}>
                   {letter}
                 </div>
               </div>
 
               <div className="card" style={{ background: 'rgba(201,168,76,0.05)', border: '1px solid var(--gold-500)' }}>
-                <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span>💡</span> AI Coach Suggestions
                 </h4>
-                <div style={{ whiteSpace: 'pre-wrap', color: 'var(--gray-700)', fontSize: '0.9375rem', lineHeight: '1.7' }}>
+                <div style={{ whiteSpace: 'pre-wrap', color: 'var(--text-body)', fontSize: '0.9375rem', lineHeight: '1.7' }}>
                   {suggestions}
                 </div>
               </div>
@@ -266,7 +266,7 @@ export default function CoverLetterTemplates() {
           ) : (
             <div className="card" style={{ textAlign: 'center', padding: '4rem' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📧</div>
-              <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>No cover letter yet</h3>
+              <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No cover letter yet</h3>
               <p style={{ color: 'var(--gray-500)', marginBottom: '1.5rem' }}>Go to the Generate tab and fill in the details</p>
               <button className="btn btn-primary" onClick={() => setTab('generate')}>Generate Cover Letter</button>
             </div>

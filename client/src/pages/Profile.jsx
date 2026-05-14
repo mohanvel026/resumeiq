@@ -26,15 +26,15 @@ export default function Profile() {
         <div>
           <div className="card" style={{ marginBottom: '1rem', textAlign: 'center' }}>
             <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--navy-900)', border: '3px solid var(--gold-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', fontSize: '1.75rem', fontWeight: '700', color: 'var(--gold-500)' }}>{initials}</div>
-            <h3 style={{ color: 'var(--navy-800)', marginBottom: '4px' }}>{user?.name}</h3>
+            <h3 style={{ color: 'var(--text-primary)', marginBottom: '4px' }}>{user?.name}</h3>
             <p style={{ color: 'var(--gray-500)', fontSize: '0.875rem', margin: '0 0 1rem' }}>{user?.email}</p>
             <span className="badge badge-gold">Free Plan</span>
           </div>
 
           <div className="card">
-            <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Profile Completion</h4>
+            <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>Profile Completion</h4>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.875rem', color: 'var(--gray-600)' }}>Completed</span>
+              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Completed</span>
               <span style={{ fontWeight: '600', color: pct === 100 ? 'var(--success)' : 'var(--navy-800)' }}>{pct}%</span>
             </div>
             <div className="progress-bar-wrapper">
@@ -52,7 +52,7 @@ export default function Profile() {
         </div>
 
         <div className="card">
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '1.5rem' }}>Edit Profile</h4>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.5rem' }}>Edit Profile</h4>
           {saved && <div className="alert alert-success">✓ Profile saved successfully!</div>}
           <form onSubmit={save}>
             {[['name', 'Full Name', 'text', 'Mohan Vel'], ['email', 'Email Address', 'email', 'you@example.com'], ['phone', 'Phone Number', 'tel', '+91 98765 43210'], ['location', 'Location', 'text', 'Chennai, Tamil Nadu'], ['title', 'Current/Target Job Title', 'text', 'Full Stack Developer']].map(([key, label, type, ph]) => (

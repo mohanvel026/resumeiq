@@ -1,10 +1,36 @@
-// Stub ThemeContext - dark mode removed but kept for import compatibility
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const ThemeContext = createContext({ dark: false, toggle: () => {} })
 
-export const ThemeProvider = ({ children }) => children
+export const ThemeProvider = ({ children }) => {
+  const [dark, setDark] = useState(() => {
+    try {
+      return localStorage.getItem('resumeiq-theme') === 'dark'
+    } catch {
+      return false
+    }
+  })
 
-export const useTheme = () => ({ dark: false, toggle: () => {} })
+  useEffect(() => {
+    const root = document.documentElement
+    if (dark) {
+      root.classList.add('dark')
+      localStorage.setItem('resumeiq-theme', 'dark')
+    } else {
+      root.classList.remove('dark')
+      localStorage.setItem('resumeiq-theme', 'light')
+    }
+  }, [dark])
+
+  const toggle = () => setDark(prev => !prev)
+
+  return (
+    <ThemeContext.Provider value={{ dark, toggle }}>
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+export const useTheme = () => useContext(ThemeContext)
 
 export default ThemeContext

@@ -24,7 +24,7 @@ export default function Settings() {
       {saved && <div className="alert alert-success">✓ Settings saved!</div>}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '700px' }}>
         <div className="card">
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '1.25rem' }}>🔔 Notifications</h4>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.25rem' }}>🔔 Notifications</h4>
           {[
             ['jobAlerts', 'Daily Job Alerts', 'Get emailed about new job matches every day'],
             ['scoreUpdates', 'Score Updates', 'Notify when resume score changes'],
@@ -32,7 +32,7 @@ export default function Settings() {
           ].map(([key, label, desc]) => (
             <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--gray-100)' }}>
               <div>
-                <div style={{ fontWeight: '500', color: 'var(--navy-800)' }}>{label}</div>
+                <div style={{ fontWeight: '500', color: 'var(--text-primary)' }}>{label}</div>
                 <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>{desc}</div>
               </div>
               <div onClick={() => toggle(key)} style={{ width: '44px', height: '24px', borderRadius: '12px', background: notifications[key] ? 'var(--gold-500)' : 'var(--gray-300)', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
@@ -42,10 +42,10 @@ export default function Settings() {
           ))}
         </div>
         <div className="card">
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>🔑 AI API Keys</h4>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>🔑 AI API Keys</h4>
           <p style={{ color: 'var(--gray-500)', fontSize: '0.875rem', marginBottom: '1rem' }}>Add your API keys to the server/.env file directly for security.</p>
           <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-200)', borderRadius: 'var(--border-radius)', padding: '1rem' }}>
-            <code style={{ fontSize: '0.8125rem', color: 'var(--gray-700)', lineHeight: '2', display: 'block' }}>
+            <code style={{ fontSize: '0.8125rem', color: 'var(--text-body)', lineHeight: '2', display: 'block' }}>
               OPENAI_API_KEY=sk-...<br/>
               GEMINI_API_KEY=AIza...<br/>
               ANTHROPIC_API_KEY=sk-ant-...

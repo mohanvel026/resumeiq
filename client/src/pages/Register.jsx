@@ -138,7 +138,7 @@ export default function Register() {
 
           <div className="auth-divider">or</div>
 
-          <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--gray-600)' }}>
+          <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
             Already have an account?{' '}
             <Link to="/login" className="auth-link">Sign in</Link>
           </p>

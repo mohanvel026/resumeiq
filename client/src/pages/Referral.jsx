@@ -61,9 +61,9 @@ export default function Referral() {
         </div>
 
         <div className="card" style={{ marginBottom: '1rem' }}>
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>Your Referral Code</h4>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>Your Referral Code</h4>
           <div style={{ background: 'var(--gray-50)', borderRadius: 'var(--border-radius)', padding: '1rem', textAlign: 'center', border: '1px dashed var(--gray-300)' }}>
-            <code style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--navy-800)', letterSpacing: '2px' }}>{referralCode}</code>
+            <code style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '2px' }}>{referralCode}</code>
           </div>
         </div>
 
@@ -75,7 +75,7 @@ export default function Referral() {
           ].map(s => (
             <div key={s.title} className="card" style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '2rem', marginBottom: '8px' }}>{s.icon}</div>
-              <h4 style={{ color: 'var(--navy-800)', marginBottom: '4px', fontSize: '0.9rem' }}>{s.title}</h4>
+              <h4 style={{ color: 'var(--text-primary)', marginBottom: '4px', fontSize: '0.9rem' }}>{s.title}</h4>
               <p style={{ color: 'var(--gray-500)', fontSize: '0.8125rem', margin: 0 }}>{s.desc}</p>
             </div>
           ))}

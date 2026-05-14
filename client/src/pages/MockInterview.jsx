@@ -95,7 +95,7 @@ export default function MockInterview() {
         <div style={{ maxWidth: '560px' }}>
           <div className="card" style={{ marginBottom: '1rem' }}>
             <div style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '1rem' }}>🤖</div>
-            <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem', textAlign: 'center' }}>Start Your Mock Interview</h3>
+            <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', textAlign: 'center' }}>Start Your Mock Interview</h3>
             <p style={{ color: 'var(--gray-500)', textAlign: 'center', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
               AI will read your uploaded resume and ask questions tailored to your experience
             </p>

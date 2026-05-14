@@ -110,7 +110,7 @@ export default function Login() {
 
           <div className="auth-divider">or</div>
 
-          <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--gray-600)' }}>
+          <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
             Don't have an account?{' '}
             <Link to="/register" className="auth-link">Create one free</Link>
           </p>

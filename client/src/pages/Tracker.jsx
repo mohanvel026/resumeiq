@@ -38,7 +38,7 @@ export default function Tracker() {
 
       {showForm && (
         <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>New Application</h4>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>New Application</h4>
           <div className="grid-2" style={{ marginBottom: '1rem' }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label className="form-label">Company Name</label>
@@ -95,10 +95,10 @@ export default function Tracker() {
                 onDragStart={() => setDragging(card.id)}
                 onDragEnd={() => setDragging(null)}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span style={{ fontWeight: '600', fontSize: '0.875rem', color: 'var(--navy-800)' }}>{card.company}</span>
+                  <span style={{ fontWeight: '600', fontSize: '0.875rem', color: 'var(--text-primary)' }}>{card.company}</span>
                   <button onClick={() => deleteCard(card.id)} style={{ background: 'none', border: 'none', color: 'var(--gray-400)', cursor: 'pointer', fontSize: '1rem' }}>×</button>
                 </div>
-                <p style={{ fontSize: '0.8125rem', color: 'var(--gray-600)', margin: '0 0 8px' }}>{card.role}</p>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', margin: '0 0 8px' }}>{card.role}</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>{card.date}</span>
                   {card.jobUrl && <a href={card.jobUrl} target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', color: 'var(--navy-600)' }}>View Job</a>}

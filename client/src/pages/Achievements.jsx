@@ -86,7 +86,7 @@ export default function Achievements() {
           {/* Progress bar */}
           <div className="card" style={{ marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontWeight: '600', color: 'var(--navy-800)' }}>{earned.length}/{BADGES.length} Badges Earned</span>
+              <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{earned.length}/{BADGES.length} Badges Earned</span>
               <span style={{ color: 'var(--gold-500)', fontWeight: '700' }}>{pct}%</span>
             </div>
             <div className="progress-bar-wrapper" style={{ height: '12px' }}>
@@ -108,7 +108,7 @@ export default function Achievements() {
             ].map(s => (
               <div key={s.label} className="card" style={{ textAlign: 'center', padding: '12px 8px' }}>
                 <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>{s.icon}</div>
-                <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--navy-800)' }}>{s.value}</div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>{s.value}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>{s.label}</div>
               </div>
             ))}
@@ -117,12 +117,12 @@ export default function Achievements() {
           {/* Earned */}
           {earned.length > 0 && (
             <div style={{ marginBottom: '2rem' }}>
-              <h3 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>🏆 Earned Badges ({earned.length})</h3>
+              <h3 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>🏆 Earned Badges ({earned.length})</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
                 {earned.map(b => (
                   <div key={b.id} className="card" style={{ textAlign: 'center', border: '2px solid var(--gold-500)', background: 'rgba(201,168,76,0.04)' }}>
                     <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{b.icon}</div>
-                    <div style={{ fontWeight: '700', color: 'var(--navy-800)', marginBottom: '4px', fontSize: '0.9rem' }}>{b.name}</div>
+                    <div style={{ fontWeight: '700', color: 'var(--text-primary)', marginBottom: '4px', fontSize: '0.9rem' }}>{b.name}</div>
                     <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)', marginBottom: '8px' }}>{b.desc}</div>
                     <span className="badge badge-success">✓ Earned</span>
                   </div>
@@ -133,12 +133,12 @@ export default function Achievements() {
 
           {/* Locked */}
           <div>
-            <h3 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>🔒 Locked ({locked.length})</h3>
+            <h3 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>🔒 Locked ({locked.length})</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
               {locked.map(b => (
                 <div key={b.id} className="card" style={{ textAlign: 'center', opacity: 0.5 }}>
                   <div style={{ fontSize: '2.5rem', marginBottom: '8px', filter: 'grayscale(1)' }}>{b.icon}</div>
-                  <div style={{ fontWeight: '700', color: 'var(--navy-800)', marginBottom: '4px', fontSize: '0.9rem' }}>{b.name}</div>
+                  <div style={{ fontWeight: '700', color: 'var(--text-primary)', marginBottom: '4px', fontSize: '0.9rem' }}>{b.name}</div>
                   <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)', marginBottom: '6px' }}>{b.desc}</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--gold-500)', fontStyle: 'italic' }}>{b.hint}</div>
                 </div>

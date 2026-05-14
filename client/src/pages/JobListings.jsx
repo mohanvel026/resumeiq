@@ -94,7 +94,7 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
       {showResumeModal && (
         <div className="overlay" onClick={() => setShowResumeModal(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>
+            <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
               Select Resume to Compare
             </h3>
             <p style={{ color: 'var(--gray-500)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
@@ -116,10 +116,10 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
                     alignItems: 'center',
                   }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--gold-500)'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--gray-200)'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
                 >
                   <div>
-                    <div style={{ fontWeight: '600', color: 'var(--navy-800)' }}>{resume.title}</div>
+                    <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{resume.title}</div>
                     <div style={{ fontSize: '0.8125rem', color: 'var(--gray-500)' }}>
                       {new Date(resume.createdAt).toLocaleDateString()} · {resume.fileType?.toUpperCase()}
                     </div>
@@ -205,7 +205,7 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
               style={{
                 fontSize: '0.75rem', padding: '3px 10px', borderRadius: '20px',
                 border: '1px solid var(--gray-300)', background: 'var(--gray-50)',
-                cursor: 'pointer', color: 'var(--gray-600)'
+                cursor: 'pointer', color: 'var(--text-secondary)'
               }}>
               {q}
             </button>
@@ -227,11 +227,11 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
 {/* Saved Jobs Panel */}
 {showSaved && (
   <div className="card" style={{ marginBottom: '1.5rem', borderTop: '3px solid var(--gold-500)' }}>
-    <h4 style={{ color: 'var(--navy-800)', marginBottom: '1rem' }}>★ Saved Jobs</h4>
+    <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>★ Saved Jobs</h4>
     {savedJobs.map(job => (
       <div key={job.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--gray-100)' }}>
         <div>
-          <div style={{ fontWeight: '600', color: 'var(--navy-800)', fontSize: '0.9rem' }}>{job.title}</div>
+          <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{job.title}</div>
           <div style={{ color: 'var(--gray-500)', fontSize: '0.8125rem' }}>{job.company} · {job.location}</div>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -247,7 +247,7 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
       {!searched && (
         <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💼</div>
-          <h3 style={{ color: 'var(--navy-800)', marginBottom: '0.5rem' }}>Search any job title</h3>
+          <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Search any job title</h3>
           <p style={{ color: 'var(--gray-500)' }}>
             Real-time results from LinkedIn, Indeed, Glassdoor and 50+ job boards
           </p>
@@ -272,7 +272,7 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
       {/* Job Cards */}
       {!loading && jobs.length > 0 && (
         <div>
-          <p style={{ color: 'var(--gray-600)', marginBottom: '1rem', fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>
             Found <strong>{jobs.length}</strong> jobs for "<strong>{search}</strong>"
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -286,7 +286,7 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
                           style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'contain' }}
                           onError={e => e.target.style.display = 'none'} />
                       )}
-                      <h4 style={{ color: 'var(--navy-800)', margin: 0 }}>{job.title}</h4>
+                      <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>{job.title}</h4>
                       {job.remote && <span className="badge badge-success">🌐 Remote</span>}
                       {matches[job.id] && (
   <div style={{ marginTop: '10px' }}>
@@ -295,32 +295,32 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
       borderRadius: 'var(--border-radius)', padding: '10px 14px'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
-        <span style={{ fontWeight: '600', color: 'var(--navy-800)', fontSize: '0.875rem' }}>
+        <span style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.875rem' }}>
           Match Analysis — {matches[job.id].resumeTitle}
         </span>
         <span className={`badge ${matches[job.id].jobMatchScore >= 70 ? 'badge-success' : matches[job.id].jobMatchScore >= 50 ? 'badge-warning' : 'badge-danger'}`}>
           {matches[job.id].jobMatchScore}% Match
         </span>
       </div>
-      <p style={{ color: 'var(--gray-600)', fontSize: '0.8125rem', margin: '0 0 8px', lineHeight: '1.6' }}>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0 0 8px', lineHeight: '1.6' }}>
         {matches[job.id].jobMatchSummary}
       </p>
       {matches[job.id].matchedSkills?.length > 0 && (
         <div style={{ marginBottom: '6px' }}>
           <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--success)' }}>✓ You have: </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--gray-600)' }}>{matches[job.id].matchedSkills?.slice(0, 5).join(', ')}</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{matches[job.id].matchedSkills?.slice(0, 5).join(', ')}</span>
         </div>
       )}
       {matches[job.id].missingSkills?.length > 0 && (
         <div style={{ marginBottom: '6px' }}>
           <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--danger)' }}>✗ Missing: </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--gray-600)' }}>{matches[job.id].missingSkills?.slice(0, 5).join(', ')}</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{matches[job.id].missingSkills?.slice(0, 5).join(', ')}</span>
         </div>
       )}
       {matches[job.id].recommendation && (
         <div style={{ background: 'rgba(201,168,76,0.08)', borderRadius: '6px', padding: '8px 10px', marginTop: '8px' }}>
           <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--gold-500)' }}>💡 </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--gray-700)' }}>{matches[job.id].recommendation}</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-body)' }}>{matches[job.id].recommendation}</span>
         </div>
       )}
     </div>
@@ -329,13 +329,13 @@ const isSaved = (id) => savedJobs.some(j => j.id === id)
                     </div>
 
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                      <span style={{ color: 'var(--gray-600)', fontSize: '0.875rem' }}>🏢 {job.company}</span>
-                      <span style={{ color: 'var(--gray-600)', fontSize: '0.875rem' }}>📍 {job.location}</span>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>🏢 {job.company}</span>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>📍 {job.location}</span>
                       {job.salary && job.salary !== 'Salary not disclosed' && (
-                        <span style={{ color: 'var(--gray-600)', fontSize: '0.875rem' }}>💰 {job.salary}</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>💰 {job.salary}</span>
                       )}
                       {job.employment_type && (
-                        <span style={{ color: 'var(--gray-600)', fontSize: '0.875rem' }}>⏰ {job.employment_type}</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>⏰ {job.employment_type}</span>
                       )}
                       <span style={{ color: 'var(--gray-400)', fontSize: '0.8125rem' }}>via {job.source}</span>
                     </div>

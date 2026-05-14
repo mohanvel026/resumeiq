@@ -47,7 +47,7 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <h3 style={{ color: 'var(--navy-900)', marginBottom: '1rem' }}>Quick Actions</h3>
+      <h3 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>Quick Actions</h3>
       <div className="grid-3" style={{ marginBottom: '2rem' }}>
         <div className="card card-gold" style={{ cursor: 'pointer' }} onClick={() => navigate('/upload')}>
           <div style={{ fontSize: '2rem', marginBottom: '12px' }}>↑</div>
@@ -56,23 +56,23 @@ export default function Dashboard() {
         </div>
         <div className="card" style={{ cursor: 'pointer' }} onClick={() => navigate('/jobs')}>
           <div style={{ fontSize: '2rem', marginBottom: '12px' }}>💼</div>
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '6px' }}>Browse Jobs</h4>
-          <p style={{ color: 'var(--gray-600)', fontSize: '0.875rem', margin: 0 }}>Find real-time jobs matching your skills</p>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '6px' }}>Browse Jobs</h4>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: 0 }}>Find real-time jobs matching your skills</p>
         </div>
         <div className="card" style={{ cursor: 'pointer' }} onClick={() => navigate('/mock-interview')}>
           <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🤖</div>
-          <h4 style={{ color: 'var(--navy-800)', marginBottom: '6px' }}>Mock Interview</h4>
-          <p style={{ color: 'var(--gray-600)', fontSize: '0.875rem', margin: 0 }}>Practice with AI interviewer now</p>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '6px' }}>Mock Interview</h4>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: 0 }}>Practice with AI interviewer now</p>
         </div>
       </div>
 
-      <h3 style={{ color: 'var(--navy-900)', marginBottom: '1rem' }}>All Features</h3>
+      <h3 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>All Features</h3>
       <div className="grid-4">
         {FEATURES.map(item => (
           <Link key={item.path} to={item.path} style={{ textDecoration: 'none' }}>
             <div className="card" style={{ textAlign: 'center', padding: '1.25rem 1rem' }}>
               <div style={{ fontSize: '1.75rem', marginBottom: '8px' }}>{item.icon}</div>
-              <div style={{ fontSize: '0.8125rem', fontWeight: '600', color: 'var(--navy-800)' }}>{item.label}</div>
+              <div style={{ fontSize: '0.8125rem', fontWeight: '600', color: 'var(--text-primary)' }}>{item.label}</div>
             </div>
           </Link>
         ))}

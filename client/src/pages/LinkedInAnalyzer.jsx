@@ -47,7 +47,7 @@ export default function LinkedInAnalyzer() {
             <h4 style={{ color: 'var(--success)', marginBottom: '1rem' }}>✓ Consistent Points</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {(result.consistent || []).map((p, i) => (
-                <div key={i} style={{ display: 'flex', gap: '8px', fontSize: '0.875rem', color: 'var(--gray-700)' }}>
+                <div key={i} style={{ display: 'flex', gap: '8px', fontSize: '0.875rem', color: 'var(--text-body)' }}>
                   <span style={{ color: 'var(--success)', flexShrink: 0 }}>✓</span> {p}
                 </div>
               ))}
@@ -57,7 +57,7 @@ export default function LinkedInAnalyzer() {
             <h4 style={{ color: 'var(--danger)', marginBottom: '1rem' }}>✗ Inconsistencies Found</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {(result.inconsistencies || []).map((p, i) => (
-                <div key={i} style={{ display: 'flex', gap: '8px', fontSize: '0.875rem', color: 'var(--gray-700)' }}>
+                <div key={i} style={{ display: 'flex', gap: '8px', fontSize: '0.875rem', color: 'var(--text-body)' }}>
                   <span style={{ color: 'var(--danger)', flexShrink: 0 }}>✗</span> {p}
                 </div>
               ))}
@@ -66,7 +66,7 @@ export default function LinkedInAnalyzer() {
           {result.suggestions && (
             <div className="card" style={{ gridColumn: '1 / -1', borderTop: '3px solid var(--gold-500)' }}>
               <h4 style={{ color: 'var(--gold-500)', marginBottom: '1rem' }}>💡 Recommendations</h4>
-              <p style={{ color: 'var(--gray-700)', lineHeight: '1.8', margin: 0 }}>{result.suggestions}</p>
+              <p style={{ color: 'var(--text-body)', lineHeight: '1.8', margin: 0 }}>{result.suggestions}</p>
             </div>
           )}
         </div>
