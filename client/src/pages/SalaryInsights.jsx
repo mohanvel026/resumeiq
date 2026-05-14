@@ -130,7 +130,7 @@ export default function SalaryInsights() {
 
   useEffect(() => {
     console.log('Fetching resumes for SalaryInsights...')
-    api.get('/api/resume/my-resumes')
+    api.get('/api/resume/all')
       .then(r => {
         console.log('Resumes fetched:', r.data?.length)
         setResumes(r.data || [])
