@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Layout from '../components/Layout'
@@ -71,11 +71,11 @@ export default function UploadResume() {
                 onDragLeave={() => setDragging(false)}
                 onDrop={handleDrop}
               >
-                <div className="upload-zone-icon">ðŸ“„</div>
+                <div className="upload-zone-icon">📄</div>
                 {file ? (
                   <>
-                    <div className="upload-zone-title" style={{ color: 'var(--gold-500)' }}>âœ“ {file.name}</div>
-                    <div className="upload-zone-sub">{(file.size / 1024).toFixed(0)} KB â€” Click to change file</div>
+                    <div className="upload-zone-title" style={{ color: 'var(--gold-500)' }}>✔ {file.name}</div>
+                    <div className="upload-zone-sub">{(file.size / 1024).toFixed(0)} KB — Click to change file</div>
                   </>
                 ) : (
                   <>
@@ -90,7 +90,7 @@ export default function UploadResume() {
             <div style={{ display: 'flex', gap: '12px' }}>
               <button type="button" className="btn btn-ghost btn-full" onClick={() => navigate('/dashboard')}>Cancel</button>
               <button type="submit" className="btn btn-primary btn-full" disabled={loading || !file}>
-                {loading ? 'Uploading & Analyzing...' : 'Upload Resume â†’'}
+                {loading ? 'Uploading & Analyzing...' : 'Upload Resume →'}
               </button>
             </div>
           </form>
@@ -101,7 +101,7 @@ export default function UploadResume() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {['AI parses your resume text automatically', 'You get a 6-dimension score instantly', 'Skills are extracted for job matching', 'You can generate cover letters and more'].map(s => (
               <div key={s} style={{ display: 'flex', gap: '10px', color: '#CBD5E1', fontSize: '0.875rem' }}>
-                <span style={{ color: 'var(--gold-500)' }}>âœ“</span> {s}
+                <span style={{ color: 'var(--gold-500)' }}>✓</span> {s}
               </div>
             ))}
           </div>

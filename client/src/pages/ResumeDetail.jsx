@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import api from '../utils/api'
 import { useTheme } from '../context/ThemeContext'
+import { useAuth } from '../context/AuthContext'
 import { trackActivity, trackScore } from '../utils/activity'
 
 const ScoreRing = ({ score, label, color }) => {
@@ -42,6 +43,8 @@ const ScoreBar = ({ label, score, color, desc }) => (
 
 export default function ResumeDetail() {
   const { id } = useParams()
+  const { dark } = useTheme()
+  const { user } = useAuth()
 
   const [resume, setResume] = useState(null)
   const [analysis, setAnalysis] = useState(null)
@@ -131,20 +134,20 @@ export default function ResumeDetail() {
   }
 
   const sendEmail = async () => {
-  if (!analysis) return alert('Analyze your resume first!')
-  try {
-    const r = await api.post('/api/email/send-analysis', {
-      to: user?.email,
-      resumeTitle: resume?.title,
-      scoreTotal: analysis.scoreTotal,
-      improvements: analysis.improvements,
-      strengths: analysis.strengths,
-    })
-    alert(r.data.message)
-  } catch {
-    alert('Email failed. Check server configuration.')
+    if (!analysis) return alert('Analyze your resume first!')
+    try {
+      const r = await api.post('/api/email/send-analysis', {
+        to: user?.email,
+        resumeTitle: resume?.title,
+        scoreTotal: analysis.scoreTotal,
+        improvements: analysis.improvements,
+        strengths: analysis.strengths,
+      })
+      alert(r.data.message)
+    } catch {
+      alert('Email failed. Check server configuration.')
+    }
   }
-}
   const getScoreLabel = (score) => {
     if (score >= 80) return 'Excellent'
     if (score >= 65) return 'Good'
@@ -153,12 +156,13 @@ export default function ResumeDetail() {
     return 'Poor'
   }
 
-  const cardBg = dark ? '#1E293B' : '#FFFFFF'
-  const textPrimary = dark ? '#F1F5F9' : '#0D1F3C'
-  const textSecondary = dark ? '#94A3B8' : '#6C757D'
-  const textBody = dark ? '#CBD5E1' : '#495057'
-  const borderColor = dark ? '#334155' : '#E9ECEF'
-  const inputBg = dark ? '#0F172A' : '#FFFFFF'
+  const isDark = !!dark
+  const cardBg = isDark ? '#1E293B' : '#FFFFFF'
+  const textPrimary = isDark ? '#F1F5F9' : '#0D1F3C'
+  const textSecondary = isDark ? '#94A3B8' : '#6C757D'
+  const textBody = isDark ? '#CBD5E1' : '#495057'
+  const borderColor = isDark ? '#334155' : '#E9ECEF'
+  const inputBg = isDark ? '#0F172A' : '#FFFFFF'
 
   if (loading) return (
     <Layout>
