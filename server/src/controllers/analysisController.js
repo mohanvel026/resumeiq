@@ -677,10 +677,15 @@ const getSalaryCareerTips = async (req, res) => {
 
     let resumeText = 'No resume provided.'
     if (resumeId) {
-      const resume = await prisma.resume.findFirst({
-        where: { id: resumeId, userId: req.user.id }
-      })
-      if (resume) resumeText = resume.rawText
+      const rid = parseInt(resumeId)
+      if (isNaN(rid)) {
+        console.error('Invalid resumeId:', resumeId)
+      } else {
+        const resume = await prisma.resume.findFirst({
+          where: { id: rid, userId: req.user.id }
+        })
+        if (resume) resumeText = resume.rawText
+      }
     }
 
     const prompt = `You are a high-level executive career coach and compensation expert for the Indian tech and engineering market.
