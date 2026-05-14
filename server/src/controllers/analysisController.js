@@ -661,6 +661,48 @@ Keep response to 3-4 sentences. No markdown, plain text only.`
   }
 }
 
+// ══ SALARY CAREER TIPS ══
+const getSalaryCareerTips = async (req, res) => {
+  try {
+    const { role, domain, experience, city, tier, targetSalary } = req.body
+
+    const prompt = `You are a high-level executive career coach and compensation expert for the Indian tech and engineering market.
+
+CONTEXT:
+- Candidate Role: ${role} (${domain} domain)
+- Experience: ${experience} years
+- Current/Target Location: ${city}
+- Target Company Tier: ${tier}
+- High-end Salary Target: ₹${targetSalary}LPA
+
+TASK:
+Provide a highly specific, actionable strategy for the candidate to reach or exceed their target salary. 
+Focus on:
+1. Critical skills (Technical & Leadership)
+2. Strategic career moves (When to switch, which companies to target)
+3. High-value certifications or projects
+4. Negotiation leverage for this specific domain
+
+Tone: Professional, high-impact, and data-driven.
+
+Return ONLY this JSON format:
+{
+  "strategy": "A 2-3 sentence overarching strategy for their career stage.",
+  "topSkills": ["Skill 1", "Skill 2", "Skill 3"],
+  "targetCompanies": ["Company A", "Company B", "Company C"],
+  "certifications": ["Cert 1", "Cert 2"],
+  "leverageTip": "A specific tip on how to negotiate or position themselves for a ₹${targetSalary}L+ package."
+}`
+
+    const raw = await askAI(prompt, 1000)
+    const result = parseJSON(raw)
+    res.json(result)
+  } catch (error) {
+    console.error('Salary tips error:', error.message)
+    res.status(500).json({ message: 'Failed to get salary tips: ' + error.message })
+  }
+}
+
 // ══ LINKEDIN ANALYZER ══
 const analyzeLinkedIn = async (req, res) => {
   try {
@@ -998,4 +1040,5 @@ module.exports = {
   parseResumeWithAI,
   suggestResumeImprovements,
   enhanceResumeContent,
+  getSalaryCareerTips,
 }

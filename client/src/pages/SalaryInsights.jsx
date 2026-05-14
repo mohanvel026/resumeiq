@@ -121,7 +121,7 @@ export default function SalaryInsights() {
   const [city, setCity]         = useState('Bangalore')
   const [exp, setExp]           = useState('1-3')
   const [tier, setTier]         = useState('Mid-size Product')
-  const [aiTip, setAiTip]       = useState('')
+  const [aiResult, setAiResult] = useState(null)
   const [loading, setLoading]   = useState(false)
   const [activeTab, setActiveTab] = useState('calculator')
 
@@ -142,7 +142,6 @@ export default function SalaryInsights() {
     }))
   }, [role, exp, tier, city])
 
-  // Top paying roles for market overview tab
   const topRoles = useMemo(() => {
     const m = (CITY_MULT[city] || 1) * (EXP_MULT[exp] || 1) * (TIER_MULT[tier] || 1)
     return Object.entries(SALARY_DATA)
@@ -152,28 +151,38 @@ export default function SalaryInsights() {
   }, [city, exp, tier])
 
   const getAiTip = async () => {
-    setLoading(true); setAiTip('')
+    setLoading(true); setAiResult(null)
     try {
-      await api.post('/api/analysis/evaluate-answer', {
-        question: `What skills should a ${role} with ${exp} yrs exp at ${tier} focus on to reach ₹${metrics.max}L in ${city}?`,
-        answer: 'salary growth advice',
-        role: 'career coach'
+      const res = await api.post('/api/analysis/salary-tips', {
+        role,
+        domain: category,
+        experience: exp,
+        city,
+        tier,
+        targetSalary: metrics.max
       })
-      setAiTip(`To reach ₹${metrics.max}L as a ${role} in ${city}, focus on cloud certifications (AWS/GCP), system design mastery, and open-source contributions. Switching to a ${exp === '0-1' ? 'product startup' : 'Big Tech'} company at your next move can give a 40-60% hike.`)
+      setAiResult(res.data)
     } catch {
-      const tips = {
-        '0-1':  'Build 3 strong GitHub projects, master DSA, and target product startups for your first switch.',
-        '1-3':  'Learn System Design, get AWS certified, and negotiate a 40-50% hike at your 2-year mark.',
-        '3-5':  'Own features end-to-end, mentor juniors, and target unicorn/MAANG for a 2x salary jump.',
-        '5-8':  'Move toward Staff/Principal roles. Your leadership and architecture skills are your leverage.',
-        '8-12': 'Director/VP roles at funded startups or consulting with Big Tech are your best paths to ₹1Cr+.',
-        '12+':  'C-suite, fractional CTO roles, or founding your own venture — your experience is highly valued.',
+      // Improved dynamic fallback
+      const domainTips = {
+        'CSE': 'Focus on Cloud Architecture, Microservices, and System Design.',
+        'AIML': 'Master LLM orchestration, MLOps, and advanced deep learning frameworks.',
+        'ECE': 'Deep dive into FPGA, high-speed PCB design, and IoT protocols.',
+        'Mech': 'Specialize in Electric Vehicle technology or advanced robotics simulations.',
+        'Civil': 'Become an expert in BIM, sustainable construction, or advanced structural analysis software.',
       }
-      setAiTip(tips[exp] || 'Specialize deeply and build your personal brand through talks and open-source.')
+      const baseTip = domainTips[category.split(' ')[0]] || 'Focus on niche technical skills and leadership.'
+      
+      setAiResult({
+        strategy: `Your path to ₹${metrics.max}L as a ${role} involves strategic upskilling and positioning. ${baseTip}`,
+        topSkills: ['Cloud Architecture', 'System Design', 'Leadership'],
+        targetCompanies: ['Google', 'Microsoft', 'Atlassian', 'Unicorn Startups'],
+        certifications: ['AWS Solutions Architect', 'Google Professional Cloud Developer'],
+        leverageTip: `To command a ₹${metrics.max}L package, highlight end-to-end feature ownership and quantify your business impact (e.g., "Improved performance by 40%").`
+      })
     } finally { setLoading(false) }
   }
 
-  const scoreColor = (n) => n >= 80 ? '#22c55e' : n >= 55 ? '#C9A84C' : '#ef4444'
   const avgNum = parseFloat(metrics.avg)
   const minNum = parseFloat(metrics.min)
   const maxNum = parseFloat(metrics.max)
@@ -183,10 +192,9 @@ export default function SalaryInsights() {
     <Layout>
       <div className="page-header">
         <h2 className="page-title">💰 Salary Insights</h2>
-        <p className="page-subtitle">2024-25 Indian market data · 35+ roles · Adjusted for city, experience & company tier</p>
+        <p className="page-subtitle">2024-25 Indian market data · 70+ roles · Multi-domain coverage</p>
       </div>
 
-      {/* Tabs */}
       <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-hover)', borderRadius: '10px', padding: '4px', width: 'fit-content', marginBottom: '1.5rem' }}>
         {[['calculator','🧮 Calculator'], ['market','📊 Market Overview']].map(([id, label]) => (
           <button key={id} onClick={() => setActiveTab(id)}
@@ -198,18 +206,13 @@ export default function SalaryInsights() {
 
       {activeTab === 'calculator' && (
         <div className="grid-2" style={{ alignItems: 'start', gap: '1.5rem' }}>
-          {/* LEFT: Controls */}
           <div>
             <div className="card" style={{ marginBottom: '1rem' }}>
-              <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.25rem' }}>Configure</h4>
-
+              <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.25rem' }}>Configuration</h4>
+              
               <div className="form-group">
                 <label className="form-label">Job Domain</label>
-                <select className="form-select" value={category} onChange={e => {
-                  const newCat = e.target.value;
-                  setCategory(newCat);
-                  setRole(CATEGORIES[newCat][0]);
-                }}>
+                <select className="form-select" value={category} onChange={e => { setCategory(e.target.value); setRole(CATEGORIES[e.target.value][0]) }}>
                   {Object.keys(CATEGORIES).map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
               </div>
@@ -217,9 +220,7 @@ export default function SalaryInsights() {
               <div className="form-group">
                 <label className="form-label">Job Role</label>
                 <select className="form-select" value={role} onChange={e => setRole(e.target.value)}>
-                  {CATEGORIES[category].map(r => (
-                    <option key={r} value={r}>{r}{SALARY_DATA[r]?.hot ? ' 🔥' : ''}</option>
-                  ))}
+                  {CATEGORIES[category].map(r => <option key={r} value={r}>{r}{SALARY_DATA[r]?.hot ? ' 🔥' : ''}</option>)}
                 </select>
               </div>
 
@@ -246,13 +247,12 @@ export default function SalaryInsights() {
               </div>
 
               <button className="btn btn-primary btn-full" onClick={getAiTip} disabled={loading} style={{ marginTop: '0.5rem' }}>
-                {loading ? '🤖 Getting tip...' : '🤖 Get AI Career Tip'}
+                {loading ? '🤖 Analyzing Career Path...' : '🤖 Get AI Strategy'}
               </button>
             </div>
 
-            {/* City Comparison */}
             <div className="card">
-              <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '0.9375rem' }}>📍 City Comparison</h4>
+              <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '0.9375rem' }}>📍 City Benchmarks</h4>
               {cityRows.map(row => (
                 <div key={row.city} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '9px' }}>
                   <span style={{ fontSize: '0.8125rem', width: '88px', color: row.active ? 'var(--gold-500)' : 'var(--text-secondary)', fontWeight: row.active ? '700' : '400' }}>{row.city}</span>
@@ -265,75 +265,62 @@ export default function SalaryInsights() {
             </div>
           </div>
 
-          {/* RIGHT: Results */}
           <div>
-            {/* Hero Card */}
-            <div style={{ background: 'linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%)', borderRadius: '16px', padding: '1.75rem', marginBottom: '1rem', color: 'white' }}>
+            <div style={{ background: 'linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%)', borderRadius: '16px', padding: '1.75rem', marginBottom: '1rem', color: 'white', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.3)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
                 <div>
-                  <div style={{ fontSize: '0.8125rem', color: '#94A3B8', marginBottom: '4px' }}>{role}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B' }}>{city} · {exp} yrs · {tier}</div>
+                  <div style={{ fontSize: '0.8125rem', color: '#94A3B8', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Estimated Package</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: '600' }}>{role}</div>
                 </div>
-                {SALARY_DATA[role]?.hot && (
-                  <span style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', padding: '3px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '600' }}>🔥 High Demand</span>
-                )}
+                {SALARY_DATA[role]?.hot && <span style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700' }}>🔥 HOT ROLE</span>}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '1.5rem', textAlign: 'center' }}>
-                {[['MINIMUM', metrics.min, '#ef4444'], ['AVERAGE', metrics.avg, '#C9A84C'], ['MAXIMUM', metrics.max, '#22c55e']].map(([label, val, color]) => (
+                {[['MIN', metrics.min, '#ef4444'], ['AVG', metrics.avg, '#C9A84C'], ['MAX', metrics.max, '#22c55e']].map(([label, val, color]) => (
                   <div key={label}>
-                    <div style={{ fontSize: '1.75rem', fontWeight: '800', color }}>{val}</div>
-                    <div style={{ fontSize: '1rem', color, marginBottom: '2px' }}>LPA</div>
-                    <div style={{ fontSize: '0.65rem', color: '#64748B', letterSpacing: '0.08em' }}>{label}</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: '800', color }}>₹{val}</div>
+                    <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: '700', marginTop: '4px' }}>{label} LPA</div>
                   </div>
                 ))}
               </div>
 
-              {/* Gauge Bar */}
               <div style={{ marginBottom: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '0.7rem', color: '#64748B' }}>₹{metrics.min}L</span>
-                  <span style={{ fontSize: '0.75rem', color: '#C9A84C', fontWeight: '600' }}>Market Avg ₹{metrics.avg}L</span>
-                  <span style={{ fontSize: '0.7rem', color: '#64748B' }}>₹{metrics.max}L</span>
-                </div>
                 <div style={{ background: '#1E293B', borderRadius: '20px', height: '10px', position: 'relative' }}>
                   <div style={{ height: '100%', borderRadius: '20px', background: 'linear-gradient(to right, #ef4444, #C9A84C, #22c55e)' }} />
-                  <div style={{ position: 'absolute', top: '-3px', left: `calc(${gaugePos}% - 8px)`, width: '16px', height: '16px', borderRadius: '50%', background: 'white', border: '3px solid #C9A84C', transition: 'left 0.4s ease' }} />
+                  <div style={{ position: 'absolute', top: '-3px', left: `calc(${gaugePos}% - 8px)`, width: '16px', height: '16px', borderRadius: '50%', background: 'white', border: '3px solid #C9A84C', boxShadow: '0 0 10px rgba(201,168,76,0.5)', transition: 'left 0.4s ease' }} />
                 </div>
               </div>
-
-              {/* Trend */}
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
-                <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e', padding: '4px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600' }}>
-                  📈 YoY Growth: {SALARY_DATA[role]?.trend || '+10%'}
-                </span>
-              </div>
             </div>
 
-            {/* Tier Comparison */}
-            <div className="card" style={{ marginBottom: '1rem' }}>
-              <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '0.9375rem' }}>🏢 Company Tier Impact</h4>
-              {Object.entries(TIER_MULT).map(([t, m]) => {
-                const b = SALARY_DATA[role] || { avg: 10 }
-                const val = fmt(b.avg * (CITY_MULT[city] || 1) * (EXP_MULT[exp] || 1) * m)
-                const pct = Math.round((m / 2.4) * 100)
-                return (
-                  <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '9px' }}>
-                    <span style={{ fontSize: '0.75rem', width: '155px', color: t === tier ? 'var(--gold-500)' : 'var(--text-secondary)', fontWeight: t === tier ? '700' : '400', flexShrink: 0 }}>{t}</span>
-                    <div style={{ flex: 1, background: 'var(--border-color)', height: '6px', borderRadius: '10px', overflow: 'hidden' }}>
-                      <div style={{ width: `${pct}%`, height: '100%', background: t === tier ? 'var(--gold-500)' : '#2C4F7C', borderRadius: '10px' }} />
+            {aiResult && (
+              <div className="card" style={{ padding: '1.5rem', borderLeft: '5px solid var(--gold-500)', background: dark ? 'rgba(201,168,76,0.03)' : '#fffdf8' }}>
+                <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  ✨ AI Career Strategy
+                </h4>
+                
+                <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.25rem', fontWeight: '500' }}>
+                  {aiResult.strategy}
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.25rem' }}>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase' }}>Top Skills to Master</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {aiResult.topSkills?.map(s => <span key={s} style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>{s}</span>)}
                     </div>
-                    <span style={{ fontSize: '0.8rem', fontWeight: '600', width: '52px', textAlign: 'right', color: t === tier ? 'var(--gold-500)' : 'var(--text-primary)' }}>₹{val}L</span>
                   </div>
-                )
-              })}
-            </div>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase' }}>Target Companies</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {aiResult.targetCompanies?.map(c => <span key={c} style={{ background: 'rgba(10,22,40,0.05)', color: 'var(--navy-700)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>{c}</span>)}
+                    </div>
+                  </div>
+                </div>
 
-            {/* AI Tip */}
-            {aiTip && (
-              <div className="card" style={{ borderLeft: '4px solid var(--gold-500)', background: dark ? 'rgba(201,168,76,0.05)' : '#fffdf0' }}>
-                <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', fontSize: '0.9375rem' }}>💡 AI Career Tip</h4>
-                <p style={{ color: 'var(--text-body)', fontSize: '0.9rem', lineHeight: '1.7', margin: 0 }}>{aiTip}</p>
+                <div style={{ padding: '1rem', background: dark ? '#1E293B' : '#F8FAFC', borderRadius: '12px', border: '1px dashed var(--gold-500)' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--gold-500)', marginBottom: '4px' }}>💡 NEGOTIATION LEVERAGE</div>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--text-body)', margin: 0, lineHeight: '1.5' }}>{aiResult.leverageTip}</p>
+                </div>
               </div>
             )}
           </div>
@@ -344,8 +331,8 @@ export default function SalaryInsights() {
         <div>
           <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Filter by:</span>
-              {[['city', city, setCity, CITIES], ['exp', exp, setExp, Object.keys(EXP_MULT)], ['tier', tier, setTier, Object.keys(TIER_MULT)]].map(([key, val, setter, opts]) => (
+              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Filter market trends:</span>
+              {[['domain', category, (v) => { setCategory(v); setRole(CATEGORIES[v][0]) }, Object.keys(CATEGORIES)], ['city', city, setCity, CITIES], ['exp', exp, setExp, Object.keys(EXP_MULT)], ['tier', tier, setTier, Object.keys(TIER_MULT)]].map(([key, val, setter, opts]) => (
                 <select key={key} className="form-select" value={val} onChange={e => setter(e.target.value)} style={{ width: 'auto', padding: '6px 10px', fontSize: '0.8125rem' }}>
                   {opts.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
@@ -353,33 +340,29 @@ export default function SalaryInsights() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-            {topRoles.map(({ role: r, avg, max, hot, trend }) => (
-              <div key={r} className="card" style={{ cursor: 'pointer', borderLeft: hot ? '3px solid #ef4444' : '3px solid var(--border-color)', transition: 'transform 0.15s' }}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.25rem' }}>
+            {topRoles.filter(r => CATEGORIES[category].includes(r.role)).map(({ role: r, avg, max, hot, trend }) => (
+              <div key={r} className="card" style={{ cursor: 'pointer', borderLeft: hot ? '4px solid #ef4444' : '4px solid #334155', transition: 'all 0.2s' }}
                 onClick={() => { setRole(r); setActiveTab('calculator') }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                  <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem', flex: 1 }}>{r}</div>
-                  {hot && <span style={{ fontSize: '0.7rem', background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '2px 7px', borderRadius: '20px', fontWeight: '600', flexShrink: 0 }}>🔥 Hot</span>}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = 'var(--shadow-lg)' }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'var(--shadow)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                  <div style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>{r}</div>
+                  {hot && <span style={{ fontSize: '0.65rem', background: '#fef2f2', color: '#ef4444', padding: '2px 8px', borderRadius: '20px', fontWeight: '800' }}>DEMAND+</span>}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--gold-500)', lineHeight: 1 }}>₹{fmt(avg)}L</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>avg · up to ₹{fmt(max)}L</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--gold-500)' }}>₹{fmt(avg)}L</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Median LPA</div>
                   </div>
-                  <span style={{ fontSize: '0.8rem', color: '#22c55e', fontWeight: '600', background: 'rgba(34,197,94,0.1)', padding: '3px 8px', borderRadius: '20px' }}>{trend}</span>
-                </div>
-                <div style={{ marginTop: '10px', background: 'var(--border-color)', height: '4px', borderRadius: '10px', overflow: 'hidden' }}>
-                  <div style={{ width: `${Math.min(fmt(avg) / fmt(max) * 100, 100)}%`, height: '100%', background: 'linear-gradient(to right, var(--navy-700), var(--gold-500))', borderRadius: '10px' }} />
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ color: '#22c55e', fontSize: '0.85rem', fontWeight: '700' }}>{trend}</div>
+                    <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Growth</div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '1.5rem', textAlign: 'center' }}>
-            * Data sourced from Glassdoor, AmbitionBox, LinkedIn Salary 2024-25. Click any card to calculate your specific estimate.
-          </p>
         </div>
       )}
     </Layout>

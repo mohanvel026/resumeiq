@@ -17,6 +17,7 @@ const {
   parseResumeWithAI,
   suggestResumeImprovements,
   enhanceResumeContent,
+  getSalaryCareerTips,
 } = require('../controllers/analysisController')
 
 router.post('/score', auth, scoreResume)
@@ -33,5 +34,6 @@ router.get('/user-stats', auth, getUserStats)
 router.post('/parse-resume', auth, parseResumeWithAI)
 router.post('/suggest-improvements', auth, suggestResumeImprovements)
 router.post('/enhance-resume', auth, enhanceResumeContent)
+router.post('/salary-tips', auth, getSalaryCareerTips)
 
 module.exports = router
