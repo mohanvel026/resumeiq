@@ -117,6 +117,7 @@ const MAX_C = Math.max(...Object.values(CITY_MULT))
 
 export default function SalaryInsights() {
   const { dark } = useTheme()
+  const { user } = useAuth()
   const [category, setCategory] = useState('CSE — Software Engineering')
   const [role, setRole]         = useState('Full Stack Developer')
   const [city, setCity]         = useState('Bangalore')
@@ -132,7 +133,7 @@ export default function SalaryInsights() {
     api.get('/api/resume/my-resumes')
       .then(r => {
         setResumes(r.data)
-        if (r.data.length > 0) setResumeId(r.data[0].id)
+        if (r.data.length > 0) setResumeId(String(r.data[0].id))
       })
       .catch(err => console.error('Failed to load resumes', err))
   }, [])
@@ -154,12 +155,20 @@ export default function SalaryInsights() {
     }))
   }, [role, exp, tier, city])
 
+  const topRoles = useMemo(() => {
+    const m = (CITY_MULT[city] || 1) * (EXP_MULT[exp] || 1) * (TIER_MULT[tier] || 1)
+    return Object.entries(SALARY_DATA)
+      .map(([r, d]) => ({ role: r, avg: d.avg * m, max: d.max * m, hot: d.hot, trend: d.trend }))
+      .sort((a, b) => b.avg - a.avg)
+      .slice(0, 15)
+  }, [city, exp, tier])
+
   const getAiTip = async () => {
     if (!resumeId) return alert('Please select a resume for personalized strategy.')
     setLoading(true); setAiResult(null)
     try {
       const res = await api.post('/api/analysis/salary-tips', {
-        resumeId,
+        resumeId: parseInt(resumeId),
         role,
         domain: category,
         experience: exp,
@@ -168,13 +177,14 @@ export default function SalaryInsights() {
         targetSalary: metrics.max
       })
       setAiResult(res.data)
-    } catch {
+    } catch (error) {
+      console.error('Roadmap error:', error)
       setAiResult({
         strategy: `Your path to ₹${metrics.max}L involves strategic upskilling in niche technologies.`,
-        topSkills: ['Cloud Architecture', 'Distributed Systems'],
-        targetCompanies: ['MAANG', 'Unicorns'],
-        certifications: ['AWS Solution Architect'],
-        leverageTip: 'Negotiate based on your project outcomes rather than just years of experience.',
+        topSkills: ['System Design', 'Scalability', 'Project Ownership'],
+        targetCompanies: ['MAANG', 'Tier-1 Startups'],
+        certifications: ['AWS Solutions Architect'],
+        leverageTip: 'Negotiate based on your specific projects and business impact.',
         marketRange: { min: metrics.min, avg: metrics.avg, max: metrics.max }
       })
     } finally { setLoading(false) }
@@ -191,9 +201,8 @@ export default function SalaryInsights() {
         <p className="page-subtitle">2024-25 Market Data · Personalized AI Roadmap</p>
       </div>
 
-      {/* Tabs */}
       <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-hover)', borderRadius: '10px', padding: '4px', width: 'fit-content', marginBottom: '1.5rem' }}>
-        {[['calculator','🧮 Personalized Report'], ['market','📊 General Trends']].map(([id, label]) => (
+        {[['calculator','🧮 Personalized Report'], ['market','📊 Market Trends']].map(([id, label]) => (
           <button key={id} onClick={() => setActiveTab(id)}
             style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: activeTab === id ? '600' : '400', background: activeTab === id ? 'var(--bg-card)' : 'transparent', color: activeTab === id ? 'var(--text-primary)' : 'var(--text-secondary)', boxShadow: activeTab === id ? 'var(--shadow)' : 'none', fontSize: '0.875rem', transition: 'all 0.15s' }}>
             {label}
@@ -203,7 +212,6 @@ export default function SalaryInsights() {
 
       {activeTab === 'calculator' && (
         <div className="grid-2" style={{ alignItems: 'start', gap: '1.5rem' }}>
-          {/* Controls */}
           <div>
             <div className="card" style={{ marginBottom: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
@@ -213,11 +221,11 @@ export default function SalaryInsights() {
               
               <div className="form-group">
                 <label className="form-label">Analyze based on Resume</label>
-                <select className="form-select" value={resumeId} onChange={e => setResumeId(e.target.value)} style={{ border: '1px solid var(--gold-500)', boxShadow: '0 0 0 2px rgba(201,168,76,0.1)' }}>
+                <select className="form-select" value={resumeId} onChange={e => setResumeId(e.target.value)} style={{ border: '1px solid var(--gold-500)' }}>
                   <option value="">Select a resume...</option>
-                  {resumes.map(r => <option key={r.id} value={r.id}>{r.title}</option>)}
+                  {resumes.map(r => <option key={r.id} value={String(r.id)}>{r.title}</option>)}
                 </select>
-                <span className="form-hint" style={{ color: 'var(--gold-500)', fontWeight: '500' }}>AI will compare your resume skills with target market needs</span>
+                <span className="form-hint" style={{ color: 'var(--gold-500)', fontWeight: '500' }}>AI will compare your skills with target market needs</span>
               </div>
 
               <div className="form-group">
@@ -256,13 +264,13 @@ export default function SalaryInsights() {
                 </select>
               </div>
 
-              <button className="btn btn-primary btn-full" onClick={getAiTip} disabled={loading || !resumeId} style={{ marginTop: '0.5rem', height: '48px', fontSize: '0.95rem' }}>
-                {loading ? '🤖 AI IS ANALYZING MARKET DATA...' : '🚀 GENERATE PERSONALIZED ROADMAP'}
+              <button className="btn btn-primary btn-full" onClick={getAiTip} disabled={loading || !resumeId} style={{ marginTop: '0.5rem', height: '48px' }}>
+                {loading ? '🤖 AI IS ANALYZING...' : '🚀 GENERATE PERSONALIZED ROADMAP'}
               </button>
             </div>
 
             <div className="card">
-              <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '0.9375rem' }}>📍 City Comparison</h4>
+              <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '0.9375rem' }}>📍 City Benchmarks</h4>
               {cityRows.map(row => (
                 <div key={row.city} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '9px' }}>
                   <span style={{ fontSize: '0.8125rem', width: '88px', color: row.active ? 'var(--gold-500)' : 'var(--text-secondary)', fontWeight: row.active ? '700' : '400' }}>{row.city}</span>
@@ -275,31 +283,27 @@ export default function SalaryInsights() {
             </div>
           </div>
 
-          {/* Results */}
           <div>
-            <div style={{ background: 'linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%)', borderRadius: '16px', padding: '1.75rem', marginBottom: '1rem', color: 'white', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', background: 'rgba(201,168,76,0.1)', borderRadius: '50%' }} />
-              
+            <div style={{ background: 'linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%)', borderRadius: '16px', padding: '1.75rem', marginBottom: '1rem', color: 'white', position: 'relative' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
                 <div>
                   <div style={{ fontSize: '0.75rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>
-                    {aiResult?.marketRange ? '✨ AI-VERIFIED MARKET RANGE' : '📊 CALCULATED ESTIMATE'}
+                    {aiResult?.marketRange ? '✨ AI-VERIFIED RANGE' : '📊 CALCULATED ESTIMATE'}
                   </div>
                   <div style={{ fontSize: '1.25rem', fontWeight: '700' }}>{role}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '2px' }}>{city} · {exp} yrs · {tier}</div>
                 </div>
-                {SALARY_DATA[role]?.hot && <span style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', padding: '4px 10px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: '800' }}>🔥 IN DEMAND</span>}
+                {SALARY_DATA[role]?.hot && <span style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', padding: '4px 10px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: '800' }}>🔥 HOT</span>}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '1.5rem', textAlign: 'center' }}>
                 {[
-                  ['MINIMUM', aiResult?.marketRange ? aiResult.marketRange.min : metrics.min, '#ef4444'],
-                  ['AVERAGE', aiResult?.marketRange ? aiResult.marketRange.avg : metrics.avg, '#C9A84C'],
-                  ['MAXIMUM', aiResult?.marketRange ? aiResult.marketRange.max : metrics.max, '#22c55e']
+                  ['MIN', aiResult?.marketRange ? aiResult.marketRange.min : metrics.min, '#ef4444'],
+                  ['AVG', aiResult?.marketRange ? aiResult.marketRange.avg : metrics.avg, '#C9A84C'],
+                  ['MAX', aiResult?.marketRange ? aiResult.marketRange.max : metrics.max, '#22c55e']
                 ].map(([label, val, color]) => (
                   <div key={label}>
-                    <div style={{ fontSize: '2rem', fontWeight: '800', color, lineHeight: 1 }}>₹{val}</div>
-                    <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: '700', marginTop: '6px' }}>{label} LPA</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color, lineHeight: 1 }}>₹{val}</div>
+                    <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: '700', marginTop: '6px' }}>{label} LPA</div>
                   </div>
                 ))}
               </div>
@@ -314,34 +318,27 @@ export default function SalaryInsights() {
 
             {aiResult && (
               <div className="card" style={{ padding: '1.75rem', borderLeft: '5px solid var(--gold-500)', background: dark ? 'rgba(201,168,76,0.03)' : '#fffdf8' }}>
-                <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '1.25rem' }}>✨</span> Personalized Career Roadmap
-                </h4>
+                <h4 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>✨ Career Roadmap</h4>
+                <p style={{ fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{aiResult.strategy}</p>
                 
-                <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.7', marginBottom: '1.5rem', background: 'var(--bg-hover)', padding: '1rem', borderRadius: '10px' }}>
-                  {aiResult.strategy}
-                </p>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#ef4444', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⚠️ CRITICAL SKILL GAPS</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                      {aiResult.topSkills?.map(s => <span key={s} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '5px 12px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '600', border: '1px solid rgba(239,68,68,0.1)' }}>{s}</span>)}
+                    <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#ef4444', marginBottom: '8px' }}>⚠️ SKILL GAPS</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {aiResult.topSkills?.map(s => <span key={s} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600' }}>{s}</span>)}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--navy-700)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>🏢 BEST FIT TARGETS</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                      {aiResult.targetCompanies?.map(c => <span key={c} style={{ background: 'rgba(10,22,40,0.05)', color: 'var(--navy-700)', padding: '5px 12px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '600', border: '1px solid rgba(10,22,40,0.05)' }}>{c}</span>)}
+                    <div style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--navy-700)', marginBottom: '8px' }}>🏢 TARGETS</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {aiResult.targetCompanies?.map(c => <span key={c} style={{ background: 'rgba(10,22,40,0.05)', color: 'var(--navy-700)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600' }}>{c}</span>)}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ padding: '1.25rem', background: dark ? '#1E293B' : '#F8FAFC', borderRadius: '12px', border: '1px solid var(--gold-500)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
-                  <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--gold-500)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    💡 YOUR PERSONAL NEGOTIATION EDGE
-                  </div>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-body)', margin: 0, lineHeight: '1.6', fontStyle: 'italic' }}>"{aiResult.leverageTip}"</p>
+                <div style={{ padding: '1rem', background: dark ? '#1E293B' : '#F8FAFC', borderRadius: '12px', border: '1px solid var(--gold-500)' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--gold-500)', marginBottom: '4px' }}>💡 NEGOTIATION EDGE</div>
+                  <p style={{ fontSize: '0.85rem', margin: 0 }}>{aiResult.leverageTip}</p>
                 </div>
               </div>
             )}
@@ -350,10 +347,39 @@ export default function SalaryInsights() {
       )}
 
       {activeTab === 'market' && (
-        <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📈</div>
-          <h3 style={{ color: 'var(--text-primary)' }}>Market-wide Trends</h3>
-          <p style={{ color: 'var(--text-secondary)' }}>This tab shows general industry data. For personalized insights based on your resume, use the <b>Personalized Report</b> tab.</p>
+        <div>
+          <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Filter market trends:</span>
+              {[['domain', category, (v) => { setCategory(v); setRole(CATEGORIES[v][0]) }, Object.keys(CATEGORIES)], ['city', city, setCity, CITIES], ['exp', exp, setExp, Object.keys(EXP_MULT)], ['tier', tier, setTier, Object.keys(TIER_MULT)]].map(([key, val, setter, opts]) => (
+                <select key={key} className="form-select" value={val} onChange={e => setter(e.target.value)} style={{ width: 'auto', padding: '6px 10px', fontSize: '0.8125rem' }}>
+                  {opts.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.25rem' }}>
+            {topRoles.filter(r => CATEGORIES[category].includes(r.role)).map(({ role: r, avg, max, hot, trend }) => (
+              <div key={r} className="card" style={{ cursor: 'pointer', borderLeft: hot ? '4px solid #ef4444' : '4px solid #334155', transition: 'all 0.2s' }}
+                onClick={() => { setRole(r); setActiveTab('calculator') }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                  <div style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>{r}</div>
+                  {hot && <span style={{ fontSize: '0.65rem', background: '#fef2f2', color: '#ef4444', padding: '2px 8px', borderRadius: '20px', fontWeight: '800' }}>HOT</span>}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--gold-500)' }}>₹{fmt(avg)}L</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Median LPA</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ color: '#22c55e', fontSize: '0.85rem', fontWeight: '700' }}>{trend}</div>
+                    <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>Growth</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </Layout>
