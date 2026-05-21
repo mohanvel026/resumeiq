@@ -1,9 +1,12 @@
+/* ── Tailwind CSS v4 ── */
+@import "tailwindcss";
+
 /* ══════════════════════════════════════════
    RESUMEIQ — GLOBAL STYLES
    Clean, Responsive, Full Dark Mode Support
 ══════════════════════════════════════════ */
 
-/* ── Reset ── */
+/* ── Reset (Tailwind Preflight handles most of this, kept for legacy compat) ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── CSS Variables — Light Mode ── */
