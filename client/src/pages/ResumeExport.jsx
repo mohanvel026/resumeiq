@@ -753,466 +753,358 @@ export default function ResumeExport() {
   const InputCls = "w-full border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 px-4 py-3 border bg-white dark:bg-slate-900 disabled:opacity-60 transition-all text-[14px] font-medium text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm"
   const LabelCls = "text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-widest uppercase mb-2 mt-4 block"
   
+  const addItem = (section) => {
+    setEditData(prev => ({
+      ...prev,
+      [section]: [...(prev[section] || []), {}]
+    }))
+  }
+
+  const removeItem = (section, idx) => {
+    setEditData(prev => {
+      const arr = [...(prev[section] || [])]
+      arr.splice(idx, 1)
+      return { ...prev, [section]: arr }
+    })
+  }
+
+  const updateField = (section, idx, field, val) => {
+    setEditData(prev => {
+      if (idx === null) {
+        if (section === 'personalInfo') {
+          return { ...prev, [field]: val }
+        }
+        return { ...prev, [section]: { ...(prev[section] || {}), [field]: val } }
+      }
+      const arr = [...(prev[section] || [])]
+      if (!arr[idx]) arr[idx] = {}
+      
+      if (field === 'items' || field === 'description') {
+        arr[idx][field] = val.split('\n').map(v => v.replace(/^- /, '')).filter(Boolean)
+      } else {
+        arr[idx][field] = val
+      }
+      return { ...prev, [section]: arr }
+    })
+  }
+
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:bg-[#0B0D10] dark:bg-none pb-20 transition-colors duration-300">
-        {/* Header */}
-        <div className="bg-white/80 dark:bg-[#111318] backdrop-blur-sm border-b border-slate-200/80 dark:border-slate-800 pt-12 pb-16 px-4 sm:px-6 relative overflow-hidden transition-colors duration-300">
-          <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-blue-600 via-violet-500 to-indigo-600"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50/60 via-transparent to-transparent dark:from-transparent pointer-events-none"></div>
-          <div className="max-w-6xl mx-auto relative z-10 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#0B0D10] font-sans transition-colors duration-300 flex flex-col">
+        
+        {/* PREMIUM ENTERPRISE TOP NAVBAR */}
+        <div className="bg-white dark:bg-[#111318] border-b border-slate-200 dark:border-slate-800/80 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-30 transition-colors duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center shadow-sm">
+              <LayoutTemplate className="w-4 h-4" />
+            </div>
             <div>
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-3 transition-colors">
-                Resume <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-indigo-600">Studio</span>
-              </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-[15px] max-w-xl font-medium leading-relaxed transition-colors">
-                Multi-page PDF generation with AI optimization, smart pagination, and custom section control.
-              </p>
+              <h1 className="text-[16px] font-semibold text-slate-900 dark:text-white leading-tight">Resume Studio</h1>
+              <p className="text-[12px] font-medium text-slate-500 dark:text-slate-400">Multi-page PDF Engine</p>
             </div>
-            
-            {/* Step Indicators */}
-            <div className="flex items-center space-x-2 sm:space-x-4 overflow-x-auto pb-2 w-full sm:w-auto mt-4 sm:mt-0">
-              {STEPS.map((s, i) => {
-                const active = step === s.num
-                const done = step > s.num
-                return (
-                  <div key={s.num} className="flex items-center">
-                    <div className="flex flex-col items-center group cursor-pointer" onClick={() => done && setStep(s.num)}>
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm
-                        ${active ? 'bg-slate-900 text-white shadow-slate-900/30 ring-4 ring-slate-900/10' : 
-                          done ? 'bg-emerald-500 text-white shadow-emerald-500/30' : 'bg-white border-2 border-slate-200 text-slate-400'}`}>
-                        {done ? <CheckCircle2 className="w-5 h-5" /> : <s.icon className={`w-5 h-5 ${active?'animate-pulse':''}`} />}
-                      </div>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider mt-2 whitespace-nowrap 
-                        ${active ? 'text-slate-900' : done ? 'text-emerald-600' : 'text-slate-400'}`}>
-                        {s.label}
-                      </span>
-                    </div>
-                    {i < STEPS.length - 1 && (
-                      <div className={`w-6 sm:w-10 h-1 mx-2 sm:mx-3 rounded-full mb-5 ${done ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+          </div>
+          
+          {/* Minimalist Segmented Stepper */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900/50 rounded-xl border border-slate-200/50 dark:border-slate-800/50 overflow-x-auto w-full md:w-auto">
+            {STEPS.map((s, i) => {
+              const active = step === s.num;
+              const done = step > s.num;
+              return (
+                <div key={s.num} onClick={() => done && setStep(s.num)}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${done ? 'cursor-pointer' : 'cursor-default'} ${
+                    active 
+                      ? 'bg-white dark:bg-[#1A1D24] text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700/50' 
+                      : done
+                        ? 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
+                        : 'text-slate-400 dark:text-slate-600'
+                  }`}>
+                  {done ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <s.icon className="w-3.5 h-3.5" />}
+                  {s.label}
+                </div>
+              )
+            })}
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-8 relative z-20 transition-colors duration-300">
+        {/* MAIN WORKSPACE AREA */}
+        <div className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-8 flex flex-col">
           {loading ? (
-            <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
+            <div className="flex-1 flex items-center justify-center flex-col gap-3">
+              <div className="w-6 h-6 border-2 border-slate-300 dark:border-slate-700 border-t-slate-900 dark:border-t-white rounded-full animate-spin"></div>
+              <span className="text-[13px] font-medium text-slate-500 dark:text-slate-400">Loading workspace...</span>
+            </div>
           ) : (
-            <>
+            <div className="flex-1 w-full">
+              
               {/* ══ STEP 1: SELECT ══ */}
               {step === 1 && (
-                <div className="bg-white dark:bg-[#111318] rounded-2xl shadow-2xl shadow-slate-200/60 dark:shadow-none border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 max-w-xl mx-auto animate-in fade-in zoom-in-95 duration-500 transition-colors">
-                  <div className="mb-8">
-                    <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4 border border-blue-100 dark:border-blue-800/50">
-                      <FileSearch className="w-3.5 h-3.5" /> Step 1 of 5
-                    </div>
-                    <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-1.5 transition-colors">Select a Resume</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-[14px] font-medium">Choose which resume to build your export from.</p>
+                <div className="max-w-2xl mx-auto mt-4 sm:mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight mb-1">Select Source Document</h2>
+                    <p className="text-[14px] text-slate-500 dark:text-slate-400">Choose a base resume profile to format and export.</p>
                   </div>
-                  {resumes.length === 0 ? (
-                    <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-3 text-rose-700 font-medium">
-                      <AlertOctagon className="w-5 h-5" /> No resumes found. Please create one first.
-                    </div>
-                  ) : (
-                    <div className="space-y-3 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                      {resumes.map(r => (
-                        <div key={r.id} onClick={() => setSelectedId(r.id)}
-                          className={`p-4 rounded-xl cursor-pointer transition-all duration-200 flex items-center justify-between group border ${
-                            selectedId === r.id
-                              ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shadow-md shadow-blue-100 dark:shadow-none'
-                              : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:border-blue-300 dark:hover:border-slate-600 hover:shadow-sm'
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
-                              selectedId === r.id ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:bg-blue-50 dark:group-hover:bg-slate-700'
-                            }`}><FileText className="w-5 h-5" /></div>
-                            <div>
-                              <div className="font-bold text-slate-900 dark:text-white text-[15px] transition-colors">{r.title}</div>
-                              <div className="text-[12px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 transition-colors">{r.fileType?.toUpperCase()} · {new Date(r.createdAt).toLocaleDateString()}</div>
+                  
+                  <div className="bg-white dark:bg-[#111318] border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden transition-colors duration-300">
+                    {resumes.length === 0 ? (
+                      <div className="p-8 text-center flex flex-col items-center justify-center">
+                        <AlertOctagon className="w-8 h-8 text-rose-500 mb-3" />
+                        <h3 className="text-[15px] font-semibold text-slate-900 dark:text-white mb-1">No profiles found</h3>
+                        <p className="text-[13px] text-slate-500 dark:text-slate-400 mb-4">You need to create a resume before exporting.</p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100 dark:divide-slate-800/60 max-h-[500px] overflow-y-auto custom-scrollbar">
+                        {resumes.map(r => (
+                          <div key={r.id} onClick={() => setSelectedId(r.id)}
+                            className={`p-5 flex items-center justify-between cursor-pointer transition-colors ${
+                              selectedId === r.id 
+                                ? 'bg-slate-50 dark:bg-slate-800/40' 
+                                : 'hover:bg-slate-50/50 dark:hover:bg-[#1A1D24]/50'
+                            }`}>
+                            <div className="flex items-center gap-4">
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                                selectedId === r.id ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                              }`}><FileText className="w-4 h-4" /></div>
+                              <div>
+                                <h4 className="text-[14px] font-semibold text-slate-900 dark:text-white">{r.title}</h4>
+                                <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">{r.fileType?.toUpperCase()} · {new Date(r.createdAt).toLocaleDateString()}</p>
+                              </div>
+                            </div>
+                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                              selectedId === r.id ? 'border-slate-900 dark:border-white bg-slate-900 dark:bg-white' : 'border-slate-300 dark:border-slate-700'
+                            }`}>
+                              {selectedId === r.id && <CheckCircle2 className="w-3.5 h-3.5 text-white dark:text-slate-900" />}
                             </div>
                           </div>
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
-                            selectedId === r.id ? 'border-blue-500 bg-blue-500 scale-110' : 'border-slate-300 dark:border-slate-600'
-                          }`}>
-                            {selectedId === r.id && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                    )}
+                    <div className="p-5 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0B0D10]">
+                      <button 
+                        className="w-full bg-slate-900 dark:bg-white hover:opacity-90 text-white dark:text-slate-900 text-[14px] font-semibold py-3 rounded-xl transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                        onClick={parseAndAnalyze} disabled={parsing || !selectedId}>
+                        {parsing ? <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"/> Processing...</> : <><Wand2 className="w-4 h-4" /> Optimize Document</>}
+                      </button>
                     </div>
-                  )}
-                  <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
-                    <button className="w-full bg-gradient-to-r from-slate-900 to-slate-800 hover:from-blue-600 hover:to-indigo-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-slate-900/20 hover:shadow-blue-500/25 flex items-center justify-center gap-2.5 disabled:opacity-50 text-[15px] tracking-wide"
-                      onClick={parseAndAnalyze} disabled={parsing || !selectedId}>
-                      {parsing ? <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"/> Analyzing Document...</> : <><Wand2 className="w-5 h-5" /> Analyze &amp; Continue</>}
-                    </button>
                   </div>
                 </div>
               )}
 
               {/* ══ STEP 2: AI OPTIMIZATION ══ */}
               {step === 2 && editData && (
-                <div className="animate-in slide-in-from-right-8 duration-500">
-                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
-                    
-                    {/* Parse Results */}
-                    <div className="lg:col-span-2 bg-white dark:bg-[#111318] rounded-3xl shadow-lg dark:shadow-none border border-slate-200 dark:border-slate-800 p-8 h-fit transition-colors duration-300">
-                      <h4 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-6 transition-colors"><CheckCircle2 className="text-emerald-500 w-6 h-6"/> Parse Success</h4>
-                      <div className="bg-slate-50 dark:bg-[#0B0D10] rounded-2xl p-5 border border-slate-100 dark:border-slate-800 flex items-center gap-4 mb-6 transition-colors">
-                        <div className="w-14 h-14 bg-gradient-to-br from-slate-800 to-slate-900 rounded-full flex items-center justify-center text-white font-black text-xl shadow-inner shrink-0">
+                <div className="max-w-4xl mx-auto mt-4 sm:mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="mb-6 flex items-end justify-between">
+                    <div>
+                      <h2 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight mb-1">Document Analysis</h2>
+                      <p className="text-[14px] text-slate-500 dark:text-slate-400">Review detected structural issues before formatting.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-1 space-y-6">
+                      <div className="bg-white dark:bg-[#111318] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm">
+                        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl flex items-center justify-center font-bold text-lg mb-4">
                           {editData.name?.[0]?.toUpperCase() || '?'}
                         </div>
-                        <div className="overflow-hidden">
-                           <div className="font-bold text-slate-900 dark:text-white text-lg truncate transition-colors">{editData.name || 'Unknown'}</div>
-                           <div className="text-sm text-slate-500 dark:text-slate-400 font-medium truncate transition-colors">{editData.email || 'No email detected'}</div>
+                        <h4 className="text-[15px] font-semibold text-slate-900 dark:text-white truncate">{editData.name || 'Unknown'}</h4>
+                        <p className="text-[13px] text-slate-500 dark:text-slate-400 truncate mb-6">{editData.email || 'No email'}</p>
+                        
+                        <div className="space-y-2">
+                          {[
+                            { k: 'Summary', v: editData.summary?.length > 20 },
+                            { k: `Education (${editData.education?.filter(e=>e.institution).length || 0})`, v: editData.education?.some(e=>e.institution) },
+                            { k: `Experience (${editData.experience?.length || 0})`, v: editData.experience?.length > 0 },
+                            { k: `Projects (${editData.projects?.length || 0})`, v: editData.projects?.length > 0 },
+                            { k: 'Skills', v: Object.values(editData.skills || {}).some(v=>v) },
+                          ].map(s => (
+                            <div key={s.k} className="flex items-center justify-between text-[13px] font-medium">
+                              <span className="text-slate-600 dark:text-slate-400">{s.k}</span>
+                              {s.v ? <CheckCircle2 className="w-4 h-4 text-emerald-500"/> : <X className="w-4 h-4 text-rose-500"/>}
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          { k: 'Summary', v: editData.summary?.length > 20 },
-                          { k: `Education (${editData.education?.filter(e=>e.institution).length || 0})`, v: editData.education?.some(e=>e.institution) },
-                          { k: `Experience (${editData.experience?.length || 0})`, v: editData.experience?.length > 0 },
-                          { k: `Projects (${editData.projects?.length || 0})`, v: editData.projects?.length > 0 },
-                          { k: 'Skills', v: Object.values(editData.skills || {}).some(v=>v) },
-                        ].map(s => (
-                          <div key={s.k} className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2
-                            ${s.v ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`}>
-                            {s.v ? <CheckCircle2 className="w-3 h-3"/> : <X className="w-3 h-3"/>} {s.k}
-                          </div>
-                        ))}
                       </div>
                     </div>
 
-                    {/* Suggestions */}
-                    <div className="lg:col-span-3 bg-gradient-to-br from-indigo-50 via-white to-blue-50 rounded-3xl shadow-lg border border-indigo-100 p-8 relative overflow-hidden">
-                      <div className="absolute -top-10 -right-10 opacity-10"><Zap className="w-48 h-48 text-indigo-500" /></div>
-                      <h4 className="text-xl font-black text-indigo-950 mb-2 relative z-10 flex items-center gap-2">
-                        <Sparkles className="text-indigo-500 w-6 h-6" /> ATS Optimization
-                      </h4>
-                      <p className="text-slate-600 text-sm font-medium mb-6 relative z-10">Industry-standard logic detects weaknesses holding back your callback rate.</p>
-                      
-                      {suggestions.length === 0 ? (
-                        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl p-6 font-bold flex items-center gap-3">
-                          <CheckCircle2 className="w-6 h-6" /> Perfect structure! No critical issues found.
+                    <div className="md:col-span-2">
+                      <div className="bg-white dark:bg-[#111318] border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm flex flex-col h-full min-h-[400px]">
+                        <div className="border-b border-slate-200 dark:border-slate-800/80 px-6 py-4 bg-slate-50/50 dark:bg-[#0B0D10]/50 rounded-t-2xl">
+                          <h3 className="text-[14px] font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-slate-500 dark:text-slate-400" /> Improvement Suggestions
+                          </h3>
                         </div>
-                      ) : (
-                        <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar relative z-10">
-                          {suggestions.map((s, i) => {
-                            const tc = {
-                              critical: { bg: 'bg-rose-50', br: 'border-rose-200', text: 'text-rose-900', badge: 'bg-rose-500', icon: AlertOctagon, lbl: 'Critical' },
-                              high: { bg: 'bg-amber-50', br: 'border-amber-200', text: 'text-amber-900', badge: 'bg-amber-500', icon: AlertCircle, lbl: 'High' },
-                              medium: { bg: 'bg-blue-50', br: 'border-blue-200', text: 'text-blue-900', badge: 'bg-blue-500', icon: Info, lbl: 'Medium' }
-                            }[s.type] || { bg: 'bg-slate-50', br: 'border-slate-200', text: 'text-slate-900', badge: 'bg-slate-500', icon: Info, lbl: 'Info' }
-                            
-                            const done = appliedIdx.includes(i)
-                            
-                            return (
-                              <div key={i} className={`p-5 rounded-2xl border transition-all duration-300
-                                ${done ? 'bg-emerald-50/60 border-emerald-200 opacity-70' : `${tc.bg} ${tc.br} shadow-sm hover:shadow-md`}`}>
-                                <div className="flex items-start gap-4">
-                                  <div className={`mt-1 p-2 rounded-xl ${done ? 'bg-emerald-100 text-emerald-600' : `${tc.badge} text-white shadow-sm`}`}>
-                                    {done ? <CheckCircle2 className="w-5 h-5"/> : <tc.icon className="w-5 h-5"/>}
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-1">
-                                      <h5 className={`font-bold text-[15px] ${done ? 'text-emerald-900 line-through decoration-emerald-300' : tc.text}`}>{s.title}</h5>
+                        <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+                          {suggestions.length === 0 ? (
+                            <div className="h-full flex flex-col items-center justify-center text-center">
+                              <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-3" />
+                              <h4 className="text-[15px] font-semibold text-slate-900 dark:text-white mb-1">Excellent Structure</h4>
+                              <p className="text-[13px] text-slate-500 dark:text-slate-400">No critical formatting issues found.</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              {suggestions.map((s, i) => {
+                                const done = appliedIdx.includes(i);
+                                return (
+                                  <div key={i} className={`p-4 rounded-xl border transition-colors ${done ? 'bg-slate-50 dark:bg-slate-800/20 border-slate-200 dark:border-slate-800 opacity-60' : 'bg-white dark:bg-[#111318] border-slate-200 dark:border-slate-700 shadow-sm'}`}>
+                                    <div className="flex items-start gap-3">
+                                      <div className={`mt-0.5 shrink-0 ${done ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
+                                        {done ? <CheckCircle2 className="w-4 h-4" /> : <Info className="w-4 h-4" />}
+                                      </div>
+                                      <div className="flex-1">
+                                        <h5 className={`text-[14px] font-semibold mb-1 ${done ? 'text-slate-500 dark:text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>{s.title}</h5>
+                                        {!done && (
+                                          <>
+                                            <p className="text-[13px] text-slate-600 dark:text-slate-400 mb-3 leading-relaxed">{s.detail}</p>
+                                            <div className="bg-slate-50 dark:bg-[#0B0D10] px-3 py-2 rounded-lg border border-slate-100 dark:border-slate-800 text-[12px] font-medium text-slate-700 dark:text-slate-300 mb-3">
+                                              <span className="text-slate-400 dark:text-slate-500 font-semibold mr-2">FIX:</span>{s.fix}
+                                            </div>
+                                            <button onClick={() => applySuggestion(s, i)} disabled={applyingIdx === i}
+                                              className="bg-slate-900 dark:bg-white hover:opacity-90 text-white dark:text-slate-900 text-[12px] font-semibold px-4 py-2 rounded-lg transition-opacity flex items-center gap-2">
+                                              {applyingIdx === i ? <><div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"/> Applying...</> : 'Apply Fix'}
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
                                     </div>
-                                    {!done && (
-                                      <>
-                                        <p className="text-slate-600 text-sm leading-relaxed mb-3">{s.detail}</p>
-                                        <div className="bg-white/70 p-3 rounded-xl border border-white/50 text-sm font-semibold text-slate-700 flex gap-2 items-start mb-4 shadow-sm">
-                                          <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                                          <span>{s.fix}</span>
-                                        </div>
-                                        <button onClick={() => applySuggestion(s, i)} disabled={applyingIdx === i}
-                                          className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2.5 px-5 rounded-xl shadow-md transition-all flex items-center gap-2">
-                                          {applyingIdx === i ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/> Applying...</> : <><Wand2 className="w-4 h-4" /> Auto-Fix</>}
-                                        </button>
-                                      </>
-                                    )}
                                   </div>
-                                </div>
-                              </div>
-                            )
-                          })}
+                                )
+                              })}
+                            </div>
+                          )}
                         </div>
-                      )}
+                        <div className="p-5 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0B0D10]/50 rounded-b-2xl flex justify-between items-center">
+                           <button className="text-[13px] font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" onClick={() => setStep(1)}>Back</button>
+                           <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[13px] font-semibold px-6 py-2.5 rounded-xl hover:opacity-90 transition-opacity shadow-sm" onClick={() => setStep(3)}>Continue to Layouts</button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex justify-end gap-4">
-                    <button className="px-6 py-3 rounded-xl font-bold text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all" onClick={() => setStep(1)}>Back</button>
-                    <button className="bg-slate-900 hover:bg-blue-600 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all" onClick={() => setStep(3)}>Continue to Templates</button>
                   </div>
                 </div>
               )}
 
               {/* ══ STEP 3: TEMPLATES ══ */}
               {step === 3 && (
-                <div className="animate-in slide-in-from-right-8 duration-500">
-                  <div className="bg-white dark:bg-[#111318] rounded-2xl shadow-2xl shadow-slate-200/60 dark:shadow-none border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 mb-8 transition-colors duration-300">
-                    <div className="mb-8">
-                      <p className="text-[11px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Step 3 of 5</p>
-                      <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight transition-colors">Choose a Template</h3>
-                      <p className="text-slate-500 dark:text-slate-400 text-[14px] font-medium mt-1">Pick a layout. You can switch anytime in the editor.</p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {TEMPLATES.map(t => (
-                        <div key={t.id} onClick={() => setTemplate(t.id)}
-                          className={`group cursor-pointer rounded-2xl border-2 transition-all duration-300 relative overflow-hidden
-                          ${template === t.id ? 'border-blue-500 ring-4 ring-blue-500/10 scale-[1.02] shadow-xl shadow-blue-500/10' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}>
-                          <div className={`p-6 border-b ${template === t.id ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'bg-slate-50 group-hover:bg-slate-100'} transition-colors`}>
-                            <h4 className={`text-lg font-black ${template === t.id ? 'text-white' : 'text-slate-800'}`}>{t.name}</h4>
-                            {template === t.id && <CheckCircle2 className="absolute top-6 right-6 w-6 h-6 text-white" />}
-                          </div>
-                          <div className="p-6 bg-white dark:bg-[#111318] transition-colors">
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">{t.desc}</p>
+                <div className="max-w-5xl mx-auto mt-4 sm:mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="mb-8 text-center sm:text-left">
+                    <h2 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight mb-1">Architecture Layout</h2>
+                    <p className="text-[14px] text-slate-500 dark:text-slate-400">Select a structural foundation. You can switch layouts non-destructively later.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                    {TEMPLATES.map(t => (
+                      <div key={t.id} onClick={() => setTemplate(t.id)}
+                        className={`bg-white dark:bg-[#111318] p-4 rounded-2xl cursor-pointer transition-all border group relative ${
+                          template === t.id 
+                            ? 'border-slate-900 dark:border-white ring-1 ring-slate-900 dark:ring-white shadow-md' 
+                            : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm'
+                        }`}>
+                        <div className="aspect-[1/1.414] w-full bg-slate-50 dark:bg-[#0B0D10] rounded-xl mb-4 relative overflow-hidden flex flex-col pt-3 px-3 border border-slate-100 dark:border-slate-800/80 transition-colors">
+                          <div className={`w-full h-1.5 mb-2 rounded-sm ${t.id === 'modern' ? 'bg-slate-300 dark:bg-slate-600' : 'bg-slate-200 dark:bg-slate-800'}`}></div>
+                          <div className="w-3/4 h-1.5 mb-4 rounded-sm bg-slate-200 dark:bg-slate-800"></div>
+                          <div className="flex gap-2 flex-1">
+                            {t.id === 'twocol' && <div className="w-1/3 h-full bg-slate-200 dark:bg-slate-800 rounded-t-sm"></div>}
+                            <div className="flex-1 flex flex-col gap-2">
+                              <div className="w-full h-10 bg-white dark:bg-[#1A1D24] rounded-sm border border-slate-200 dark:border-slate-700"></div>
+                              <div className="w-full h-10 bg-white dark:bg-[#1A1D24] rounded-sm border border-slate-200 dark:border-slate-700"></div>
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                        <h4 className="text-[13px] font-semibold text-slate-900 dark:text-white text-center">{t.name}</h4>
+                        {template === t.id && (
+                          <div className="absolute top-2 right-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full p-0.5">
+                            <CheckCircle2 className="w-3 h-3" />
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex justify-between gap-4">
-                    <button className="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-white border border-transparent hover:border-slate-200 transition-all" onClick={() => setStep(2)}>Back</button>
-                    <button className="bg-slate-900 hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all" onClick={() => setStep(4)}>Enter Editor</button>
+                  
+                  <div className="flex justify-between items-center pt-6 border-t border-slate-200 dark:border-slate-800/80">
+                    <button className="text-[14px] font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" onClick={() => setStep(2)}>Back</button>
+                    <button className="bg-slate-900 dark:bg-white hover:opacity-90 text-white dark:text-slate-900 text-[14px] font-semibold px-8 py-3 rounded-xl transition-opacity shadow-sm" onClick={() => setStep(4)}>Enter Workspace</button>
                   </div>
                 </div>
               )}
 
               {/* ══ STEP 4: EDITOR & PREVIEW ══ */}
               {step === 4 && editData && (
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 animate-in slide-in-from-bottom-8 duration-500 relative">
+                <div className="h-full flex flex-col lg:flex-row gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 -mt-2">
                   
-                  {/* EDITOR */}
-                  <div className="xl:col-span-5 flex flex-col gap-6 max-h-[85vh] overflow-y-auto pr-2 custom-scrollbar pb-10">
+                  {/* LEFT: EDITOR PANEL */}
+                  <div className="w-full lg:w-5/12 flex flex-col h-[calc(100vh-120px)] min-h-[600px] bg-white dark:bg-[#111318] border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden transition-colors duration-300">
+                    <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50/50 dark:bg-[#0B0D10]/50 shrink-0">
+                      <h3 className="text-[13px] font-semibold text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-wide"><Sliders className="w-3.5 h-3.5"/> Data Editor</h3>
+                    </div>
                     
-                    {/* Settings Panel */}
-                    <div className="bg-slate-900 dark:bg-[#0B0D10] rounded-3xl p-6 shadow-xl text-white border border-transparent dark:border-slate-800 transition-colors">
-                      <h4 className="font-bold flex items-center gap-2 mb-5 text-slate-100"><Sliders className="w-5 h-5"/> Design Settings</h4>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Font Size</label>
-                          <select className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-shadow" 
-                            value={editData.settings.fontSize} onChange={e=>setSetting('fontSize', e.target.value)}>
-                            <option value="small">Compact</option>
-                            <option value="medium">Standard</option>
-                            <option value="large">Large</option>
-                          </select>
+                    <div className="flex-1 overflow-y-auto p-5 custom-scrollbar space-y-8">
+                      {/* Personal Info */}
+                      <section>
+                        <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">Identity</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div><label className={LabelCls}>Name</label><input className={InputCls} value={editData.name||''} onChange={(e)=>updateField('personalInfo', null, 'name', e.target.value)} /></div>
+                          <div><label className={LabelCls}>Email</label><input className={InputCls} value={editData.email||''} onChange={(e)=>updateField('personalInfo', null, 'email', e.target.value)} /></div>
+                          <div><label className={LabelCls}>Phone</label><input className={InputCls} value={editData.phone||''} onChange={(e)=>updateField('personalInfo', null, 'phone', e.target.value)} /></div>
+                          <div><label className={LabelCls}>Location</label><input className={InputCls} value={editData.location||''} onChange={(e)=>updateField('personalInfo', null, 'location', e.target.value)} /></div>
                         </div>
-                        <div>
-                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Accent Color</label>
-                          <div className="flex flex-wrap gap-2">
-                            {['#0A1628', '#C9A84C', '#3B82F6', '#10B981', '#EF4444', '#8B5CF6'].map(c => (
-                              <div key={c} onClick={() => setSetting('accentColor', c)} 
-                                className={`w-8 h-8 rounded-lg cursor-pointer transition-transform hover:scale-110 flex items-center justify-center
-                                ${editData.settings.accentColor === c ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900' : ''}`}
-                                style={{ backgroundColor: c }}>
-                                {editData.settings.accentColor === c && <CheckCircle2 className="w-4 h-4 text-white drop-shadow-md"/>}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                      </section>
 
-                    {/* Accordions */}
-                    <div className="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
-                      <div className="p-6 border-b border-slate-100 flex items-center gap-3 bg-slate-50">
-                        <FileText className="text-blue-500 w-6 h-6"/>
-                        <h4 className="font-black text-slate-800 text-lg">Content Editor</h4>
-                      </div>
+                      {/* Summary */}
+                      <section>
+                        <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">Summary</h4>
+                        <textarea className={`${InputCls} h-28 resize-y text-[13px] leading-relaxed`} value={editData.summary||''} onChange={(e)=>setEditData({...editData, summary: e.target.value})} />
+                      </section>
 
-                      {[
-                        { id: 'basic', title: 'Basic Info', icon: '👤', fields: [['name','Full Name'],['email','Email'],['phone','Phone'],['location','City, State'],['linkedin','LinkedIn'],['github','GitHub']] },
-                        { id: 'summary', title: editData.sectionTitles.summary, icon: '📝' },
-                        { id: 'experience', title: `${editData.sectionTitles.experience} (${editData.experience?.length||0})`, icon: '💼' },
-                        { id: 'education', title: `${editData.sectionTitles.education} (${editData.education?.length||0})`, icon: '🎓' },
-                        { id: 'projects', title: `${editData.sectionTitles.projects} (${editData.projects?.length||0})`, icon: '🚀' },
-                        { id: 'skills', title: editData.sectionTitles.skills, icon: '🛠️' },
-                      ].map(sec => (
-                        <div key={sec.id} className="border-b border-slate-100 last:border-0">
-                          <button onClick={() => setOpenSec(openSec === sec.id ? null : sec.id)}
-                            className={`w-full p-5 flex items-center justify-between font-bold transition-colors
-                            ${openSec === sec.id ? 'bg-blue-50/50 text-blue-700' : 'hover:bg-slate-50 text-slate-700'}`}>
-                            <span className="flex items-center gap-3 text-[15px]"><span className="text-xl">{sec.icon}</span> {sec.title}</span>
-                            <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${openSec === sec.id ? 'rotate-180 text-blue-500' : 'text-slate-400'}`} />
-                          </button>
-                          
-                          {openSec === sec.id && (
-                            <div className="p-6 bg-white border-t border-slate-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                              
-                              {sec.id === 'basic' && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                  {sec.fields.map(([k,l])=>(
-                                    <div key={k}><label className={LabelCls}>{l}</label><input className={InputCls} value={editData[k]||''} onChange={e=>setField(k,e.target.value)} /></div>
-                                  ))}
-                                </div>
-                              )}
-
-                              {sec.id === 'summary' && (
-                                <div>
-                                  <label className={LabelCls}>Section Heading</label><input className={`${InputCls} mb-5`} value={editData.sectionTitles.summary} onChange={e=>setSTitle('summary', e.target.value)}/>
-                                  <label className={LabelCls}>Summary Body</label><textarea className={`${InputCls} min-h-[140px] resize-y`} value={editData.summary||''} onChange={e=>setField('summary',e.target.value)} />
-                                </div>
-                              )}
-
-                              {sec.id === 'experience' && (
-                                <div>
-                                  <label className={LabelCls}>Section Heading</label><input className={`${InputCls} mb-6`} value={editData.sectionTitles.experience} onChange={e=>setSTitle('experience', e.target.value)}/>
-                                  {editData.experience?.map((exp,ei)=>(
-                                    <div key={ei} className="mb-6 bg-slate-50 border border-slate-200 rounded-2xl p-5 md:p-6 relative group">
-                                      <button onClick={()=>remExp(ei)} className="absolute top-4 right-4 text-rose-400 hover:text-rose-600 bg-white rounded-lg p-1.5 shadow-sm border border-rose-100 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4"/></button>
-                                      <h5 className="font-bold text-slate-800 mb-4">Job {ei+1}</h5>
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                                        {[['company','Company'],['role','Job Title'],['duration','Duration'],['location','Location']].map(([k,l])=>(
-                                          <div key={k}><label className={LabelCls}>{l}</label><input className={InputCls} value={exp[k]||''} onChange={e=>setExpF(ei,k,e.target.value)}/></div>
-                                        ))}
-                                      </div>
-                                      <label className={LabelCls}>Bullet Points</label>
-                                      {exp.bullets?.map((b,bi)=>(
-                                        <div key={bi} className="flex gap-3 items-start mb-3">
-                                          <div className="w-2 h-2 rounded-full bg-blue-500 mt-4 shrink-0 shadow-sm"></div>
-                                          <textarea className={`${InputCls} min-h-[65px] text-sm`} value={b} onChange={e=>setExpB(ei,bi,e.target.value)}/>
-                                          <button onClick={()=>remExpB(ei,bi)} className="mt-2 text-slate-300 hover:text-rose-500 p-2 transition-colors"><X className="w-4 h-4"/></button>
-                                        </div>
-                                      ))}
-                                      <button onClick={()=>addExpB(ei)} className="text-sm font-bold text-blue-600 flex items-center gap-1 hover:text-blue-800 mt-3 bg-blue-50 px-3 py-1.5 rounded-lg w-fit"><Plus className="w-4 h-4"/> Add Bullet</button>
-                                    </div>
-                                  ))}
-                                  <button onClick={addExp} className="w-full py-4 border-2 border-dashed border-slate-300 rounded-2xl font-bold text-slate-500 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex justify-center items-center gap-2"><Plus className="w-5 h-5"/> Add Experience Entry</button>
-                                </div>
-                              )}
-                              
-                              {sec.id === 'education' && (
-                                <div>
-                                  <label className={LabelCls}>Section Heading</label><input className={`${InputCls} mb-6`} value={editData.sectionTitles.education} onChange={e=>setSTitle('education', e.target.value)}/>
-                                  {editData.education?.map((e,ei)=>(
-                                    <div key={ei} className="mb-6 bg-slate-50 border border-slate-200 rounded-2xl p-5 relative group">
-                                      <button onClick={()=>remEdu(ei)} className="absolute top-4 right-4 text-rose-400 hover:text-rose-600 bg-white rounded-lg p-1.5 shadow-sm border border-rose-100 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4"/></button>
-                                      <h5 className="font-bold text-slate-800 mb-4">Degree {ei+1}</h5>
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {[['institution','Institution'],['degree','Degree'],['year','Year'],['gpa','GPA/Score']].map(([k,l])=>(
-                                          <div key={k}><label className={LabelCls}>{l}</label><input className={InputCls} value={e[k]||''} onChange={ev=>setEduF(ei,k,ev.target.value)}/></div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  ))}
-                                  <button onClick={addEdu} className="w-full py-4 border-2 border-dashed border-slate-300 rounded-2xl font-bold text-slate-500 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex justify-center items-center gap-2"><Plus className="w-5 h-5"/> Add Education</button>
-                                </div>
-                              )}
-
-                              {sec.id === 'projects' && (
-                                <div>
-                                  <label className={LabelCls}>Section Heading</label><input className={`${InputCls} mb-6`} value={editData.sectionTitles.projects} onChange={e=>setSTitle('projects', e.target.value)}/>
-                                  {editData.projects?.map((p,pi)=>(
-                                    <div key={pi} className="mb-6 bg-slate-50 border border-slate-200 rounded-2xl p-5 relative group">
-                                      <button onClick={()=>remProj(pi)} className="absolute top-4 right-4 text-rose-400 hover:text-rose-600 bg-white rounded-lg p-1.5 shadow-sm border border-rose-100 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4"/></button>
-                                      <h5 className="font-bold text-slate-800 mb-4">Project {pi+1}</h5>
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                                        {[['name','Name'],['tech','Tech Stack'],['link','Link']].map(([k,l])=>(
-                                          <div key={k}><label className={LabelCls}>{l}</label><input className={InputCls} value={p[k]||''} onChange={e=>setProjF(pi,k,e.target.value)}/></div>
-                                        ))}
-                                      </div>
-                                      <label className={LabelCls}>Bullet Points</label>
-                                      {p.bullets?.map((b,bi)=>(
-                                        <div key={bi} className="flex gap-3 items-start mb-3">
-                                          <div className="w-2 h-2 rounded-full bg-blue-500 mt-4 shrink-0 shadow-sm"></div>
-                                          <textarea className={`${InputCls} min-h-[65px] text-sm`} value={b} onChange={e=>setProjB(pi,bi,e.target.value)}/>
-                                          <button onClick={()=>remProjB(pi,bi)} className="mt-2 text-slate-300 hover:text-rose-500 p-2 transition-colors"><X className="w-4 h-4"/></button>
-                                        </div>
-                                      ))}
-                                      <button onClick={()=>addProjB(pi)} className="text-sm font-bold text-blue-600 flex items-center gap-1 hover:text-blue-800 mt-3 bg-blue-50 px-3 py-1.5 rounded-lg w-fit"><Plus className="w-4 h-4"/> Add Bullet</button>
-                                    </div>
-                                  ))}
-                                  <button onClick={addProj} className="w-full py-4 border-2 border-dashed border-slate-300 rounded-2xl font-bold text-slate-500 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex justify-center items-center gap-2"><Plus className="w-5 h-5"/> Add Project</button>
-                                </div>
-                              )}
-
-                              {sec.id === 'skills' && (
-                                <div>
-                                  <label className={LabelCls}>Section Heading</label><input className={`${InputCls} mb-6`} value={editData.sectionTitles.skills} onChange={e=>setSTitle('skills', e.target.value)}/>
-                                  {Object.entries(editData.skills||{}).map(([k,v])=>(
-                                    <div key={k} className="mb-5">
-                                      <label className={LabelCls}>{k}</label>
-                                      <input className={InputCls} value={v||''} onChange={e=>setSkill(k,e.target.value)} placeholder="Comma separated..."/>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
+                      {/* Dynamic Sections */}
+                      {['experience', 'education', 'skills', 'projects'].map(sectionKey => {
+                        const items = editData[sectionKey] || [];
+                        return (
+                          <section key={sectionKey}>
+                            <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
+                              <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{sectionKey}</h4>
+                              <button onClick={() => addItem(sectionKey)} className="text-[11px] font-semibold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"><Plus className="w-3.5 h-3.5 inline"/> Add</button>
                             </div>
-                          )}
-                        </div>
-                      ))}
-                      
-                      {/* Custom Sections rendered dynamically */}
-                      {editData.customSections?.map((cs,ci) => (
-                        <div key={ci} className="border-b border-slate-100 last:border-0">
-                          <button onClick={() => setOpenSec(openSec === `custom${ci}` ? null : `custom${ci}`)}
-                            className={`w-full p-5 flex items-center justify-between font-bold transition-colors
-                            ${openSec === `custom${ci}` ? 'bg-indigo-50/50 text-indigo-700' : 'hover:bg-slate-50 text-slate-700'}`}>
-                            <span className="flex items-center gap-3 text-[15px]"><span className="text-xl">📌</span> {cs.title||'Custom Section'}</span>
-                            <div className="flex items-center gap-2">
-                              <div onClick={(e)=>{e.stopPropagation();remCS(ci)}} className="p-1 text-rose-400 hover:bg-rose-100 rounded-lg transition-colors"><X className="w-4 h-4"/></div>
-                              <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${openSec === `custom${ci}` ? 'rotate-180 text-indigo-500' : 'text-slate-400'}`} />
-                            </div>
-                          </button>
-                          {openSec === `custom${ci}` && (
-                            <div className="p-6 bg-white border-t border-slate-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                                 <div><label className={LabelCls}>Heading</label><input className={InputCls} value={cs.title} onChange={e=>setCSF(ci,'title',e.target.value)}/></div>
-                                 <div><label className={LabelCls}>Position</label><select className={InputCls} value={cs.placement||'right'} onChange={e=>setCSF(ci,'placement',e.target.value)}><option value="right">Main / Right</option><option value="left">Sidebar / Left</option></select></div>
-                               </div>
-                               <label className={LabelCls}>Paragraph Text</label>
-                               <textarea className={`${InputCls} min-h-[90px] mb-5`} value={cs.body||''} onChange={e=>setCSF(ci,'body',e.target.value)}/>
-                               <label className={LabelCls}>Bullet Items</label>
-                               {cs.items?.map((item,ii)=>(
-                                <div key={ii} className="flex gap-3 items-center mb-3">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></div>
-                                  <input className={InputCls} value={item} onChange={e=>setCSItem(ci,ii,e.target.value)}/>
-                                  <button onClick={()=>remCSItem(ci,ii)} className="text-slate-300 hover:text-rose-500 p-2 transition-colors"><X className="w-4 h-4"/></button>
+                            <div className="space-y-4">
+                              {items.map((item, idx) => (
+                                <div key={idx} className="bg-slate-50 dark:bg-[#0B0D10] border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 relative group">
+                                  <button onClick={() => removeItem(sectionKey, idx)} className="absolute top-3 right-3 text-slate-400 hover:text-rose-500 transition-colors"><X className="w-3.5 h-3.5"/></button>
+                                  <div className="grid grid-cols-1 gap-3 pr-6">
+                                    <input className={`${InputCls} py-2 text-[13px]`} placeholder="Title/Name" value={item.title||item.degree||item.name||item.category||''} onChange={(e)=>updateField(sectionKey, idx, sectionKey==='experience'?'title':sectionKey==='education'?'degree':sectionKey==='projects'?'name':'category', e.target.value)} />
+                                    {sectionKey !== 'skills' && <input className={`${InputCls} py-2 text-[13px]`} placeholder="Organization/Institution" value={item.company||item.school||item.institution||''} onChange={(e)=>updateField(sectionKey, idx, sectionKey==='experience'?'company':sectionKey==='education'?'school':'institution', e.target.value)} />}
+                                    <textarea className={`${InputCls} py-2 text-[13px] h-20`} placeholder="Details" value={Array.isArray(item.description) ? item.description.map(d=>`- ${d}`).join('\n') : (item.description||item.items?.join(', ')||'')} onChange={(e)=>updateField(sectionKey, idx, sectionKey==='skills'?'items':'description', e.target.value)} />
+                                  </div>
                                 </div>
-                               ))}
-                               <button onClick={()=>addCSItem(ci)} className="text-sm font-bold text-indigo-600 flex items-center gap-1 hover:text-indigo-800 mt-3 bg-indigo-50 px-3 py-1.5 rounded-lg w-fit"><Plus className="w-4 h-4"/> Add Item</button>
+                              ))}
                             </div>
-                          )}
-                        </div>
-                      ))}
-
-                      <div className="p-5 bg-slate-50 dark:bg-[#0B0D10] border-t border-slate-100 dark:border-slate-800 transition-colors">
-                        <button onClick={addCustom} className="w-full py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:shadow-md transition-all flex justify-center items-center gap-2"><Plus className="w-5 h-5"/> Create Custom Section</button>
-                      </div>
+                          </section>
+                        )
+                      })}
                     </div>
-
-                    <div className="flex gap-4 mt-2">
-                      <button className="px-6 py-4 rounded-2xl font-bold text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 shadow-sm transition-all hidden sm:block" onClick={() => setStep(3)}>Back</button>
-                      <button className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-500/30 transition-all text-lg flex items-center justify-center gap-2" onClick={() => setStep(5)}> Looks Great! Finalize <ChevronRight className="w-5 h-5"/></button>
+                    
+                    <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#111318] flex items-center justify-between shrink-0">
+                      <button className="text-[13px] font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors" onClick={() => setStep(3)}>Back</button>
+                      <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[13px] font-semibold px-6 py-2.5 rounded-xl hover:opacity-90 transition-opacity shadow-sm" onClick={() => setStep(5)}>Finalize PDF</button>
                     </div>
-
                   </div>
 
-                  {/* PREVIEW */}
-                  <div className="xl:col-span-7 relative">
-                    <div className="sticky top-24 bg-white dark:bg-[#111318] rounded-2xl shadow-2xl shadow-slate-300/40 dark:shadow-none border border-slate-200/80 dark:border-slate-800 overflow-hidden flex flex-col h-[85vh] transition-colors duration-300">
-                      <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-4 flex items-center justify-between text-white shrink-0">
-                        <div className="flex items-center gap-2 font-bold"><LayoutTemplate className="w-5 h-5 text-blue-400"/> Live PDF Preview</div>
-                        <div className="flex items-center gap-2 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full"><div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div> Auto-sync</div>
-                      </div>
-                      <div className="flex-1 bg-slate-100 dark:bg-[#0B0D10] flex items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8 transition-colors">
-                        {pdfBlob ? (
-                          <iframe 
-                            src={`${pdfBlob}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} 
-                            className="w-full h-full border-0 rounded-xl shadow-xl bg-white" 
-                            title="PDF Preview"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-600 gap-4">
-                            <div className="w-12 h-12 border-4 border-slate-300 border-t-blue-500 rounded-full animate-spin"></div>
-                            <span className="font-bold tracking-wide">Rendering PDF Engine...</span>
-                          </div>
-                        )}
-                      </div>
+                  {/* RIGHT: PREVIEW PANEL */}
+                  <div className="w-full lg:w-7/12 flex flex-col h-[calc(100vh-120px)] min-h-[600px] bg-slate-200/50 dark:bg-[#0B0D10]/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-inner relative transition-colors duration-300">
+                    <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-white/90 dark:bg-[#111318]/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg shadow-sm">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                      <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">Live</span>
+                    </div>
+                    
+                    <div className="flex-1 p-4 sm:p-8 flex items-center justify-center">
+                      {pdfBlob ? (
+                        <iframe 
+                          src={`${pdfBlob}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} 
+                          className="w-full h-full max-h-[100%] border border-slate-200 dark:border-slate-700/50 shadow-2xl rounded-xl bg-white" 
+                          title="PDF Preview"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center gap-3 text-slate-400 dark:text-slate-600">
+                          <div className="w-8 h-8 border-2 border-slate-300 dark:border-slate-700 border-t-slate-500 dark:border-t-slate-400 rounded-full animate-spin"></div>
+                          <span className="text-[13px] font-medium tracking-wide">Rendering Layout...</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1220,32 +1112,29 @@ export default function ResumeExport() {
 
               {/* ══ STEP 5: EXPORT ══ */}
               {step === 5 && editData && (
-                <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-500 mt-10">
-                  <div className="bg-white dark:bg-[#111318] rounded-2xl shadow-2xl shadow-slate-200/60 dark:shadow-none border border-slate-200/80 dark:border-slate-800 p-10 sm:p-14 relative overflow-hidden transition-colors duration-300">
-                    <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-full blur-3xl opacity-70"></div>
-                    <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-gradient-to-br from-blue-100 to-indigo-50 rounded-full blur-3xl opacity-70"></div>
-                    
-                    <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-emerald-500/30 relative z-10">
-                      <Download className="w-10 h-10" />
+                <div className="max-w-md mx-auto mt-12 sm:mt-24 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="bg-white dark:bg-[#111318] border border-slate-200 dark:border-slate-800/80 p-10 rounded-3xl shadow-sm transition-colors duration-300">
+                    <div className="w-16 h-16 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-md">
+                      <Download className="w-8 h-8" />
                     </div>
-                    
-                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-4 relative z-10 transition-colors">Your Resume is Ready!</h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-lg mb-10 relative z-10 font-medium transition-colors">
-                      Multi-page <span className="text-slate-800 dark:text-slate-200 font-bold">{TEMPLATES.find(t=>t.id===template)?.name}</span> template successfully generated and formatted for maximum ATS readability.
+                    <h2 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight mb-2">Ready to Export</h2>
+                    <p className="text-[14px] text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+                      Your resume has been compiled using the <span className="font-semibold text-slate-700 dark:text-slate-200">{TEMPLATES.find(t=>t.id===template)?.name}</span> architecture.
                     </p>
                     
-                    <button className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold text-xl py-5 rounded-2xl shadow-xl shadow-slate-900/20 hover:shadow-emerald-600/30 transition-all flex items-center justify-center gap-3 relative z-10 disabled:opacity-50"
+                    <button className="w-full bg-slate-900 dark:bg-white hover:opacity-90 text-white dark:text-slate-900 font-semibold py-3.5 rounded-xl transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
                       onClick={() => downloadPDF(false)} disabled={generating}>
-                      {generating ? <><div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"/> Processing...</> : <><Download className="w-6 h-6"/> Download Final PDF</>}
+                      {generating ? <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"/> Exporting...</> : <><Download className="w-4 h-4"/> Download PDF</>}
                     </button>
                     
-                    <div className="mt-8 relative z-10">
-                      <button className="font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors" onClick={() => setStep(4)}>Return to Editor</button>
-                    </div>
+                    <button className="mt-6 text-[13px] font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors" onClick={() => setStep(4)}>
+                      Back to Editor
+                    </button>
                   </div>
                 </div>
               )}
-            </>
+
+            </div>
           )}
         </div>
       </div>
