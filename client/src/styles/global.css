@@ -1,5 +1,6 @@
 /* ── Tailwind CSS v4 ── */
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
 /* ══════════════════════════════════════════
    RESUMEIQ — GLOBAL STYLES
