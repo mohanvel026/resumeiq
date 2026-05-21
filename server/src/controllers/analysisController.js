@@ -883,10 +883,41 @@ const getUserStats = async (req, res) => {
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(-10) // last 10 data points
 
-    const topSkills = Object.entries(skillCounts)
+    let topSkills = Object.entries(skillCounts)
       .map(([skill, count]) => ({ skill, count }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 8)
+      .slice(0, 20)
+
+    if (topSkills.length > 0 && resumes.length > 0) {
+      const titles = resumes.map(r => r.title).filter(Boolean).join(', ')
+      const prompt = `
+        The user has resumes with the following titles/roles: [${titles}].
+        Based on this, determine their primary professional domain (e.g., Mechanical Engineering, Software, EEE, Sales, etc.).
+        Then, filter the following list of skills and return ONLY the skills that are highly relevant to that primary domain.
+        Exclude completely unrelated skills (e.g. if they are Mechanical, exclude 'js' or 'react').
+        Skills: ${JSON.stringify(topSkills.map(s => s.skill))}
+        
+        Return ONLY a JSON array of strings containing the filtered skills. No markdown, no explanation.
+        Example: ["AutoCAD", "SolidWorks"]
+      `
+      try {
+        const aiResponse = await askAI(prompt, 500)
+        let filteredSkillNames = []
+        try {
+           filteredSkillNames = JSON.parse(aiResponse.replace(/```json/g, '').replace(/```/g, '').trim())
+        } catch (e) {
+           console.error("Failed to parse AI skill filter response:", e)
+        }
+        
+        if (Array.isArray(filteredSkillNames) && filteredSkillNames.length > 0) {
+           topSkills = topSkills.filter(s => filteredSkillNames.includes(s.skill))
+        }
+      } catch (err) {
+        console.error("Error filtering skills with AI:", err)
+      }
+    }
+    
+    topSkills = topSkills.slice(0, 8)
 
     // 4. Job Application Stats
     const applications = await prisma.jobApplication.findMany({
