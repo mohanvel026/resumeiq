@@ -389,7 +389,7 @@ const premiumUI = `  return (
 
 const fileContent = fs.readFileSync('src/pages/ResumeExport.jsx', 'utf8');
 
-const lines = fileContent.split(/\\r?\\n/);
+const lines = fileContent.split(/\r?\n/);
 let returnIdx = 788;
 
 // I'll dynamically find the correct return statement
