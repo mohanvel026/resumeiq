@@ -491,7 +491,7 @@ const analyzeResume = (data) => {
       const txt = bullets.join(' ').toLowerCase()
       
       const passiveVerbs = ['helped','assisted','worked on','responsible for','part of','did','made','tasked with','handled']
-      const strongVerbs = ['developed','implemented','led','optimized','built','delivered','designed','reduced','increased','engineered','orchestrated']
+      const _strongVerbs = ['developed','implemented','led','optimized','built','delivered','designed','reduced','increased','engineered','orchestrated']
       
       passiveVerbs.forEach(v => { if(txt.includes(v)) passiveCount++ })
       if (/\d+%|\d+x|\d+ (users|clients|hours|days|months|projects|members|records|tests|queries|requests|dollars)/i.test(txt)) metricCount++
@@ -750,21 +750,21 @@ export default function ResumeExport() {
     { num: 5, label: 'Export', icon: Download }
   ]
 
-  const InputCls = "w-full border-slate-200 rounded-xl shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 p-3 border bg-white disabled:opacity-60 transition-all font-medium text-slate-700 placeholder:text-slate-300"
-  const LabelCls = "flex items-center gap-2 text-[13px] font-bold text-slate-500 tracking-wide uppercase mb-2 mt-3"
+  const InputCls = "w-full border-slate-200 dark:border-slate-700 rounded-xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 p-3 border bg-white dark:bg-slate-900 disabled:opacity-60 transition-all font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm"
+  const LabelCls = "flex items-center gap-2 text-[12px] font-semibold text-slate-600 dark:text-slate-400 tracking-wide uppercase mb-2 mt-3"
   
   return (
     <Layout>
-      <div className="min-h-screen bg-slate-50/50 pb-16">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D10] pb-16 transition-colors duration-300">
         {/* Header */}
-        <div className="bg-white border-b border-slate-200 pt-10 pb-14 px-4 sm:px-6 relative overflow-hidden">
+        <div className="bg-white dark:bg-[#111318] border-b border-slate-200 dark:border-slate-800 pt-10 pb-14 px-4 sm:px-6 relative overflow-hidden transition-colors duration-300">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500"></div>
           <div className="max-w-6xl mx-auto relative z-10 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-2 transition-colors">
                 Resume <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Studio</span>
               </h1>
-              <p className="text-slate-500 text-base max-w-2xl font-medium">
+              <p className="text-slate-500 dark:text-slate-400 text-base max-w-2xl font-medium transition-colors">
                 True multi-page PDF generation. Dynamic pagination, smart AI optimization, and custom sections.
               </p>
             </div>
@@ -797,15 +797,15 @@ export default function ResumeExport() {
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 relative z-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 relative z-20 transition-colors duration-300">
           {loading ? (
             <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
           ) : (
             <>
               {/* ══ STEP 1: SELECT ══ */}
               {step === 1 && (
-                <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 p-8 max-w-xl mx-auto animate-in fade-in zoom-in-95 duration-500">
-                  <h3 className="text-xl font-bold text-slate-800 flex items-center gap-3 mb-6">
+                <div className="bg-white dark:bg-[#111318] backdrop-blur-xl rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-800 p-8 max-w-xl mx-auto animate-in fade-in zoom-in-95 duration-500 transition-colors">
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-3 mb-6 transition-colors">
                     <FileSearch className="w-6 h-6 text-blue-500" />
                     Select Target Resume
                   </h3>
@@ -820,8 +820,8 @@ export default function ResumeExport() {
                           className={`p-5 border-2 rounded-2xl cursor-pointer transition-all duration-300 flex items-center justify-between
                           ${selectedId === r.id ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-500/10' : 'border-slate-100 hover:border-slate-300 bg-white hover:bg-slate-50'}`}>
                           <div>
-                            <div className="font-bold text-slate-800 text-lg">{r.title}</div>
-                            <div className="text-sm text-slate-500 font-medium mt-1">{r.fileType?.toUpperCase()} • {new Date(r.createdAt).toLocaleDateString()}</div>
+                            <div className="font-bold text-slate-800 dark:text-white text-lg transition-colors">{r.title}</div>
+                             <div className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 transition-colors">{r.fileType?.toUpperCase()} • {new Date(r.createdAt).toLocaleDateString()}</div>
                           </div>
                           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors
                             ${selectedId === r.id ? 'border-blue-500 bg-blue-500' : 'border-slate-300'}`}>
@@ -844,15 +844,15 @@ export default function ResumeExport() {
                   <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
                     
                     {/* Parse Results */}
-                    <div className="lg:col-span-2 bg-white rounded-3xl shadow-lg border border-slate-200 p-8 h-fit">
-                      <h4 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6"><CheckCircle2 className="text-emerald-500 w-6 h-6"/> Parse Success</h4>
-                      <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 flex items-center gap-4 mb-6">
+                    <div className="lg:col-span-2 bg-white dark:bg-[#111318] rounded-3xl shadow-lg dark:shadow-none border border-slate-200 dark:border-slate-800 p-8 h-fit transition-colors duration-300">
+                      <h4 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-6 transition-colors"><CheckCircle2 className="text-emerald-500 w-6 h-6"/> Parse Success</h4>
+                      <div className="bg-slate-50 dark:bg-[#0B0D10] rounded-2xl p-5 border border-slate-100 dark:border-slate-800 flex items-center gap-4 mb-6 transition-colors">
                         <div className="w-14 h-14 bg-gradient-to-br from-slate-800 to-slate-900 rounded-full flex items-center justify-center text-white font-black text-xl shadow-inner shrink-0">
                           {editData.name?.[0]?.toUpperCase() || '?'}
                         </div>
                         <div className="overflow-hidden">
-                          <div className="font-bold text-slate-900 text-lg truncate">{editData.name || 'Unknown'}</div>
-                          <div className="text-sm text-slate-500 font-medium truncate">{editData.email || 'No email detected'}</div>
+                           <div className="font-bold text-slate-900 dark:text-white text-lg truncate transition-colors">{editData.name || 'Unknown'}</div>
+                           <div className="text-sm text-slate-500 dark:text-slate-400 font-medium truncate transition-colors">{editData.email || 'No email detected'}</div>
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -928,8 +928,8 @@ export default function ResumeExport() {
                     </div>
                   </div>
                   <div className="flex justify-end gap-4">
-                    <button className="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-white border border-transparent hover:border-slate-200 transition-all" onClick={() => setStep(1)}>Back</button>
-                    <button className="bg-slate-900 hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all" onClick={() => setStep(3)}>Continue to Templates</button>
+                    <button className="px-6 py-3 rounded-xl font-bold text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all" onClick={() => setStep(1)}>Back</button>
+                    <button className="bg-slate-900 hover:bg-blue-600 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all" onClick={() => setStep(3)}>Continue to Templates</button>
                   </div>
                 </div>
               )}
@@ -937,8 +937,8 @@ export default function ResumeExport() {
               {/* ══ STEP 3: TEMPLATES ══ */}
               {step === 3 && (
                 <div className="animate-in slide-in-from-right-8 duration-500">
-                  <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 mb-8">
-                    <h3 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3"><LayoutTemplate className="w-7 h-7 text-indigo-500"/> Select Architecture</h3>
+                  <div className="bg-white dark:bg-[#111318] rounded-3xl shadow-xl dark:shadow-none border border-slate-200 dark:border-slate-800 p-8 mb-8 transition-colors duration-300">
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3 transition-colors"><LayoutTemplate className="w-7 h-7 text-indigo-500"/> Select Architecture</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                       {TEMPLATES.map(t => (
                         <div key={t.id} onClick={() => setTemplate(t.id)}
@@ -948,8 +948,8 @@ export default function ResumeExport() {
                             <h4 className={`text-lg font-black ${template === t.id ? 'text-white' : 'text-slate-800'}`}>{t.name}</h4>
                             {template === t.id && <CheckCircle2 className="absolute top-6 right-6 w-6 h-6 text-white" />}
                           </div>
-                          <div className="p-6 bg-white">
-                            <p className="text-sm font-medium text-slate-500">{t.desc}</p>
+                          <div className="p-6 bg-white dark:bg-[#111318] transition-colors">
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">{t.desc}</p>
                           </div>
                         </div>
                       ))}
@@ -970,7 +970,7 @@ export default function ResumeExport() {
                   <div className="xl:col-span-5 flex flex-col gap-6 max-h-[85vh] overflow-y-auto pr-2 custom-scrollbar pb-10">
                     
                     {/* Settings Panel */}
-                    <div className="bg-slate-900 rounded-3xl p-6 shadow-xl text-white">
+                    <div className="bg-slate-900 dark:bg-[#0B0D10] rounded-3xl p-6 shadow-xl text-white border border-transparent dark:border-slate-800 transition-colors">
                       <h4 className="font-bold flex items-center gap-2 mb-5 text-slate-100"><Sliders className="w-5 h-5"/> Design Settings</h4>
                       <div className="grid grid-cols-2 gap-6">
                         <div>
@@ -1161,13 +1161,13 @@ export default function ResumeExport() {
                         </div>
                       ))}
 
-                      <div className="p-5 bg-slate-50 border-t border-slate-100">
-                        <button onClick={addCustom} className="w-full py-4 bg-white border border-slate-200 rounded-xl font-bold text-slate-700 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-md transition-all flex justify-center items-center gap-2"><Plus className="w-5 h-5"/> Create Custom Section</button>
+                      <div className="p-5 bg-slate-50 dark:bg-[#0B0D10] border-t border-slate-100 dark:border-slate-800 transition-colors">
+                        <button onClick={addCustom} className="w-full py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:shadow-md transition-all flex justify-center items-center gap-2"><Plus className="w-5 h-5"/> Create Custom Section</button>
                       </div>
                     </div>
 
                     <div className="flex gap-4 mt-2">
-                      <button className="px-6 py-4 rounded-2xl font-bold text-slate-500 hover:bg-white border border-transparent hover:border-slate-200 shadow-sm transition-all hidden sm:block" onClick={() => setStep(3)}>Back</button>
+                      <button className="px-6 py-4 rounded-2xl font-bold text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 shadow-sm transition-all hidden sm:block" onClick={() => setStep(3)}>Back</button>
                       <button className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-500/30 transition-all text-lg flex items-center justify-center gap-2" onClick={() => setStep(5)}> Looks Great! Finalize <ChevronRight className="w-5 h-5"/></button>
                     </div>
 
@@ -1175,12 +1175,12 @@ export default function ResumeExport() {
 
                   {/* PREVIEW */}
                   <div className="xl:col-span-7 relative">
-                    <div className="sticky top-24 bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[85vh]">
+                    <div className="sticky top-24 bg-white dark:bg-[#111318] rounded-3xl shadow-2xl dark:shadow-none border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-[85vh] transition-colors duration-300">
                       <div className="bg-slate-900 p-4 flex items-center justify-between text-white shrink-0">
                         <div className="flex items-center gap-2 font-bold"><LayoutTemplate className="w-5 h-5 text-blue-400"/> Live PDF Preview</div>
                         <div className="flex items-center gap-2 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full"><div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div> Auto-sync</div>
                       </div>
-                      <div className="flex-1 bg-slate-100/50 flex items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8">
+                      <div className="flex-1 bg-slate-100 dark:bg-[#0B0D10] flex items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8 transition-colors">
                         {pdfBlob ? (
                           <iframe 
                             src={`${pdfBlob}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} 
@@ -1188,7 +1188,7 @@ export default function ResumeExport() {
                             title="PDF Preview"
                           />
                         ) : (
-                          <div className="flex flex-col items-center justify-center text-slate-400 gap-4">
+                          <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-600 gap-4">
                             <div className="w-12 h-12 border-4 border-slate-300 border-t-blue-500 rounded-full animate-spin"></div>
                             <span className="font-bold tracking-wide">Rendering PDF Engine...</span>
                           </div>
@@ -1202,7 +1202,7 @@ export default function ResumeExport() {
               {/* ══ STEP 5: EXPORT ══ */}
               {step === 5 && editData && (
                 <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-500 mt-10">
-                  <div className="bg-white rounded-3xl shadow-2xl shadow-emerald-500/10 border border-slate-200 p-10 sm:p-14 relative overflow-hidden">
+                  <div className="bg-white dark:bg-[#111318] rounded-3xl shadow-2xl shadow-emerald-500/10 dark:shadow-none border border-slate-200 dark:border-slate-800 p-10 sm:p-14 relative overflow-hidden transition-colors duration-300">
                     <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl"></div>
                     <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl"></div>
                     
@@ -1210,9 +1210,9 @@ export default function ResumeExport() {
                       <Download className="w-10 h-10" />
                     </div>
                     
-                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4 relative z-10">Your Resume is Ready!</h2>
-                    <p className="text-slate-500 text-lg mb-10 relative z-10 font-medium">
-                      Multi-page <span className="text-slate-800 font-bold">{TEMPLATES.find(t=>t.id===template)?.name}</span> template successfully generated and formatted for maximum ATS readability.
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-4 relative z-10 transition-colors">Your Resume is Ready!</h2>
+                    <p className="text-slate-500 dark:text-slate-400 text-lg mb-10 relative z-10 font-medium transition-colors">
+                      Multi-page <span className="text-slate-800 dark:text-slate-200 font-bold">{TEMPLATES.find(t=>t.id===template)?.name}</span> template successfully generated and formatted for maximum ATS readability.
                     </p>
                     
                     <button className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold text-xl py-5 rounded-2xl shadow-xl shadow-slate-900/20 hover:shadow-emerald-600/30 transition-all flex items-center justify-center gap-3 relative z-10 disabled:opacity-50"
@@ -1221,7 +1221,7 @@ export default function ResumeExport() {
                     </button>
                     
                     <div className="mt-8 relative z-10">
-                      <button className="font-bold text-slate-500 hover:text-slate-800 transition-colors" onClick={() => setStep(4)}>Return to Editor</button>
+                      <button className="font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors" onClick={() => setStep(4)}>Return to Editor</button>
                     </div>
                   </div>
                 </div>
