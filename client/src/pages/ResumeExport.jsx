@@ -750,22 +750,23 @@ export default function ResumeExport() {
     { num: 5, label: 'Export', icon: Download }
   ]
 
-  const InputCls = "w-full border-slate-200 dark:border-slate-700 rounded-xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 p-3 border bg-white dark:bg-slate-900 disabled:opacity-60 transition-all font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm"
-  const LabelCls = "flex items-center gap-2 text-[12px] font-semibold text-slate-600 dark:text-slate-400 tracking-wide uppercase mb-2 mt-3"
+  const InputCls = "w-full border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 px-4 py-3 border bg-white dark:bg-slate-900 disabled:opacity-60 transition-all text-[14px] font-medium text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm"
+  const LabelCls = "text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-widest uppercase mb-2 mt-4 block"
   
   return (
     <Layout>
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D10] pb-16 transition-colors duration-300">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:bg-[#0B0D10] dark:bg-none pb-20 transition-colors duration-300">
         {/* Header */}
-        <div className="bg-white dark:bg-[#111318] border-b border-slate-200 dark:border-slate-800 pt-10 pb-14 px-4 sm:px-6 relative overflow-hidden transition-colors duration-300">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500"></div>
+        <div className="bg-white/80 dark:bg-[#111318] backdrop-blur-sm border-b border-slate-200/80 dark:border-slate-800 pt-12 pb-16 px-4 sm:px-6 relative overflow-hidden transition-colors duration-300">
+          <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-blue-600 via-violet-500 to-indigo-600"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50/60 via-transparent to-transparent dark:from-transparent pointer-events-none"></div>
           <div className="max-w-6xl mx-auto relative z-10 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-2 transition-colors">
-                Resume <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Studio</span>
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-3 transition-colors">
+                Resume <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-indigo-600">Studio</span>
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-base max-w-2xl font-medium transition-colors">
-                True multi-page PDF generation. Dynamic pagination, smart AI optimization, and custom sections.
+              <p className="text-slate-500 dark:text-slate-400 text-[15px] max-w-xl font-medium leading-relaxed transition-colors">
+                Multi-page PDF generation with AI optimization, smart pagination, and custom section control.
               </p>
             </div>
             
@@ -797,18 +798,21 @@ export default function ResumeExport() {
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 relative z-20 transition-colors duration-300">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-8 relative z-20 transition-colors duration-300">
           {loading ? (
             <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
           ) : (
             <>
               {/* ══ STEP 1: SELECT ══ */}
               {step === 1 && (
-                <div className="bg-white dark:bg-[#111318] backdrop-blur-xl rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-800 p-8 max-w-xl mx-auto animate-in fade-in zoom-in-95 duration-500 transition-colors">
-                  <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-3 mb-6 transition-colors">
-                    <FileSearch className="w-6 h-6 text-blue-500" />
-                    Select Target Resume
-                  </h3>
+                <div className="bg-white dark:bg-[#111318] rounded-2xl shadow-2xl shadow-slate-200/60 dark:shadow-none border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 max-w-xl mx-auto animate-in fade-in zoom-in-95 duration-500 transition-colors">
+                  <div className="mb-8">
+                    <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4 border border-blue-100 dark:border-blue-800/50">
+                      <FileSearch className="w-3.5 h-3.5" /> Step 1 of 5
+                    </div>
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-1.5 transition-colors">Select a Resume</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-[14px] font-medium">Choose which resume to build your export from.</p>
+                  </div>
                   {resumes.length === 0 ? (
                     <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-3 text-rose-700 font-medium">
                       <AlertOctagon className="w-5 h-5" /> No resumes found. Please create one first.
@@ -817,24 +821,35 @@ export default function ResumeExport() {
                     <div className="space-y-3 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                       {resumes.map(r => (
                         <div key={r.id} onClick={() => setSelectedId(r.id)}
-                          className={`p-5 border-2 rounded-2xl cursor-pointer transition-all duration-300 flex items-center justify-between
-                          ${selectedId === r.id ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-500/10' : 'border-slate-100 hover:border-slate-300 bg-white hover:bg-slate-50'}`}>
-                          <div>
-                            <div className="font-bold text-slate-800 dark:text-white text-lg transition-colors">{r.title}</div>
-                             <div className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 transition-colors">{r.fileType?.toUpperCase()} • {new Date(r.createdAt).toLocaleDateString()}</div>
+                          className={`p-4 rounded-xl cursor-pointer transition-all duration-200 flex items-center justify-between group border ${
+                            selectedId === r.id
+                              ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shadow-md shadow-blue-100 dark:shadow-none'
+                              : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:border-blue-300 dark:hover:border-slate-600 hover:shadow-sm'
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                              selectedId === r.id ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:bg-blue-50 dark:group-hover:bg-slate-700'
+                            }`}><FileText className="w-5 h-5" /></div>
+                            <div>
+                              <div className="font-bold text-slate-900 dark:text-white text-[15px] transition-colors">{r.title}</div>
+                              <div className="text-[12px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 transition-colors">{r.fileType?.toUpperCase()} · {new Date(r.createdAt).toLocaleDateString()}</div>
+                            </div>
                           </div>
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors
-                            ${selectedId === r.id ? 'border-blue-500 bg-blue-500' : 'border-slate-300'}`}>
-                            {selectedId === r.id && <CheckCircle2 className="w-4 h-4 text-white" />}
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
+                            selectedId === r.id ? 'border-blue-500 bg-blue-500 scale-110' : 'border-slate-300 dark:border-slate-600'
+                          }`}>
+                            {selectedId === r.id && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                           </div>
                         </div>
                       ))}
                     </div>
                   )}
-                  <button className="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 text-lg"
-                    onClick={parseAndAnalyze} disabled={parsing || !selectedId}>
-                    {parsing ? <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"/> Processing Document...</> : <><Wand2 className="w-5 h-5" /> Analyze & Continue</>}
-                  </button>
+                  <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
+                    <button className="w-full bg-gradient-to-r from-slate-900 to-slate-800 hover:from-blue-600 hover:to-indigo-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-slate-900/20 hover:shadow-blue-500/25 flex items-center justify-center gap-2.5 disabled:opacity-50 text-[15px] tracking-wide"
+                      onClick={parseAndAnalyze} disabled={parsing || !selectedId}>
+                      {parsing ? <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"/> Analyzing Document...</> : <><Wand2 className="w-5 h-5" /> Analyze &amp; Continue</>}
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -937,8 +952,12 @@ export default function ResumeExport() {
               {/* ══ STEP 3: TEMPLATES ══ */}
               {step === 3 && (
                 <div className="animate-in slide-in-from-right-8 duration-500">
-                  <div className="bg-white dark:bg-[#111318] rounded-3xl shadow-xl dark:shadow-none border border-slate-200 dark:border-slate-800 p-8 mb-8 transition-colors duration-300">
-                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3 transition-colors"><LayoutTemplate className="w-7 h-7 text-indigo-500"/> Select Architecture</h3>
+                  <div className="bg-white dark:bg-[#111318] rounded-2xl shadow-2xl shadow-slate-200/60 dark:shadow-none border border-slate-200/80 dark:border-slate-800 p-8 sm:p-10 mb-8 transition-colors duration-300">
+                    <div className="mb-8">
+                      <p className="text-[11px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Step 3 of 5</p>
+                      <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight transition-colors">Choose a Template</h3>
+                      <p className="text-slate-500 dark:text-slate-400 text-[14px] font-medium mt-1">Pick a layout. You can switch anytime in the editor.</p>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                       {TEMPLATES.map(t => (
                         <div key={t.id} onClick={() => setTemplate(t.id)}
@@ -1175,8 +1194,8 @@ export default function ResumeExport() {
 
                   {/* PREVIEW */}
                   <div className="xl:col-span-7 relative">
-                    <div className="sticky top-24 bg-white dark:bg-[#111318] rounded-3xl shadow-2xl dark:shadow-none border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-[85vh] transition-colors duration-300">
-                      <div className="bg-slate-900 p-4 flex items-center justify-between text-white shrink-0">
+                    <div className="sticky top-24 bg-white dark:bg-[#111318] rounded-2xl shadow-2xl shadow-slate-300/40 dark:shadow-none border border-slate-200/80 dark:border-slate-800 overflow-hidden flex flex-col h-[85vh] transition-colors duration-300">
+                      <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-4 flex items-center justify-between text-white shrink-0">
                         <div className="flex items-center gap-2 font-bold"><LayoutTemplate className="w-5 h-5 text-blue-400"/> Live PDF Preview</div>
                         <div className="flex items-center gap-2 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full"><div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div> Auto-sync</div>
                       </div>
@@ -1202,11 +1221,11 @@ export default function ResumeExport() {
               {/* ══ STEP 5: EXPORT ══ */}
               {step === 5 && editData && (
                 <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-500 mt-10">
-                  <div className="bg-white dark:bg-[#111318] rounded-3xl shadow-2xl shadow-emerald-500/10 dark:shadow-none border border-slate-200 dark:border-slate-800 p-10 sm:p-14 relative overflow-hidden transition-colors duration-300">
-                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl"></div>
-                    <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl"></div>
+                  <div className="bg-white dark:bg-[#111318] rounded-2xl shadow-2xl shadow-slate-200/60 dark:shadow-none border border-slate-200/80 dark:border-slate-800 p-10 sm:p-14 relative overflow-hidden transition-colors duration-300">
+                    <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-full blur-3xl opacity-70"></div>
+                    <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-gradient-to-br from-blue-100 to-indigo-50 rounded-full blur-3xl opacity-70"></div>
                     
-                    <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white mx-auto mb-8 shadow-xl shadow-emerald-500/30 relative z-10">
+                    <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl shadow-emerald-500/30 relative z-10">
                       <Download className="w-10 h-10" />
                     </div>
                     
