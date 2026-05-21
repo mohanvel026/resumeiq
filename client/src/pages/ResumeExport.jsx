@@ -794,37 +794,37 @@ export default function ResumeExport() {
         Container constraints:
         Removed min-h-screen to let Layout handle height. 
         Removed hard bg colors to let the layout's background show through.
-        Added py-6 px-4 sm:px-6 lg:px-8 to properly pad inside the dashboard.
+        Added py-8 px-6 lg:px-10 to properly pad inside the dashboard.
       */}
-      <div className="w-full h-full font-sans animate-in fade-in duration-500 max-w-7xl mx-auto">
+      <div className="w-full h-full font-sans animate-in fade-in duration-500 max-w-[90rem] mx-auto py-8 px-4 sm:px-6 lg:px-10">
         
         {/* PREMIUM ENTERPRISE TOP NAVBAR (Glassmorphism) */}
-        <div className="bg-white/50 dark:bg-[#0f172a]/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-2xl p-4 sm:px-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm transition-colors duration-300">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-500/20 dark:border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.15)]">
-              <Sparkles className="w-5 h-5" />
+        <div className="bg-white/50 dark:bg-[#0f172a]/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/80 rounded-2xl p-5 sm:px-8 mb-10 flex flex-col xl:flex-row items-center justify-between gap-6 shadow-sm transition-colors duration-300">
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-500/20 dark:border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.15)]">
+              <Sparkles className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-[17px] font-bold text-slate-900 dark:text-white leading-tight tracking-tight">AI Resume Studio</h1>
-              <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400">Multi-page PDF Engine & Optimization</p>
+              <h1 className="text-[19px] font-bold text-slate-900 dark:text-white leading-tight tracking-tight">AI Resume Studio</h1>
+              <p className="text-[14px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Multi-page PDF Engine & Optimization</p>
             </div>
           </div>
           
           {/* Minimalist Segmented Stepper */}
-          <div className="flex items-center gap-1.5 p-1.5 bg-slate-100/80 dark:bg-slate-900/80 rounded-xl border border-slate-200/50 dark:border-slate-800/50 overflow-x-auto w-full md:w-auto shadow-inner">
+          <div className="flex items-center gap-2 p-2 bg-slate-100/80 dark:bg-slate-900/80 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 overflow-x-auto w-full xl:w-auto shadow-inner">
             {STEPS.map((s, i) => {
               const active = step === s.num;
               const done = step > s.num;
               return (
                 <div key={s.num} onClick={() => done && setStep(s.num)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${done ? 'cursor-pointer' : 'cursor-default'} ${
+                  className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-[14px] font-bold transition-all whitespace-nowrap ${done ? 'cursor-pointer' : 'cursor-default'} ${
                     active 
-                      ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700/50' 
+                      ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-md ring-1 ring-slate-200 dark:ring-slate-700/50 scale-[1.02]' 
                       : done
                         ? 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
                         : 'text-slate-400 dark:text-slate-600'
                   }`}>
-                  {done ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <s.icon className={`w-3.5 h-3.5 ${active ? 'animate-pulse' : ''}`} />}
+                  {done ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <s.icon className={`w-4 h-4 ${active ? 'animate-pulse' : ''}`} />}
                   {s.label}
                 </div>
               )
@@ -835,19 +835,19 @@ export default function ResumeExport() {
         {/* MAIN WORKSPACE AREA */}
         <div className="flex flex-col w-full h-full relative">
           {loading ? (
-            <div className="py-24 flex items-center justify-center flex-col gap-4">
-              <div className="w-8 h-8 border-2 border-indigo-200 dark:border-indigo-900 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin shadow-[0_0_15px_rgba(99,102,241,0.2)]"></div>
-              <span className="text-[14px] font-medium text-slate-500 dark:text-slate-400 animate-pulse">Initializing engine...</span>
+            <div className="py-32 flex items-center justify-center flex-col gap-5">
+              <div className="w-10 h-10 border-4 border-indigo-200 dark:border-indigo-900 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin shadow-[0_0_20px_rgba(99,102,241,0.2)]"></div>
+              <span className="text-[15px] font-bold text-slate-500 dark:text-slate-400 animate-pulse tracking-wide">Initializing engine...</span>
             </div>
           ) : (
             <div className="w-full">
               
               {/* ══ STEP 1: SELECT ══ */}
               {step === 1 && (
-                <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="mb-8 text-center">
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Select Source Document</h2>
-                    <p className="text-[15px] text-slate-500 dark:text-slate-400 max-w-lg mx-auto">Choose an existing profile to analyze, format, and export using our intelligent engine.</p>
+                <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-500 mt-4">
+                  <div className="mb-10 text-center">
+                    <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">Select Source Document</h2>
+                    <p className="text-[16px] text-slate-500 dark:text-slate-400 max-w-xl mx-auto">Choose an existing profile to analyze, format, and export using our intelligent engine.</p>
                   </div>
                   
                   <div className="bg-white/60 dark:bg-[#0f172a]/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-3xl shadow-xl overflow-hidden transition-colors duration-300">
@@ -902,25 +902,25 @@ export default function ResumeExport() {
 
               {/* ══ STEP 2: AI OPTIMIZATION ══ */}
               {step === 2 && editData && (
-                <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Document Analysis</h2>
-                    <p className="text-[15px] text-slate-500 dark:text-slate-400">Review structural issues identified by our AI before moving to layout.</p>
+                <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-500 mt-4">
+                  <div className="mb-10">
+                    <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">Document Analysis</h2>
+                    <p className="text-[16px] text-slate-500 dark:text-slate-400">Review structural issues identified by our AI before moving to layout.</p>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12">
                     {/* LEFT PANEL: PROFILE SUMMARY */}
-                    <div className="lg:col-span-1 space-y-6">
-                      <div className="bg-white/60 dark:bg-[#0f172a]/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                    <div className="lg:col-span-4 space-y-8">
+                      <div className="bg-white/60 dark:bg-[#0f172a]/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-[2rem] p-8 shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
                         
-                        <div className="w-14 h-14 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/40 dark:to-purple-900/40 text-indigo-700 dark:text-indigo-300 rounded-2xl flex items-center justify-center font-bold text-2xl mb-5 shadow-inner border border-indigo-200/50 dark:border-indigo-700/30">
+                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/40 dark:to-purple-900/40 text-indigo-700 dark:text-indigo-300 rounded-2xl flex items-center justify-center font-bold text-3xl mb-6 shadow-inner border border-indigo-200/50 dark:border-indigo-700/30">
                           {editData.name?.[0]?.toUpperCase() || '?'}
                         </div>
-                        <h4 className="text-[17px] font-bold text-slate-900 dark:text-white truncate mb-1">{editData.name || 'Unknown'}</h4>
-                        <p className="text-[14px] text-slate-500 dark:text-slate-400 truncate mb-8">{editData.email || 'No email'}</p>
+                        <h4 className="text-[19px] font-bold text-slate-900 dark:text-white truncate mb-1.5">{editData.name || 'Unknown'}</h4>
+                        <p className="text-[15px] text-slate-500 dark:text-slate-400 truncate mb-10">{editData.email || 'No email'}</p>
                         
-                        <div className="space-y-4">
+                        <div className="space-y-5">
                           {[
                             { k: 'Professional Summary', v: editData.summary?.length > 20 },
                             { k: `Education (${editData.education?.filter(e=>e.institution).length || 0})`, v: editData.education?.some(e=>e.institution) },
@@ -928,9 +928,9 @@ export default function ResumeExport() {
                             { k: `Projects (${editData.projects?.length || 0})`, v: editData.projects?.length > 0 },
                             { k: 'Technical Skills', v: Object.values(editData.skills || {}).some(v=>v) },
                           ].map((s, i) => (
-                            <div key={i} className="flex items-center justify-between text-[14px] font-medium group">
+                            <div key={i} className="flex items-center justify-between text-[15px] font-bold group">
                               <span className="text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{s.k}</span>
-                              {s.v ? <CheckCircle2 className="w-5 h-5 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]"/> : <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center"><X className="w-3 h-3 text-rose-500"/></div>}
+                              {s.v ? <CheckCircle2 className="w-6 h-6 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]"/> : <div className="w-6 h-6 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center"><X className="w-4 h-4 text-rose-500"/></div>}
                             </div>
                           ))}
                         </div>
@@ -938,16 +938,16 @@ export default function ResumeExport() {
                     </div>
 
                     {/* RIGHT PANEL: AI SUGGESTIONS */}
-                    <div className="lg:col-span-2">
-                      <div className="bg-white/60 dark:bg-[#0f172a]/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-3xl shadow-xl flex flex-col h-full min-h-[500px]">
-                        <div className="border-b border-slate-200 dark:border-slate-800/80 px-6 py-5 bg-slate-50/50 dark:bg-slate-900/30 rounded-t-3xl flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                            <Lightbulb className="w-4 h-4" />
+                    <div className="lg:col-span-8">
+                      <div className="bg-white/60 dark:bg-[#0f172a]/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-[2rem] shadow-xl flex flex-col h-full min-h-[600px] overflow-hidden">
+                        <div className="border-b border-slate-200 dark:border-slate-800/80 px-8 py-6 bg-slate-50/50 dark:bg-slate-900/30 flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm border border-indigo-200/50 dark:border-indigo-500/30">
+                            <Lightbulb className="w-5 h-5" />
                           </div>
-                          <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">AI Improvement Suggestions</h3>
+                          <h3 className="text-[18px] font-bold text-slate-900 dark:text-white tracking-tight">AI Improvement Suggestions</h3>
                         </div>
                         
-                        <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+                        <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
                           {suggestions.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
                               <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mb-6 border border-emerald-200 dark:border-emerald-500/20">
@@ -957,34 +957,34 @@ export default function ResumeExport() {
                               <p className="text-[14px] text-slate-500 dark:text-slate-400 max-w-sm">We couldn't find any critical formatting issues. Your resume is well-structured and ready for layout generation.</p>
                             </div>
                           ) : (
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                               {suggestions.map((s, i) => {
                                 const done = appliedIdx.includes(i);
                                 return (
-                                  <div key={i} className={`p-5 rounded-2xl border transition-all duration-300 ${
+                                  <div key={i} className={`p-6 rounded-2xl border transition-all duration-300 ${
                                     done 
                                       ? 'bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20 opacity-70' 
                                       : 'bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md dark:hover:bg-slate-800/80'
                                   }`}>
-                                    <div className="flex items-start gap-4">
-                                      <div className={`mt-1 w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                                    <div className="flex items-start gap-5">
+                                      <div className={`mt-1 w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
                                         done 
                                           ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' 
                                           : 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400'
                                       }`}>
-                                        {done ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                                        {done ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                                       </div>
                                       <div className="flex-1">
-                                        <h5 className={`text-[15px] font-bold mb-2 ${done ? 'text-slate-500 dark:text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>{s.title}</h5>
+                                        <h5 className={`text-[16px] font-bold mb-2 ${done ? 'text-slate-500 dark:text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>{s.title}</h5>
                                         {!done && (
                                           <>
-                                            <p className="text-[14px] text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">{s.detail}</p>
-                                            <div className="bg-slate-50 dark:bg-slate-900 px-4 py-3 rounded-xl border border-slate-100 dark:border-slate-800 text-[13px] text-slate-700 dark:text-slate-300 mb-4 font-mono leading-relaxed">
+                                            <p className="text-[14px] text-slate-600 dark:text-slate-300 mb-5 leading-relaxed">{s.detail}</p>
+                                            <div className="bg-slate-50 dark:bg-slate-900 px-5 py-4 rounded-xl border border-slate-100 dark:border-slate-800 text-[13px] text-slate-700 dark:text-slate-300 mb-5 font-mono leading-relaxed shadow-inner">
                                               <span className="text-indigo-500 dark:text-indigo-400 font-bold mr-2 uppercase tracking-wider text-[11px]">Proposed Fix:</span>
                                               {s.fix}
                                             </div>
                                             <button onClick={() => applySuggestion(s, i)} disabled={applyingIdx === i}
-                                              className="bg-slate-900 dark:bg-white hover:opacity-90 text-white dark:text-slate-900 text-[13px] font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+                                              className="bg-slate-900 dark:bg-white hover:opacity-90 text-white dark:text-slate-900 text-[14px] font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 shadow-sm">
                                               {applyingIdx === i ? <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"/> Applying...</> : 'Apply Recommendation'}
                                             </button>
                                           </>
@@ -1009,13 +1009,13 @@ export default function ResumeExport() {
 
               {/* ══ STEP 3: TEMPLATES ══ */}
               {step === 3 && (
-                <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="mb-10 text-center">
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Architecture Layout</h2>
-                    <p className="text-[15px] text-slate-500 dark:text-slate-400">Select a foundational structure. You can switch layouts dynamically in the editor.</p>
+                <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-500 mt-4">
+                  <div className="mb-12 text-center">
+                    <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">Architecture Layout</h2>
+                    <p className="text-[16px] text-slate-500 dark:text-slate-400 max-w-xl mx-auto">Select a foundational structure. You can switch layouts dynamically in the editor.</p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
                     {TEMPLATES.map(t => (
                       <div key={t.id} onClick={() => setTemplate(t.id)}
                         className={`bg-white/60 dark:bg-[#0f172a]/60 backdrop-blur-xl p-5 rounded-3xl cursor-pointer transition-all duration-300 border-2 group relative ${
@@ -1055,12 +1055,12 @@ export default function ResumeExport() {
 
               {/* ══ STEP 4: EDITOR & PREVIEW ══ */}
               {step === 4 && editData && (
-                <div className="h-full flex flex-col lg:flex-row gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="h-full flex flex-col lg:flex-row gap-8 lg:gap-10 animate-in fade-in slide-in-from-bottom-6 duration-500 mt-2">
                   
                   {/* LEFT: EDITOR PANEL */}
-                  <div className="w-full lg:w-[450px] flex flex-col h-[calc(100vh-200px)] min-h-[600px] bg-white/60 dark:bg-[#0f172a]/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-3xl shadow-xl overflow-hidden transition-colors duration-300">
-                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30 shrink-0">
-                      <h3 className="text-[14px] font-bold text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-wider"><Sliders className="w-4 h-4 text-indigo-500"/> Content Editor</h3>
+                  <div className="w-full lg:w-[480px] flex flex-col h-[calc(100vh-180px)] min-h-[650px] bg-white/60 dark:bg-[#0f172a]/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-[2rem] shadow-xl overflow-hidden transition-colors duration-300">
+                    <div className="px-8 py-5 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30 shrink-0">
+                      <h3 className="text-[15px] font-bold text-slate-900 dark:text-white flex items-center gap-3 uppercase tracking-wider"><Sliders className="w-5 h-5 text-indigo-500"/> Content Editor</h3>
                     </div>
                     
                     <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-10">
@@ -1116,7 +1116,7 @@ export default function ResumeExport() {
                   </div>
 
                   {/* RIGHT: PREVIEW PANEL */}
-                  <div className="flex-1 flex flex-col h-[calc(100vh-200px)] min-h-[600px] bg-slate-200/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-3xl overflow-hidden shadow-inner relative transition-colors duration-300">
+                  <div className="flex-1 flex flex-col h-[calc(100vh-180px)] min-h-[650px] bg-slate-200/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[2rem] overflow-hidden shadow-inner relative transition-colors duration-300">
                     <div className="absolute top-5 right-5 z-10 flex items-center gap-2 bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-xl border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl shadow-lg">
                       <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
                       <span className="text-[12px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-widest">Live Engine</span>
