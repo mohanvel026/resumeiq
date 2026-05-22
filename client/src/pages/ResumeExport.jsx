@@ -1082,6 +1082,6 @@ export default function ResumeExport() {
         )}
 
       </>}
-    </div>
+    </Layout>
   )
 }
