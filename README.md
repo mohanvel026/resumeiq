@@ -4,7 +4,7 @@
 
 ![ResumeIQ Landing](screenshots/landing.png)
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-ResumeIQ-gold?style=for-the-badge)](https://resumeiq.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-ResumeIQ-gold?style=for-the-badge)](https://resumeiq.launchlive.in)
 [![GitHub](https://img.shields.io/badge/GitHub-mohanvel026-navy?style=for-the-badge&logo=github)](https://github.com/mohanvel026/resumeiq)
 
 ---
@@ -91,8 +91,8 @@ ResumeIQ is a full-stack AI-powered career platform built for job seekers. It an
 ### Deployment
 | Service | Purpose |
 |---|---|
-| Railway | Backend + MySQL hosting |
-| Vercel | Frontend hosting |
+| LaunchLive | Custom self-hosted full-stack Docker, PM2, and Nginx hosting platform |
+| Docker | Isolated MySQL database & app containers |
 | GitHub | Version control |
 
 ---
@@ -199,6 +199,8 @@ GET /api/jobs/search?skills=react,node — Search real job listings
 
 4. **pdf-parse@1.1.1** — Specific version pinned to avoid CommonJS import breaking changes in newer versions.
 
+5. **Self-Hosting on LaunchLive** — Bypassed restrictive free-tier resource limitations of Railway/Vercel by hosting on our custom SRE deployment platform, enabling infinite builds, isolated storage volumes, and auto-renewing SSL subdomains.
+
 ---
 
 ## What I Learned
@@ -208,7 +210,7 @@ GET /api/jobs/search?skills=react,node — Search real job listings
 - Building responsive UIs with CSS custom properties and mobile-first design
 - File upload handling with Multer and PDF text extraction with pdf-parse
 - JWT authentication with protected routes on both frontend and backend
-- Deploying full-stack applications with Railway + Vercel
+- Deploying and hosting full-stack applications with LaunchLive (custom Docker/Nginx/SRE platform)
 
 ---
 
