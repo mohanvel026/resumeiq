@@ -59,7 +59,15 @@ export default function ResumeDetail() {
 
   useEffect(() => {
     api.get(`/api/resume/${id}`)
-      .then(r => setResume(r.data))
+      .then(r => {
+        setResume(r.data)
+        if (r.data.analyses && r.data.analyses.length > 0) {
+          const latestScore = r.data.analyses.find(a => a.type === 'SCORE')
+          if (latestScore) {
+            setAnalysis(latestScore)
+          }
+        }
+      })
       .catch(() => setError('Failed to load resume'))
       .finally(() => setLoading(false))
   }, [id])

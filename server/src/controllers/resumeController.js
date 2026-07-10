@@ -91,6 +91,11 @@ const getResumeById = async (req, res) => {
         id: parseInt(req.params.id),
         userId: req.user.id,
       },
+      include: {
+        analyses: {
+          orderBy: { createdAt: 'desc' }
+        }
+      }
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
     res.json(resume)

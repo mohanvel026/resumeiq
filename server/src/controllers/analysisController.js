@@ -9,7 +9,7 @@ const groqClient2 = process.env.GROQ_API_KEY_2
 
 const askAI = async (prompt, maxTokens = 1500) => {
   const providers = [
-    // Groq Key 1 - llama
+    // Groq Key 1 - Primary Llama 3.3
     async () => {
       const c = await groqClient1.chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
@@ -19,11 +19,21 @@ const askAI = async (prompt, maxTokens = 1500) => {
       })
       return c.choices[0].message.content
     },
-    // Groq Key 1 - gemma fallback
+    // Groq Key 1 - Llama 4 Scout (Highly Active)
     async () => {
       const c = await groqClient1.chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
-        model: 'gemma2-9b-it',
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        temperature: 0.2,
+        max_tokens: maxTokens,
+      })
+      return c.choices[0].message.content
+    },
+    // Groq Key 1 - Llama 3.1 8B Instant fallback
+    async () => {
+      const c = await groqClient1.chat.completions.create({
+        messages: [{ role: 'user', content: prompt }],
+        model: 'llama-3.1-8b-instant',
         temperature: 0.2,
         max_tokens: maxTokens,
       })
@@ -51,22 +61,22 @@ const askAI = async (prompt, maxTokens = 1500) => {
     },
   ]
 
-  let lastError = null
+  let errors = []
   for (let i = 0; i < providers.length; i++) {
     try {
       console.log(`AI attempt ${i + 1}/${providers.length}`)
       const result = await providers[i]()
       return result
     } catch (err) {
-      const msg = err.message || ''
-      console.log(`Attempt ${i + 1} failed:`, msg.slice(0, 80))
-      lastError = err
+      const msg = err.message || err.toString()
+      console.error(`Attempt ${i + 1} failed:`, msg.slice(0, 150))
+      errors.push(`Provider ${i + 1}: ${msg}`)
       if (i < providers.length - 1) {
         await new Promise(r => setTimeout(r, 500))
       }
     }
   }
-  throw new Error('All AI providers exhausted. Please try again in a few minutes.')
+  throw new Error(`All AI providers exhausted. Details:\n- ${errors.join('\n- ')}`)
 }
 
 const parseJSON = (raw) => {
@@ -89,8 +99,10 @@ const parseJSONArray = (raw) => {
 const scoreResume = async (req, res) => {
   try {
     const { resumeId } = req.body
+    const parsedId = parseInt(resumeId)
+    if (isNaN(parsedId)) return res.status(400).json({ message: 'Invalid or missing resumeId' })
     const resume = await prisma.resume.findFirst({
-      where: { id: resumeId, userId: req.user.id }
+      where: { id: parsedId, userId: req.user.id }
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
     if (!resume.rawText || resume.rawText.length < 50) {
@@ -277,14 +289,14 @@ Return ONLY valid JSON (no markdown, no explanation):
     // Update resume with extracted skills
     if (scores.topSkills) {
       await prisma.resume.update({
-        where: { id: resumeId },
+        where: { id: parsedId },
         data: { extractedSkills: JSON.stringify(scores.topSkills) }
       })
     }
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
-        resumeId,
+        resumeId: parsedId,
         type: 'SCORE',
         scoreClarity: scores.scoreClarity,
         scoreImpact: scores.scoreImpact,
@@ -316,8 +328,10 @@ Return ONLY valid JSON (no markdown, no explanation):
 const findKeywordGaps = async (req, res) => {
   try {
     const { resumeId, jobDescription } = req.body
+    const parsedId = parseInt(resumeId)
+    if (isNaN(parsedId)) return res.status(400).json({ message: 'Invalid or missing resumeId' })
     const resume = await prisma.resume.findFirst({
-      where: { id: resumeId, userId: req.user.id }
+      where: { id: parsedId, userId: req.user.id }
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
@@ -350,7 +364,7 @@ Return ONLY this JSON:
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
-        resumeId,
+        resumeId: parsedId,
         type: 'KEYWORD_GAP',
         keywordsFound: JSON.stringify(result.keywordsFound),
         keywordsMissing: JSON.stringify(result.keywordsMissing),
@@ -369,8 +383,10 @@ Return ONLY this JSON:
 const rewriteBullets = async (req, res) => {
   try {
     const { resumeId } = req.body
+    const parsedId = parseInt(resumeId)
+    if (isNaN(parsedId)) return res.status(400).json({ message: 'Invalid or missing resumeId' })
     const resume = await prisma.resume.findFirst({
-      where: { id: resumeId, userId: req.user.id }
+      where: { id: parsedId, userId: req.user.id }
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
@@ -407,7 +423,7 @@ Return ONLY this JSON:
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
-        resumeId,
+        resumeId: parsedId,
         type: 'BULLET_REWRITE',
         originalBullets: JSON.stringify(result.originalBullets),
         rewrittenBullets: JSON.stringify(result.rewrittenBullets),
@@ -426,8 +442,10 @@ Return ONLY this JSON:
 const generateCoverLetter = async (req, res) => {
   try {
     const { resumeId, jobDescription } = req.body
+    const parsedId = parseInt(resumeId)
+    if (isNaN(parsedId)) return res.status(400).json({ message: 'Invalid or missing resumeId' })
     const resume = await prisma.resume.findFirst({
-      where: { id: resumeId, userId: req.user.id }
+      where: { id: parsedId, userId: req.user.id }
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
@@ -468,7 +486,7 @@ Requirements:
 
     const analysis = await prisma.aiAnalysis.create({
       data: {
-        resumeId,
+        resumeId: parsedId,
         type: 'COVER_LETTER',
         coverLetter,
         aiModel: 'llama-3.3-70b-versatile',
@@ -489,9 +507,12 @@ const scoreJobMatch = async (req, res) => {
 
     let resume
     if (resumeId) {
-      resume = await prisma.resume.findFirst({
-        where: { id: resumeId, userId: req.user.id }
-      })
+      const parsedId = parseInt(resumeId)
+      if (!isNaN(parsedId)) {
+        resume = await prisma.resume.findFirst({
+          where: { id: parsedId, userId: req.user.id }
+        })
+      }
     }
     if (!resume) {
       resume = await prisma.resume.findFirst({
@@ -731,8 +752,10 @@ Return ONLY this JSON format:
 const analyzeLinkedIn = async (req, res) => {
   try {
     const { linkedinUrl, resumeId } = req.body
+    const parsedId = parseInt(resumeId)
+    if (isNaN(parsedId)) return res.status(400).json({ message: 'Invalid or missing resumeId' })
     const resume = await prisma.resume.findFirst({
-      where: { id: resumeId, userId: req.user.id }
+      where: { id: parsedId, userId: req.user.id }
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
@@ -835,6 +858,7 @@ const getUserStats = async (req, res) => {
   try {
     const resumes = await prisma.resume.findMany({
       where: { userId: req.user.id },
+      orderBy: { updatedAt: 'desc' },
       include: { 
         analyses: {
           orderBy: { createdAt: 'asc' }
@@ -889,12 +913,13 @@ const getUserStats = async (req, res) => {
       .slice(0, 20)
 
     if (topSkills.length > 0 && resumes.length > 0) {
-      const titles = resumes.map(r => r.title).filter(Boolean).join(', ')
+      const latestResume = resumes[0]
       const prompt = `
-        The user has resumes with the following titles/roles: [${titles}].
-        Based on this, determine their primary professional domain (e.g., Mechanical Engineering, Software, EEE, Sales, etc.).
+        The user's most recent resume is titled: "${latestResume.title}".
+        All user resumes: [${resumes.map(r => r.title).filter(Boolean).join(', ')}].
+        Based primarily on the most recent resume title ("${latestResume.title}"), determine their primary professional domain (e.g. Mechanical Engineering, Software, EEE, Civil, Sales, etc.).
         Then, filter the following list of skills and return ONLY the skills that are highly relevant to that primary domain.
-        Exclude completely unrelated skills (e.g. if they are Mechanical, exclude 'js' or 'react').
+        Exclude completely unrelated skills (e.g. if they are Mechanical, exclude 'js', 'react', 'node', 'css', or 'html').
         Skills: ${JSON.stringify(topSkills.map(s => s.skill))}
         
         Return ONLY a JSON array of strings containing the filtered skills. No markdown, no explanation.
@@ -966,8 +991,10 @@ const getUserStats = async (req, res) => {
 const parseResumeWithAI = async (req, res) => {
   try {
     const { resumeId } = req.body
+    const parsedId = parseInt(resumeId)
+    if (isNaN(parsedId)) return res.status(400).json({ message: 'Invalid or missing resumeId' })
     const resume = await prisma.resume.findFirst({
-      where: { id: resumeId, userId: req.user.id }
+      where: { id: parsedId, userId: req.user.id }
     })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
@@ -1054,7 +1081,9 @@ Extract carefully. Return ONLY valid JSON, no markdown:
 const suggestResumeImprovements = async (req, res) => {
   try {
     const { resumeId } = req.body
-    const resume = await prisma.resume.findFirst({ where: { id: resumeId, userId: req.user.id } })
+    const parsedId = parseInt(resumeId)
+    if (isNaN(parsedId)) return res.status(400).json({ message: 'Invalid or missing resumeId' })
+    const resume = await prisma.resume.findFirst({ where: { id: parsedId, userId: req.user.id } })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
     if (!resume.rawText || resume.rawText.length < 50) return res.status(400).json({ message: 'Resume text too short' })
 
@@ -1109,7 +1138,9 @@ Priority must be: high, medium, or low.`
 const enhanceResumeContent = async (req, res) => {
   try {
     const { resumeId, selectedIds, suggestions, template } = req.body
-    const resume = await prisma.resume.findFirst({ where: { id: resumeId, userId: req.user.id } })
+    const parsedId = parseInt(resumeId)
+    if (isNaN(parsedId)) return res.status(400).json({ message: 'Invalid or missing resumeId' })
+    const resume = await prisma.resume.findFirst({ where: { id: parsedId, userId: req.user.id } })
     if (!resume) return res.status(404).json({ message: 'Resume not found' })
 
     const selected = suggestions.filter(s => selectedIds.includes(s.id))
